@@ -1,0 +1,1 @@
+// footer for our linkedIn / copyright whatever

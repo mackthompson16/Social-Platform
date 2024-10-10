@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
-export default function Login() {
+
+export default function Login({ setCurrentPage, setCurrentUser }) {
     const [AccInfo, setAccInfo] = useState({
       username: '',
       password: '',
     });
   
     const [showLoginForm, setShowLoginForm] = useState(false); // Initially false to hide the form
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
   
     const handleChange = (event) => {
       const { name, value } = event.target;
@@ -18,7 +18,7 @@ export default function Login() {
   
     const handleSubmit = async (event) => {
       event.preventDefault();
-  
+   
       // Sending a POST request to backend for login
       const response = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
@@ -27,12 +27,12 @@ export default function Login() {
         },
         body: JSON.stringify(AccInfo),
       });
-  
+   
       const data = await response.json();
-  
+   
       if (data.success) {
-        setIsLoggedIn(true);
-        alert('Login successful!');
+        setCurrentUser(data.user);  // Update the user state
+        setCurrentPage('Home');     // Navigate to the home page
       } else {
         if (data.error === 'username') {
           alert('Username does not exist');
@@ -40,26 +40,30 @@ export default function Login() {
           alert('Incorrect password');
         }
       }
-  
+   
       // Reset the form
       setAccInfo({
         username: '',
         password: '',
       });
-    };
+   };
   
     const toggleLoginForm = () => {
-      setShowLoginForm(!showLoginForm); // Toggle the visibility of the login form
+      setShowLoginForm(!showLoginForm);
     };
   
     return (
       <div>
-        {!isLoggedIn ? (
-          <>
             <button onClick={toggleLoginForm}>
               {showLoginForm ? 'Cancel' : 'Login'}
             </button>
-  
+            {!showLoginForm && (
+              <div>
+                <h3>Don't have an account yet?</h3>
+                <button onClick={() => setCurrentPage('CreateAccount')}>Create Account</button>
+              </div>
+            )}
+
             {showLoginForm && (
               <form onSubmit={handleSubmit}>
                 <div>
@@ -91,10 +95,7 @@ export default function Login() {
                 <button type="submit">Submit</button>
               </form>
             )}
-          </>
-        ) : (
-          <p>Welcome, {AccInfo.username}!</p>
-        )}
+
       </div>
     );
   };
