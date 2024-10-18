@@ -4,19 +4,19 @@ Environment Guide for jfred
 
 1. I updated to node 20.18.0 (make sure you reset your environment)
 2. npm install
-3. make sure you have dependencies:
+3. make sure you have all the dependencies:
 
- "dependencies": {
-    "bootstrap": "^5.3.3",
-    "react": "^18.3.1",
-    "react-bootstrap": "^2.10.5",
-    "react-dom": "^18.3.1",
-    "react-scripts": "^5.0.1",
-    "web-vitals": "^4.2.3"
+    "bootstrap" , "react" ,   "react-bootstrap" , "react-scripts"   "react-dom"
+                 = > frontend library and components that make css and html a lot better
+    "cors"       = > used to communicate from server to app
+    "sqlite3"    = > used for storing user data
+    "web-vitals" = > reports performance metrics. i.e. such as loading time, interactivity, and stability
   }
-4. cd my-app/src
-5. node server.js
-6. npm start
+
+5. cd my-app/src
+6. node server.js
+7. in a seperate terminal (cd my-app), npm start
+
 
 Note that the server and the App run on seperate hosts. This can be thought of Frontend and Backend programs communicating with eachother
 
