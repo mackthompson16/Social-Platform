@@ -6,8 +6,7 @@
 
 # 1. Updated to Node.js v20.18.0 (make sure you reset your environment).
 
-# 2. Install dependencies:
-npm install
+# 2. npm install
 
 # 3. Ensure all dependencies are installed:
 #   "bootstrap", "react", "react-bootstrap", "react-scripts", "react-dom"
