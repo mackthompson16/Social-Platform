@@ -1,36 +1,45 @@
-Full stack social media repo using js react, want to turn it into some niche social platform. 
+# Full Stack Social Media Repo
 
-Environment Guide for jfred
+# A full stack social media repo using JavaScript and React, with the goal of turning it into a niche social platform.
 
-1. I updated to node 20.18.0 (make sure you reset your environment)
-2. npm install
-3. make sure you have all the dependencies:
+# Environment Guide for jfred
 
-    "bootstrap" , "react" ,   "react-bootstrap" , "react-scripts"   "react-dom"
-                 = > frontend library and components that make css and html a lot better
-    "cors"       = > used to communicate from server to app
-    "sqlite3"    = > used for storing user data
-    "web-vitals" = > reports performance metrics. i.e. such as loading time, interactivity, and stability
-  }
+# 1. Updated to Node.js v20.18.0 (make sure you reset your environment).
 
-5. cd my-app/src
-6. node server.js
-7. in a seperate terminal (cd my-app), npm start
+# 2. Install dependencies:
+npm install
 
+# 3. Ensure all dependencies are installed:
+#   "bootstrap", "react", "react-bootstrap", "react-scripts", "react-dom"
+#     => Frontend libraries and components that make CSS and HTML easier to work with.
+#   "cors" 
+#     => Used to communicate between server and app.
+#   "sqlite3"
+#     => Used for storing user data.
+#   "web-vitals"
+#     => Reports performance metrics (loading time, interactivity, stability).
 
-Note that the server and the App run on seperate hosts. This can be thought of Frontend and Backend programs communicating with eachother
+# 4. Navigate to the src directory
+cd my-app/src
 
+# 5. Start the server
+node server.js
 
-Current plan is a path generator based on courses using maps API. 
-Users can view friend's paths and where they will be/walking at sometime of day. 
+# 6. In a separate terminal, start the React app
+cd my-app
+npm start
 
-FRONTEND DEVELOPER @jfred318
+# Note: The server and the React app run on separate hosts (frontend and backend communication).
 
-current to-do list (follow with frontend dev)
+# Current Plan:
+# Path generator based on courses using the Maps API.
+# Users can view friends' paths and where they will be or are walking at specific times of the day.
 
-1. create pages for friends, generate schedule, prefrences
-2. reset password email
-3. header and footer for tabs & copyright
-4. maps api interaction and schedule generator
-5. set up instance and find domain name
-   
+# Frontend Developer @jfred318
+
+# Current to-do list (follow with frontend dev):
+# 1. Create pages for friends, generate schedule, and set preferences.
+# 2. Implement reset password email functionality.
+# 3. Build header and footer for tabs & copyright.
+# 4. Add Maps API interaction and schedule generator.
+# 5. Set up the instance and find a domain name.
