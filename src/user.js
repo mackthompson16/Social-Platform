@@ -14,22 +14,38 @@ class User {
                 if (err) {
                     callback({ success: false, message: 'Error creating account' });
                 } else {
+                    console.log('user: ', row)
                     callback({ success: true, message: 'Account created successfully' });
                 }
             });
     }
 
-    static login(username, password, callback) {
-        db.get(`SELECT * FROM users WHERE username = ?`, [username], (err, row) => {
+    static login(username, password) {
+        return new Promise((resolve, reject) => {
+          db.get(`SELECT * FROM users WHERE username = ?`, [username], (err, row) => {
             if (err || !row) {
-                return callback({ success: false, error: 'username' });
+              reject({ success: false, error: 'username' });
+            } else if (row.password !== password) {
+              reject({ success: false, error: 'password' });
+            } else {
+              // Return the user data
+              resolve({ success: true, user: row });
             }
-            if (row.password !== password) {
-                return callback({ success: false, error: 'password' });
+          });
+        });
+      }
+          
+      
+    static getAllUsers(callback) {
+        db.all('SELECT * FROM users', [], (err, rows) => {
+            if (err) {
+                return callback(err);
             }
-            callback({ success: true });
+            return callback(null, rows);
         });
     }
+
+
 }
 
 module.exports = User;

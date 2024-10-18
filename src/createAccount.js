@@ -1,6 +1,7 @@
+import { Button } from 'react-bootstrap';
 import React, {useState} from 'react';
 
-export default function CreateAccount() {
+export default function CreateAccount({setCurrentPage}) {
   const [accInfo, setAccInfo] = useState({
     username: '',
     password: '',
@@ -52,11 +53,7 @@ export default function CreateAccount() {
 
   return (
     <div>
-      <button onClick={toggleForm}>
-        {showForm ? 'Cancel' : 'Create Account'}
-      </button>
-
-      {showForm && (
+          <Button variant="outline-primary" onClick={() => setCurrentPage('login')}>Cancel</Button>
         <form onSubmit={handleSubmit}>
           <div>
             <label>
@@ -97,9 +94,8 @@ export default function CreateAccount() {
               />
             </label>
           </div>
-          <button type="submit">Submit</button>
+          <Button variant="outline-primary" type="submit">Submit</Button>
         </form>
-      )}
     </div>
   );
 }

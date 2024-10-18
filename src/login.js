@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import { Button } from 'react-bootstrap';
+import React, { useState } from 'react';
 
 export default function Login({ setCurrentPage, setCurrentUser }) {
     const [AccInfo, setAccInfo] = useState({
@@ -6,7 +7,7 @@ export default function Login({ setCurrentPage, setCurrentUser }) {
       password: '',
     });
   
-    const [showLoginForm, setShowLoginForm] = useState(false); // Initially false to hide the form
+    const [showLoginForm, setShowLoginForm] = useState(false); 
   
     const handleChange = (event) => {
       const { name, value } = event.target;
@@ -18,49 +19,45 @@ export default function Login({ setCurrentPage, setCurrentUser }) {
   
     const handleSubmit = async (event) => {
       event.preventDefault();
-   
+  
       // Sending a POST request to backend for login
       const response = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(AccInfo),
+        body: JSON.stringify(AccInfo),  // Send the user input (username and password) to the backend
       });
-   
-      const data = await response.json();
-   
+  
+      const data = await response.json();  // Get the response from the backend
+      console.log('raw data:', data)
       if (data.success) {
-        setCurrentUser(data.user);  // Update the user state
+        console.log('Login Success: ', data.user)
+        setCurrentUser(data.user);  // Set the user state in React
         setCurrentPage('Home');     // Navigate to the home page
       } else {
-        if (data.error === 'username') {
-          alert('Username does not exist');
-        } else if (data.error === 'password') {
-          alert('Incorrect password');
-        }
+        alert('Login failed');
       }
-   
+  
       // Reset the form
       setAccInfo({
         username: '',
         password: '',
       });
-   };
-  
+    };
     const toggleLoginForm = () => {
       setShowLoginForm(!showLoginForm);
     };
   
     return (
       <div>
-            <button onClick={toggleLoginForm}>
+            <Button variant="outline-primary" onClick={toggleLoginForm}>
               {showLoginForm ? 'Cancel' : 'Login'}
-            </button>
+            </Button>
             {!showLoginForm && (
               <div>
-                <h3>Don't have an account yet?</h3>
-                <button onClick={() => setCurrentPage('CreateAccount')}>Create Account</button>
+               
+                <Button variant="outline-primary" onClick={() => setCurrentPage('CreateAccount')}>Create Account</Button>
               </div>
             )}
 
@@ -92,7 +89,7 @@ export default function Login({ setCurrentPage, setCurrentUser }) {
                     />
                   </label>
                 </div>
-                <button type="submit">Submit</button>
+                <Button variant="outline-primary" type="submit">Submit</Button>
               </form>
             )}
 

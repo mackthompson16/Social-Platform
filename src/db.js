@@ -1,10 +1,14 @@
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
-const db = new sqlite3.Database('users.db', (err) => {
+// Define the absolute path to your database file
+const dbPath = './users.db';
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error opening database:', err.message);
     } else {
-        console.log('Connected to the SQLite database.');
+        console.log(`Connected to the SQLite database at ${dbPath}.`);
         db.run(`CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,

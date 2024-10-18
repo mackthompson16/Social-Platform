@@ -18,12 +18,21 @@ app.post('/api/create-account', (req, res) => {
   });
 });
 
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  User.login(username, password, (result) => {
-      res.json(result);
-  });
+
+  try {
+    // Call the login function and wait for the result
+    const result = await User.login(username, password);
+    console.log('server: ', result.user);  // Log the user data on the server
+    res.json({ success: true, user: result.user });  // Send user data to frontend
+  } catch (err) {
+    console.error('Error during login: ', err);  // Log any errors on the server
+    // Return the error response to the frontend
+    res.status(400).json({ success: false, error: err.error || 'An error occurred' });
+  }
 });
+
 
 app.listen(5000, () => {
   console.log('Server is running on port 5000');
