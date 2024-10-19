@@ -1,11 +1,9 @@
 
-# Environment Guide for jfred
+# Environment Guide
 
-# 1. Updated to Node.js v20.18.0 (make sure you reset your environment).
-
-# 2. npm install
-
-# 3. Ensure all dependencies are installed:
+1. Updated to Node.js v20.18.0 (make sure you reset your environment).
+2. npm install
+3. Ensure all dependencies are installed:
 
     npm install bootstrap react react-bootstrap react-scripts react-dom cors sqlite3 webvitals
 
@@ -21,20 +19,18 @@
 | **web-vitals**     | Reports essential web performance metrics like loading time, interactivity, and stability. |
 
 
-# 4. Navigate to the src directory
-cd my-app/src
+4. Navigate to the src directory
+    cd my-app/src
+5. Start the server
+    node server.js
+6. In a separate terminal, start the React app
+    cd my-app
+    npm start
 
-# 5. Start the server
-node server.js
-
-# 6. In a separate terminal, start the React app
-cd my-app
-npm start
-
-# Note: The server and the React app run on separate hosts (frontend and backend communication).
+Note: The server and the React app run on separate hosts (frontend and backend communication).
 
 
-# Current to-do list (follow with frontend dev):
+To-do list:
 # 1. Create pages for friends, generate schedule, and set preferences.
 # 2. Implement reset password email functionality.
 # 3. Build header and footer for tabs & copyright.
