@@ -24,7 +24,7 @@ app.post('/api/login', async (req, res) => {
   try {
     // Call the login function and wait for the result
     const result = await User.login(username, password);
-    console.log('server: ', result.user);  // Log the user data on the server
+    console.log('New Log In: ', result.user);  // Log the user data on the server
     res.json({ success: true, user: result.user });  // Send user data to frontend
   } catch (err) {
     console.error('Error during login: ', err);  // Log any errors on the server

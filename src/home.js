@@ -1,12 +1,16 @@
 import React from 'react';
+import Header from 'header.js';
+import Footer from 'footer.js'
 
-
-export default function Home({currentUser}){
+export default function Home({currentUser}, setCurrentPage){
  
   return (
     <div>
-     
-      <h1>Welcome! {currentUser.username}</h1>
+      <Header setCurrentPage = {setCurrentPage} />
+      <h1>Login Success, {currentUser.username}.</h1>
+      <Footer />
+
+
     </div>
   );
 }
