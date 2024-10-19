@@ -30,9 +30,9 @@
 Note: The server and the React app run on separate hosts (frontend and backend communication).
 
 
-To-do list:
-# 1. Create pages for friends, generate schedule, and set preferences.
-# 2. Implement reset password email functionality.
-# 3. Build header and footer for tabs & copyright.
-# 4. Add Maps API interaction and schedule generator.
-# 5. Set up the instance and find a domain name.
+# To-do list:
+1. Create pages for friends, generate schedule, and set preferences.
+2. Implement reset password email functionality.
+3. Build header and footer for tabs & copyright.
+4. Add Maps API interaction and schedule generator.
+5. Set up the instance and find a domain name.
