@@ -6,7 +6,7 @@
 3. Ensure all dependencies are installed:
 
 ```bash
-echo "npm install bootstrap react react-bootstrap react-scripts react-dom cors sqlite3 webvitals"
+"npm install bootstrap react react-bootstrap react-scripts react-dom cors sqlite3 webvitals"
 ```
 | Dependency         |Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
@@ -22,18 +22,18 @@ echo "npm install bootstrap react react-bootstrap react-scripts react-dom cors s
 
 4. Navigate to the src directory
 ```bash 
-echo "cd my-app/src"
+"cd my-app/src"
 ```
 5. Start the server
 ```bash
-echo "node server.js"
+"node server.js"
 ```
 6. In a separate terminal, start the React app
 ```bash
-echo "cd my-app"
+"cd my-app"
 ```
 ```bash
-echo "npm start"
+"npm start"
 ```
 
 Note: The server and the React app run on separate hosts (frontend and backend communication).
