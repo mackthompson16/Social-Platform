@@ -1,9 +1,14 @@
 
 # Environment Guide
 
-1. Updated to Node.js v20.18.0 (make sure you reset your environment).
-2. npm install
-3. Ensure all dependencies are installed:
+1. Updated to Node.js v20.18.0 (make sure you reset your environment and reinstall Node.js).
+```bash
+https://nodejs.org/en/download/package-manager
+```
+```bash
+npm install
+```
+2. Ensure all dependencies are installed:
 
 ```bash
 npm install bootstrap react react-bootstrap react-scripts react-dom cors sqlite3 webvitals
