@@ -1,6 +1,3 @@
-# Full Stack Social Media Repo
-
-# A full stack social media repo using JavaScript and React, with the goal of turning it into a niche social platform.
 
 # Environment Guide for jfred
 
@@ -9,14 +6,20 @@
 # 2. npm install
 
 # 3. Ensure all dependencies are installed:
-#   "bootstrap", "react", "react-bootstrap", "react-scripts", "react-dom"
-#     => Frontend libraries and components that make CSS and HTML easier to work with.
-#   "cors" 
-#     => Used to communicate between server and app.
-#   "sqlite3"
-#     => Used for storing user data.
-#   "web-vitals"
-#     => Reports performance metrics (loading time, interactivity, stability).
+
+    npm install bootstrap react react-bootstrap react-scripts react-dom cors sqlite3 webvitals
+
+| Dependency         |Description                                                                 |
+|-------------------|-----------------------------------------------------------------------------|
+| **bootstrap**      | A popular CSS framework for building responsive, mobile-first websites.     |
+| **react**          | A JavaScript library for building user interfaces using components.         |
+| **react-bootstrap**| Bootstrap components built as React components for seamless integration.    |
+| **react-scripts**  | Scripts and configuration for Create React App, including build and test tools. |
+| **react-dom**      | Provides DOM-specific methods for rendering React components to the DOM.    |
+| **cors**           | Middleware to enable cross-origin requests between server and app.          |
+| **sqlite3**        | Lightweight SQL database engine used for storing user data locally.         |
+| **web-vitals**     | Reports essential web performance metrics like loading time, interactivity, and stability. |
+
 
 # 4. Navigate to the src directory
 cd my-app/src
@@ -30,11 +33,6 @@ npm start
 
 # Note: The server and the React app run on separate hosts (frontend and backend communication).
 
-# Current Plan:
-# Path generator based on courses using the Maps API.
-# Users can view friends' paths and where they will be or are walking at specific times of the day.
-
-# Frontend Developer @jfred318
 
 # Current to-do list (follow with frontend dev):
 # 1. Create pages for friends, generate schedule, and set preferences.
