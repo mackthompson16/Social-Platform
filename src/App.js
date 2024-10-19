@@ -18,10 +18,24 @@ export default function Myapp() {
         return <Login setCurrentPage={setCurrentPage} setCurrentUser={setCurrentUser} />;
     }
   };
+  const appStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',
+  };
+
+  const contentStyle = {
+    flex: 1,  // This makes the content grow to fill available space
+    padding: '20px',
+  };
 
   return (
-    <div>
-      {renderPage()} 
+    <div style={appStyle}>
+      <div style={contentStyle}>
+        <div>
+          {renderPage()} 
+        </div>
+      </div>
     </div>
   );
 }

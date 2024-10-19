@@ -49,51 +49,110 @@ export default function Login({ setCurrentPage, setCurrentUser }) {
       setShowLoginForm(!showLoginForm);
     };
   
+    const containerStyle = {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      backgroundColor: '#f5f5f5',
+      padding: '20px',
+    };
+
+    const formStyle = {
+      width: '300px',
+      padding: '20px',
+      backgroundColor: '#fff',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+      borderRadius: '10px',
+    };
+  
+    const inputStyle = {
+      width: '100%',
+      padding: '10px',
+      marginBottom: '15px',
+      borderRadius: '5px',
+      border: '1px solid #ccc',
+      fontSize: '16px',
+    };
+  
+    const labelStyle = {
+      marginBottom: '10px',
+      fontWeight: 'bold',
+    };
+  
+    const buttonStyle = {
+      width: '150px',
+      padding: '10px',
+      marginBottom: '10px',
+    };
+
+    const formButtonContainer = {
+
+      display: 'flex',
+      justifyContent: 'center',
+      padding: '10px',
+      gap: '10px',
+      marginTop: '20px',
+
+    };
+
+    const formButtonStyle = {
+
+      width: '100px'
+    }
+
+  
+  
     return (
-      <div>
-            <Button variant="outline-primary" onClick={toggleLoginForm}>
-              {showLoginForm ? 'Cancel' : 'Login'}
-            </Button>
-            {!showLoginForm && (
-              <div>
-               
-                <Button variant="outline-primary" onClick={() => setCurrentPage('CreateAccount')}>Create Account</Button>
-              </div>
-            )}
-
-            {showLoginForm && (
-              <form onSubmit={handleSubmit}>
-                <div>
-                  <label>
-                    Username
-                    <input
-                      type="text"
-                      name="username"
-                      value={AccInfo.username}
-                      onChange={handleChange}
-                      placeholder="Required Field"
-                      required
-                    />
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    Password
-                    <input
-                      type="password"
-                      name="password"
-                      value={AccInfo.password}
-                      onChange={handleChange}
-                      placeholder="Required Field"
-                      required
-                    />
-                  </label>
-                </div>
-                <Button variant="outline-primary" type="submit">Submit</Button>
-              </form>
-            )}
-
+      <div style={containerStyle}>
+        
+  
+        {!showLoginForm && (
+          
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Button style={buttonStyle} variant="outline-primary" onClick={toggleLoginForm}>Login</Button>
+            <Button style={buttonStyle} variant="outline-primary" onClick={() => setCurrentPage('CreateAccount')}>Create Account</Button>
+          </div>
+        )}
+  
+        {showLoginForm && (
+          <form onSubmit={handleSubmit} style={formStyle}>
+            <div>
+              <label style={labelStyle}>
+                Username
+                <input
+                  type="text"
+                  name="username"
+                  value={AccInfo.username}
+                  onChange={handleChange}
+                  placeholder="Required Field"
+                  required
+                  style={inputStyle}
+                />
+              </label>
+            </div>
+            <div>
+              <label style={labelStyle}>
+                Password
+                <input
+                  type="password"
+                  name="password"
+                  value={AccInfo.password}
+                  onChange={handleChange}
+                  placeholder="Required Field"
+                  required
+                  style={inputStyle}
+                />
+              </label>
+            </div>
+            <div style={formButtonContainer}>
+              <Button style={formButtonStyle} variant="outline-primary" type="submit">Login</Button>
+              <Button style={formButtonStyle} variant="outline-primary" onClick={toggleLoginForm}>Cancel</Button>
+            </div>
+          </form>
+        )}
       </div>
     );
-  };
   
+};
