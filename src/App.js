@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import CreateAccount from './createAccount';
 import Login from './login';
 import Home from './home';
+import Schedule from './schedule';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function Myapp() {
@@ -12,31 +13,24 @@ export default function Myapp() {
       case 'CreateAccount':
         return <CreateAccount setCurrentPage={setCurrentPage}/>;
       case 'Home':
-       
         return <Home currentUser={currentUser} setCurrentPage={setCurrentPage} />;
+      case 'Schedule':
+        return <Schedule current currentUser={currentUser} setCurrentPage={setCurrentPage}/>;
+      case 'Friends':
+        return <Friends currentUser={currentUser} setCurrentPage={setCurrentPage}/>;
+      case 'Preferences':
+        return <Preferences currentUser={currentUser} setCurrentUser={setCurrentUser} setCurrentPage={setCurrentPage} />;
       default:
         return <Login setCurrentPage={setCurrentPage} setCurrentUser={setCurrentUser} />;
     }
   };
-  const appStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: '100vh',
-  };
-
-  const contentStyle = {
-    flex: 1,  // This makes the content grow to fill available space
-    padding: '20px',
-  };
-
+  
   return (
-    <div style={appStyle}>
-      <div style={contentStyle}>
+  
         <div>
           {renderPage()} 
         </div>
-      </div>
-    </div>
+      
   );
 }
 

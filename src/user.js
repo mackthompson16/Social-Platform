@@ -1,11 +1,21 @@
 
 const db= require('./db');
 
+class scheduleClass
+{
+    constructor(commitments)
+    {
+        this.commitments = commitments
+    }
+
+}
+
 class User {
     constructor(username, password, email) {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.schedules = null;
     }
 
     static createAccount(username, password, email, callback) {
@@ -43,6 +53,17 @@ class User {
             }
             return callback(null, rows);
         });
+    }
+
+    static createSchedule(commitments) {
+
+      new_schedule = new scheduleClass(commitments)
+      if (schedules == null)
+        {
+        schedules = [];
+        } 
+      this.schedules.push(new_schedule);
+
     }
 
 

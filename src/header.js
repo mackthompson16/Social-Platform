@@ -1,5 +1,5 @@
 import { Button } from 'react-bootstrap';
-export default function Header(setCurrentPage) { 
+export default function Header({setCurrentPage}) { 
 
         const buttonContainerStyle = {
             display: 'flex',

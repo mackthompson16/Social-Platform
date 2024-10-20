@@ -1,8 +1,8 @@
 import React from 'react';
 import Header from './header.js';
-import Footer from './footer.js'
+import Footer from './footer.js';
 
-export default function Home({currentUser}, setCurrentPage){
+export default function Home({currentUser, setCurrentPage}){
   const appStyle = {
     display: 'flex',
     flexDirection: 'column',
@@ -10,7 +10,7 @@ export default function Home({currentUser}, setCurrentPage){
   };
 
   const contentStyle = {
-    flex: 1,  // This makes the content grow to fill available space
+    flex: 1, 
     padding: '20px',
   };
 
