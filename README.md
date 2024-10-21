@@ -25,15 +25,14 @@ npm install bootstrap react react-bootstrap react-scripts react-dom cors sqlite3
 | **web-vitals**     | Reports essential web performance metrics like loading time, interactivity, and stability. |
 
 
-4. Navigate to the src directory
+4.  Start the server
 ```bash 
 cd my-app/src
 ```
-5. Start the server
 ```bash
 node server.js
 ```
-6. In a separate terminal, start the React app
+5. In a separate terminal, start the React app
 ```bash
 cd my-app
 ```
@@ -45,8 +44,7 @@ Note: The server and the React app run on separate hosts (frontend and backend c
 
 
 # To-do list:
-1. Create pages for friends, generate schedule, and set preferences.
-2. Implement reset password email functionality.
-3. Build header and footer for tabs & copyright.
-4. Add Maps API interaction and schedule generator.
-5. Set up the instance and find a domain name.
+1. Fix Schedule Logic with minimal frontend
+2. Implement Preferences and Email Reset/Changes
+3. Add social Features to view profiles and Schedules
+4. Set up the instance and find a domain name.
