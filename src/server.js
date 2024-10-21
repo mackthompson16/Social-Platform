@@ -33,6 +33,34 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+app.post('/api/create-schedule', (req, res) => {
+  const { userId, commitments } = req.body; // Expect userId and commitments from the request body
+
+  if (!userId || !commitments || commitments.length === 0) {
+      return res.status(400).json({ success: false, message: 'User ID and commitments are required' });
+  }
+
+  // Insert the schedule for the user into the database
+  db.serialize(() => {
+      const scheduleInsertQuery = `INSERT INTO schedules (user_id, commitment, time, days) VALUES (?, ?, ?, ?)`;
+
+      commitments.forEach(commitment => {
+          const { commitment: task, startTime, endTime, days } = commitment;
+          const time = `${startTime} - ${endTime}`; // Store the time range as a string
+
+          // Insert the schedule for each commitment
+          db.run(scheduleInsertQuery, [userId, task, time, days.join(', ')], function (err) {
+              if (err) {
+                  return res.status(500).json({ success: false, message: 'Database insertion failed' });
+              }
+          });
+      });
+
+      res.json({ success: true, message: 'Schedule added successfully' });
+  });
+});
+
+
 
 app.listen(5000, () => {
   console.log('Server is running on port 5000');

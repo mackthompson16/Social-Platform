@@ -15,7 +15,7 @@ class User {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.schedules = null;
+        this.schedules = [];
     }
 
     static createAccount(username, password, email, callback) {
@@ -55,16 +55,19 @@ class User {
         });
     }
 
-    static createSchedule(commitments) {
+    createSchedule(commitments) {
+      console.log(commitments); // Log to ensure commitments are passed correctly
 
-      new_schedule = new scheduleClass(commitments)
-      if (schedules == null)
-        {
-        schedules = [];
-        } 
+      const new_schedule = new scheduleClass(commitments);
+
+      // Ensure that this.schedules is an array
+      if (!this.schedules) {
+          this.schedules = [];
+      }
+
+      // Push the new schedule to this user's schedule array
       this.schedules.push(new_schedule);
-
-    }
+  }
 
 
 }

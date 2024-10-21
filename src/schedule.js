@@ -2,7 +2,7 @@ import { Button, Form, Alert } from 'react-bootstrap';
 import React, { useState } from 'react';
 import Header from './header.js';
 import Footer from './footer.js';
-
+const User = require('./user'); 
 
 
 // Commitment class to store commitment data
@@ -89,23 +89,61 @@ export default function Schedule({ currentUser, setCurrentPage, user }) {
 
         // If no overlap, add new commitment
         setCommitments([...commitments, newCommitment]);
+      
+       resetForm(); 
+    };
+    const resetForm = () => {
 
-        // Reset the form fields
         setCommitment('');
         setStartTime('');
         setEndTime('');
         setSelectedDays([]);
-        setError(''); // Clear any previous error
-    };
+        setError(''); 
 
+    }
     const handleSubmit = (event) => {
         event.preventDefault();
-        // Execute user.createSchedule with the commitments array
+    
+        // Check if the form fields are filled before submitting
+        if (commitment && startTime && endTime && selectedDays.length > 0) {
+            // Create a new commitment
+            const newCommitment = new Commitment(commitment, startTime, endTime, selectedDays);
+            
+            // Check for overlap before adding
+            if (checkForOverlap(newCommitment)) {
+                setError('The commitment overlaps with an existing commitment.');
+                return;
+            }
+    
+            // Add the new commitment directly
+            const updatedCommitments = [...commitments, newCommitment];
+            setCommitments(updatedCommitments);
+    
+            // Log and pass the updated commitments array to create a new schedule
+            console.log(updatedCommitments)
 
-        console.log("commiting schedule:", commitments)
-        user.createSchedule(commitments);
-        setShowForm(false); // Optionally hide the form after submission
+            User.getUserById(currentUser.id, (err, user) => {
+                if (err) {
+                    console.error("Error fetching user:", err);
+                    return;
+                }
+        
+                // Check if the user has the createSchedule method
+                if (user && typeof user.createSchedule === 'function') {
+                    user.createSchedule(commitments); // Call the createSchedule method
+                } else {
+                    console.error("User not found or createSchedule is not a function.");
+                }
+            });
+
+  
+            resetForm(); 
+        }
+    
+        setShowForm(false); 
     };
+    
+    
 
     const toggleDaySelection = (day) => {
         setSelectedDays((prevSelectedDays) =>
