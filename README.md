@@ -44,7 +44,7 @@ Note: The server and the React app run on separate hosts (frontend and backend c
 
 
 # To-do list:
-1. Fix Schedule Logic with minimal frontend
+1. Implement Edit Schedule and Schedule Display UI
 2. Implement Preferences and Email Reset/Changes
 3. Add social Features to view profiles and Schedules
 4. Set up the instance and find a domain name.
