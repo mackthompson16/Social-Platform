@@ -44,8 +44,9 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
 
     const timeOptions = generateTimeOptions();
 
-    const handleCreateNewClick = () => {
-        setShowForm(true);
+    const toggleForm = () => {
+        setShowForm(!showForm);
+    
     };
 
     const timeToNumber = (timeStr) => {
@@ -170,43 +171,45 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
         // Check if parsed schedules exist and are non-empty
         if (parsedSchedules.length > 0) {
             return parsedSchedules.map((schedule, index) => (
-                <div key={index}>
+                <div key={index} className="schedule">
                     {/* Display Schedule Name, or fallback to 'Unnamed Schedule' if name is missing */}
-                    <p><strong>{schedule.name || 'Unnamed Schedule'}</strong></p>
+                    <h3 className="schedule-name">{schedule.name || 'Unnamed Schedule'}</h3>
     
                     {schedule.commitments && schedule.commitments.length > 0 ? (
                         schedule.commitments.map((commitment, cIndex) => (
-                            <div key={`${index}-${cIndex}`} className="scheduleContainer">
-                                <h4>Schedule {index + 1}, Commitment {cIndex + 1}</h4>
-                                <p><strong>Commitment:</strong> {commitment.name}</p>
+                            <div key={`${index}-${cIndex}`} className="commitment">
+                                <h4>Commitment {cIndex + 1}</h4>
+                                <p><strong>Commitment Name:</strong> {commitment.commitment || 'N/A'}</p>
                                 <p><strong>Time:</strong> {commitment.startTime} - {commitment.endTime}</p>
                                 <p><strong>Days:</strong> {Array.isArray(commitment.days) ? commitment.days.join(', ') : 'No days available'}</p>
                             </div>
                         ))
                     ) : (
-                        <div>No commitments available.</div>
+                        <div className="no-commitments">No commitments available.</div>
                     )}
                 </div>
             ));
         } else {
-            return <div>No schedules available.</div>;
+            return <div className="no-schedules">No schedules available.</div>;
         }
     };
-
+    
 
     return (
         <div>
             <Header setCurrentPage={setCurrentPage} />
 
-            <div>
-                <Button
-                    style={{ marginBottom: '20px' }}
-                    variant="outline-primary"
-                    onClick={handleCreateNewClick}
-                >
-                    Create New
-                </Button>
-            </div>
+            {!showForm && (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Button
+                        style={{ marginBottom: '20px' }}
+                        className="btn btn-primary"
+                        onClick={toggleForm}
+                    >
+                        Create New
+                    </Button>
+                </div>
+            )}
 
             {showForm && (
                     <form onSubmit={handleSubmit}>
@@ -289,19 +292,30 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
                         {/* Error Message */}
                         {error && <div className="alert alert-danger">{error}</div>}
 
-                        {/* Action Buttons */}
-                        <button type="button" className="btn btn-secondary" onClick={handleAddCommitment}>
-                            Add New Commitment
-                        </button>
+                        
+                            <button type="button" className="btn btn-secondary" onClick={handleAddCommitment}>
+                                Add
+                            </button>
 
-                        <button type="submit" className="btn btn-primary" style={{ marginLeft: '10px' }}>
-                            Create Schedule
-                        </button>
+                            <button type="submit" className="btn btn-primary" style={{ marginLeft: '10px' }}>
+                                Create Schedule
+                            </button>
+
+                            <button type="button" className="btn btn-secondary" onClick={toggleForm}>
+                                Cancel
+                            </button>
+                        
+
                     </form>
             )}
 
         
             <div>
+              
+                <div style= {{textAlign: 'center'}}>
+                    <h1>My Schedules</h1>
+                </div>
+                    
                 {renderSchedules()}
             </div>
     </div>

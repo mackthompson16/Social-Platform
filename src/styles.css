@@ -41,7 +41,7 @@ form .btn {
     padding: 10px 20px;
     font-size: 16px;
     border-radius: 5px;
-    margin-top: 10px;
+    margin: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
@@ -75,4 +75,119 @@ form .form-group .btn {
     form {
         max-width: 90%; /* Make form more narrow on small screens */
     }
+}
+/* Center container */
+.schedule {
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 600px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Schedule name */
+.schedule-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+
+.commitment {
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Commitment details */
+.commitment h4 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #555;
+}
+
+.commitment p {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #666;
+}
+
+.commitment strong {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Fallback message for no commitments */
+.no-commitments, .no-schedules {
+    font-size: 18px;
+    text-align: center;
+    color: #888;
+    padding: 10px;
+}
+
+/* Add hover effect for commitment */
+.commitment:hover {
+    border-color: #007bff;
+    
+}
+
+/* Form container */
+.form-container {
+    max-width: 400px;      /* Limit the form's width */
+    margin: 0 auto;        /* Center the form */
+    padding: 20px;         /* Add padding around the form */
+    background-color: #f9f9f9;  /* Light background for the form */
+    border-radius: 10px;   /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
+}
+
+/* Form group - each input label and field */
+.form-group {
+    margin-bottom: 20px;   /* Space between each input field */
+}
+
+/* Label styling */
+.form-group label {
+    display: block;        /* Ensure the label appears on a new line */
+    margin-bottom: 5px;    /* Space between label and input */
+    font-weight: bold;     /* Make labels bold */
+    font-size: 14px;
+}
+
+/* Input fields styling */
+.form-control {
+    width: 100%;           /* Make input fields full width */
+    padding: 10px;         /* Add padding inside the inputs */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 5px;    /* Slightly rounded corners */
+    box-sizing: border-box; /* Ensure padding doesn't increase input width */
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* Submit button styling */
+.submit-button {
+    display: block;        /* Ensure the button takes up its own line */
+    width: 100%;           /* Full width button */
+    padding: 10px;         /* Add padding inside the button */
+    font-size: 16px;       /* Larger font for the button */
+    margin-top: 10px;      /* Space above the button */
+    cursor: pointer;       /* Change the cursor on hover */
+}
+
+/* Add hover effect for button */
+.submit-button:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Button to cancel */
+button {
+    margin-bottom: 20px;
+    cursor: pointer;
 }

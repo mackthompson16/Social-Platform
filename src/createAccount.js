@@ -1,7 +1,7 @@
 import { Button } from 'react-bootstrap';
 import React, {useState} from 'react';
 
-export default function CreateAccount({setCurrentPage}) {
+export default function CreateAccount({setCurrentUser, setCurrentPage}) {
   const [accInfo, setAccInfo] = useState({
     username: '',
     password: '',
@@ -33,7 +33,10 @@ export default function CreateAccount({setCurrentPage}) {
     const data = await response.json();
 
     if (data.success) {
-      alert('Account created successfully!');
+
+      setCurrentUser(accInfo)
+      setCurrentPage('Home')
+
     } else {
       alert('Error creating account: ' + data.message);
     }
@@ -52,51 +55,53 @@ export default function CreateAccount({setCurrentPage}) {
   };
 
   return (
-    <div>
-          <Button variant="outline-primary" onClick={() => setCurrentPage('login')}>Cancel</Button>
+    <div className="form-container">
+       
         <form onSubmit={handleSubmit}>
-          <div>
-            <label>
-              Username:
-              <input
-                type="text"
-                name="username"
-                value={accInfo.username}
-                onChange={handleChange}
-                placeholder="Required Field"
-                required
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              Password:
-              <input
-                type="password"
-                name="password"
-                value={accInfo.password}
-                onChange={handleChange}
-                placeholder="Required Field"
-                required
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              Email:
-              <input
-                type="email"
-                name="email"
-                value={accInfo.email}
-                onChange={handleChange}
-                placeholder="Required Field"
-                required
-              />
-            </label>
-          </div>
-          <Button variant="outline-primary" type="submit">Submit</Button>
+            <div className="form-group">
+                <label htmlFor="username">Username:</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={accInfo.username}
+                    onChange={handleChange}
+                    placeholder="Required Field"
+                    required
+                    className="form-control"
+                />
+            </div>
+            <div className="form-group">
+                <label htmlFor="password">Password:</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={accInfo.password}
+                    onChange={handleChange}
+                    placeholder="Required Field"
+                    required
+                    className="form-control"
+                />
+            </div>
+            <div className="form-group">
+                <label htmlFor="email">Email:</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={accInfo.email}
+                    onChange={handleChange}
+                    placeholder="Required Field"
+                    required
+                    className="form-control"
+                />
+            </div>
+            <Button variant="outline-primary" type="submit" >Submit</Button>
+            <Button variant="outline-primary" onClick={() => setCurrentPage('login')}>Cancel</Button>
         </form>
     </div>
-  );
+);
+
 }
 
