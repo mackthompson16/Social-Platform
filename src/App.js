@@ -15,7 +15,7 @@ export default function Myapp() {
       case 'Home':
         return <Home currentUser={currentUser} setCurrentPage={setCurrentPage} />;
       case 'Schedule':
-        return <Schedule current currentUser={currentUser} setCurrentPage={setCurrentPage}/>;
+        return <Schedule current currentUser={currentUser} setCurrentUser={setCurrentUser} setCurrentPage={setCurrentPage}/>;
       case 'Friends':
         return <Friends currentUser={currentUser} setCurrentPage={setCurrentPage}/>;
       case 'Preferences':

@@ -1,0 +1,78 @@
+/* Center the form on the page */
+form {
+    max-width: 600px; /* Limit the width of the form */
+    margin: 50px auto; /* Center the form vertically and horizontally */
+    padding: 20px; /* Add padding inside the form */
+    background-color: #f9f9f9; /* Light background color */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+}
+
+/* Style the labels */
+form .form-label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Style the form inputs */
+form .form-control {
+    width: 100%; /* Ensure inputs take up the full width */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 5px; /* Rounded input fields */
+    font-size: 16px;
+    box-sizing: border-box; /* Make padding and border part of the width */
+}
+
+/* Style select dropdowns */
+form select.form-control {
+    appearance: none; /* Remove default styles for dropdowns */
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Style the buttons inside the form */
+form .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Style the button variants */
+form .btn-primary {
+    background-color: #007bff;
+    border: none;
+    color: white;
+}
+
+form .btn-secondary {
+    background-color: #6c757d;
+    border: none;
+    color: white;
+}
+
+/* Button hover effect */
+form .btn:hover {
+    opacity: 0.9;
+}
+
+/* Style the days button group */
+form .form-group .btn {
+    margin: 5px;
+    border-radius: 50px; /* Make day buttons circular */
+}
+
+/* Responsive form */
+@media (max-width: 768px) {
+    form {
+        max-width: 90%; /* Make form more narrow on small screens */
+    }
+}

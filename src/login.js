@@ -33,7 +33,7 @@ export default function Login({ setCurrentPage, setCurrentUser }) {
       console.log('raw data:', data)
       if (data.success) {
         console.log('Login Success: ', data.user)
-        setCurrentUser(data.user);  // Set the user state in React
+        setCurrentUser(data.user);
         setCurrentPage('Home');     // Navigate to the home page
       } else {
         alert('Login failed');

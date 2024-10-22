@@ -1,7 +1,4 @@
 const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-
-// Define the absolute path to your database file
 const dbPath = './users.db';
 
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -13,7 +10,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE
+            email TEXT NOT NULL UNIQUE,
+            schedules TEXT DEFAULT '[]' 
         )`, (err) => {
             if (err) {
                 console.error('Error creating table:', err.message);

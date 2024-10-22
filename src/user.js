@@ -1,73 +1,81 @@
 
-const db= require('./db');
-
 class scheduleClass
 {
-    constructor(commitments)
+    constructor(scheduleName, commitments)
     {
-        this.commitments = commitments
+        this.name = scheduleName;
+        this.commitments = commitments;
     }
-
+    //eventually going to implement a editSchedule and deleteSchedule
 }
 
 class User {
-    constructor(username, password, email) {
+    constructor({ username = 'defaultUsername', password = 'defaultPassword', email = 'default@example.com', schedules = [], id = 'id' } = {}) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.schedules = [];
+        this.schedules = schedules;
+        this.id = id;
     }
+    
+    async createSchedule(scheduleName, commitments) {
+        const newSchedule = new scheduleClass(scheduleName, commitments);
 
-    static createAccount(username, password, email, callback) {
-        db.run(`INSERT INTO users (username, password, email) VALUES (?, ?, ?)`,
-            [username, password, email], function(err) {
-                if (err) {
-                    callback({ success: false, message: 'Error creating account' });
-                } else {
-                    console.log('user: ', row)
-                    callback({ success: true, message: 'Account created successfully' });
-                }
+        // API call to backend to update the database
+        try {
+            const response = await fetch(`http://localhost:5000/api/users/${this.id}/schedules`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newSchedule)
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to create schedule');
+            }
+
+            const updatedUser = await response.json();
+            this.schedules = updatedUser.schedules; // Assuming the backend returns the updated user object
+            console.log('Schedule created and saved to database');
+        } catch (error) {
+            console.error('Error creating schedule:', error);
+        }
     }
 
-    static login(username, password) {
-        return new Promise((resolve, reject) => {
-          db.get(`SELECT * FROM users WHERE username = ?`, [username], (err, row) => {
-            if (err || !row) {
-              reject({ success: false, error: 'username' });
-            } else if (row.password !== password) {
-              reject({ success: false, error: 'password' });
+
+
+    static async getAllUsers() {
+        try {
+            const response = await fetch('http://localhost:5000/api/users');
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.users; // Assuming data.users contains the array of users
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            throw error; // Rethrowing the error or handling it accordingly
+        }
+    }
+
+    static async getUserById(userId) {
+        try {
+            const users = await this.getAllUsers(); // Since getAllUsers is already async
+            console.log("searching for user:", userId);
+            const user = users.find(user => user.id === userId);
+            if (user) {
+                console.log("Fetched User: ", user.username);
+                return user;
             } else {
-              // Return the user data
-              resolve({ success: true, user: row });
+                throw new Error('User not found');
             }
-          });
-        });
-      }
-          
-      
-    static getAllUsers(callback) {
-        db.all('SELECT * FROM users', [], (err, rows) => {
-            if (err) {
-                return callback(err);
-            }
-            return callback(null, rows);
-        });
+        } catch (err) {
+            console.error("Error fetching user:", err);
+            throw err; // Rethrow or handle as needed
+        }
     }
 
-    createSchedule(commitments) {
-      console.log(commitments); // Log to ensure commitments are passed correctly
-
-      const new_schedule = new scheduleClass(commitments);
-
-      // Ensure that this.schedules is an array
-      if (!this.schedules) {
-          this.schedules = [];
-      }
-
-      // Push the new schedule to this user's schedule array
-      this.schedules.push(new_schedule);
-  }
 
 
 }
