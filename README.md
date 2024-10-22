@@ -27,7 +27,7 @@ npm install bootstrap react react-bootstrap react-scripts react-dom cors sqlite3
 
 4.  Start the server
 ```bash 
-cd my-app/src
+cd my-app/backend
 ```
 ```bash
 node server.js
