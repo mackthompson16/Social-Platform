@@ -1,47 +1,45 @@
 
-class scheduleClass
-{
-    constructor(scheduleName, commitments)
-    {
-        this.name = scheduleName;
-        this.commitments = commitments;
-    }
-    //eventually going to implement a editSchedule and deleteSchedule
-}
+
 
 class User {
-    constructor({ username = 'defaultUsername', password = 'defaultPassword', email = 'default@example.com', schedules = [], id = 'id' } = {}) {
+    constructor({ username = 'defaultUsername', password = 'defaultPassword', email = 'default@example.com', commitments = [], id = 'id' } = {}) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.schedules = schedules;
+        this.commitments = commitments;
         this.id = id;
     }
     
-    async createSchedule(scheduleName, commitments) {
-        const newSchedule = new scheduleClass(scheduleName, commitments);
-
+    async addCommitment(commitment) {
+       
+        
         // API call to backend to update the database
         try {
-            const response = await fetch(`http://localhost:5000/api/users/${this.id}/schedules`, {
+            const response = await fetch(`http://localhost:5000/api/users/${this.id}/commitments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(newSchedule)
+                body: JSON.stringify(commitment)
             });
-
+    
             if (!response.ok) {
-                throw new Error('Failed to create schedule');
+                throw new Error('Failed to add commitment');
             }
-
-            const updatedUser = await response.json();
-            this.schedules = updatedUser.schedules; // Assuming the backend returns the updated user object
-            console.log('Schedule created and saved to database');
+    
+            const data = await response.json();
+           
+    
+            this.commitments = data.commitments; // Update the user's commitments from the returned data
+    
+            
+            return data.user; // Return the updated user data
         } catch (error) {
-            console.error('Error creating schedule:', error);
+            console.error('Error creating commitment:', error);
+            return null; // Return null or an appropriate fallback if an error occurs
         }
     }
+    
 
 
 

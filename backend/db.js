@@ -11,7 +11,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
-            schedules TEXT DEFAULT '[]' 
+            commitments TEXT DEFAULT '[]' 
         )`, (err) => {
             if (err) {
                 console.error('Error creating table:', err.message);

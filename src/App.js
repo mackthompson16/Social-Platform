@@ -11,7 +11,7 @@ export default function Myapp() {
    const renderPage = () => {
     switch (currentPage) {
       case 'CreateAccount':
-        return <CreateAccount setCurrentPage={setCurrentPage}/>;
+        return <CreateAccount setCurrentPage={setCurrentPage} setCurrentUser={setCurrentUser}/>;
       case 'Home':
         return <Home currentUser={currentUser} setCurrentPage={setCurrentPage} />;
       case 'Schedule':

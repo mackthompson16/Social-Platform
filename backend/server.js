@@ -15,33 +15,53 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-app.post('/api/users/:userId/schedules', async (req, res) => {
-  const userId = req.params.userId;
-  const newSchedule = req.body;  // Assuming new schedule is sent in the request body
+app.post('/api/users/:userId/commitments', async (req, res) => {
+  const userId = Number(req.params.userId);
+  const newCommitment = req.body;
+
 
   try {
-      // Step 1: Retrieve the current schedules from the database
-      const user = await db.get(`SELECT schedules FROM users WHERE id = ?`, [userId]);
+      await db.run('BEGIN TRANSACTION');  // Start transaction
 
-      if (!user) {
-          return res.status(404).send('User not found');
-      }
+      // Retrieve the current schedules from the database
+      const user = await getUserById(userId);
 
-      // Step 2: Parse the existing schedules (stored as JSON string)
-      let schedules = JSON.parse(user.schedules || '[]');
+      // Parse the existing schedules (stored as JSON string)
+    
+      commitments = JSON.parse(user.commitments);
+        
+    
+      // Add the new schedule to the array
+      commitments.push(newCommitment);
 
-      // Step 3: Add the new schedule to the array
-      schedules.push(newSchedule);
+      
+      // Update the schedules column in the database
+      await db.run(`UPDATE users SET commitments = ? WHERE id = ?`, [JSON.stringify(commitments), userId]);
 
-      // Step 4: Update the schedules column in the database
-      await db.run(`UPDATE users SET schedules = ? WHERE id = ?`, [JSON.stringify(schedules), userId]);
+      // Commit transaction
+      await db.run('COMMIT');
+      console.log("Updated data: ", user)
+      res.json({ message: 'Commitment added successfully', user: user });
 
-      res.json({ message: 'Schedule updated successfully', schedules });
   } catch (error) {
-      console.error('Failed to update user schedules', error);
+      console.error('Failed to update user commitments', error);
+      await db.run('ROLLBACK');  // Rollback transaction on error
       res.status(500).send('Internal server error');
   }
 });
+
+
+async function getUserById(userId) {
+  return new Promise((resolve, reject) => {
+      db.get(`SELECT * FROM users WHERE id = ?`, [userId], (err, row) => {
+          if (err) {
+              reject(err); // Reject the Promise if there's an error
+          } else {
+              resolve(row); // Resolve with the row if found
+          }
+      });
+  });
+}
 
 
 app.post('/api/create-account', (req, res) => {
@@ -54,18 +74,29 @@ app.post('/api/create-account', (req, res) => {
 
   // Insert new user into the database
   db.run(`INSERT INTO users (username, password, email) VALUES (?, ?, ?)`,
-    [username, password, email], function(err) {
-        if (err) {
-            console.error('Error creating account:', err);
-            return res.status(500).json({ success: false, message: 'Error creating account' });
-        }
+      [username, password, email], function(err) {
+          if (err) {
+              console.error('Error creating account:', err);
+              return res.status(500).json({ success: false, message: 'Error creating account' });
+          }
 
-        // Success: Account was created
-        console.log('New user ID:', this.lastID);  // `this.lastID` refers to the ID of the newly inserted user
-        res.json({ success: true, message: 'Account created successfully', userId: this.lastID });
-    }
+          const newUserId = this.lastID;  // `this.lastID` refers to the ID of the newly inserted user
+
+          // Select the newly created user by ID to return the user data
+          db.get(`SELECT * FROM users WHERE id = ?`, [newUserId], (err, row) => {
+              if (err) {
+                  console.error('Error retrieving new user:', err);
+                  return res.status(500).json({ success: false, message: 'Error retrieving new user' });
+              }
+
+              // Success: Account created and full user data retrieved
+              console.log('New user created:', row);
+              res.json({ success: true, message: 'Account created successfully', user: row });
+          });
+      }
   );
 });
+
 
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;

@@ -33,8 +33,8 @@ export default function CreateAccount({setCurrentUser, setCurrentPage}) {
     const data = await response.json();
 
     if (data.success) {
-
-      setCurrentUser(accInfo)
+      console.log(data.user)
+      setCurrentUser(data.user)
       setCurrentPage('Home')
 
     } else {
@@ -55,52 +55,52 @@ export default function CreateAccount({setCurrentUser, setCurrentPage}) {
   };
 
   return (
-    <div className="form-container">
+    <div className="container">
+    <form onSubmit={handleSubmit}>
+        <div className="form">
+          
+            <input
+                type="text"
+                id="username"
+                name="username"
+                value={accInfo.username}
+                onChange={handleChange}
+                placeholder="Username"
+                className="form-control"
+            />
+        
+
+        
+          
+            <input
+                type="password"
+                id="password"
+                name="password"
+                value={accInfo.password}
+                onChange={handleChange}
+                placeholder="Password"
+                className="form-control"
+            />
+        
+        
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value={accInfo.email}
+                onChange={handleChange}
+                placeholder="Email"
+                className="form-control"
+            />
        
-        <form onSubmit={handleSubmit}>
-            <div className="form-group">
-                <label htmlFor="username">Username:</label>
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={accInfo.username}
-                    onChange={handleChange}
-                    placeholder="Required Field"
-                    required
-                    className="form-control"
-                />
-            </div>
-            <div className="form-group">
-                <label htmlFor="password">Password:</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={accInfo.password}
-                    onChange={handleChange}
-                    placeholder="Required Field"
-                    required
-                    className="form-control"
-                />
-            </div>
-            <div className="form-group">
-                <label htmlFor="email">Email:</label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={accInfo.email}
-                    onChange={handleChange}
-                    placeholder="Required Field"
-                    required
-                    className="form-control"
-                />
-            </div>
-            <Button variant="outline-primary" type="submit" >Submit</Button>
-            <Button variant="outline-primary" onClick={() => setCurrentPage('login')}>Cancel</Button>
-        </form>
-    </div>
+        <div stlyes={{display: 'flex', flexDirection: 'row'}}>
+          <Button type="submit" className="btn btn-primary">Submit</Button>
+          <Button onClick={() => setCurrentPage('login')} className="btn btn-secondary">Cancel</Button>
+          </div>
+        </div>
+    </form>
+</div>
+
 );
 
 }

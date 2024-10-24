@@ -20,13 +20,14 @@ class Commitment {
 
 export default function Schedule({ currentUser,setCurrentUser, setCurrentPage }) {
     const [showForm, setShowForm] = useState(false);
-    const [scheduleName, setScheduleName] = useState('');
-    const [commitment, setCommitment] = useState('');
+    const [name, setName] = useState('');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [selectedDays, setSelectedDays] = useState([]);
-    const [commitments, setCommitments] = useState([]); // Array to store multiple commitments
-    const [error, setError] = useState(''); // To display any overlap error
+    const [error, setError] = useState(''); 
+    
+    
+    
 
     const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -49,77 +50,15 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
     
     };
 
-    const timeToNumber = (timeStr) => {
-        const [time, period] = timeStr.split(' ');
-        let [hours, minutes] = time.split(':').map(Number);
-        if (period === 'PM' && hours !== 12) hours += 12;
-        if (period === 'AM' && hours === 12) hours = 0;
-        return hours * 60 + minutes; // Convert time to minutes for comparison
-    };
-
-    const isTimeOverlap = (start1, end1, start2, end2) => {
-        const start1Min = timeToNumber(start1);
-        const end1Min = timeToNumber(end1);
-        const start2Min = timeToNumber(start2);
-        const end2Min = timeToNumber(end2);
-        return start1Min < end2Min && start2Min < end1Min; // Check for overlap
-    };
-
-    const checkForOverlap = (newCommitment) => {
-        for (const previousCommitment of commitments) {
-            for (const day of newCommitment.days) {
-                if (previousCommitment.days.includes(day)) {
-                    if (isTimeOverlap(newCommitment.startTime, newCommitment.endTime, previousCommitment.startTime, previousCommitment.endTime)) {
-                        return true; // Overlap detected
-                    }
-                }
-            }
-        }
-        return false; // No overlap
-    };
-
-    const handleAddCommitment = () => {
-        const newCommitment = new Commitment( commitment, startTime, endTime, selectedDays);
-        
-        // Check for overlap
-        if (checkForOverlap(newCommitment)) {
-            setError('The commitment overlaps with an existing commitment.');
-            return; 
-        }
-
-        console.log("added commitment:", commitment, startTime, endTime, selectedDays);
-      
-
-        // If no overlap, add new commitment
-        setCommitments([...commitments, newCommitment]);
-        
-        resetForm(); 
-    };
-    const resetForm = () => {
-
-        setCommitment('');
-        setStartTime('');
-        setEndTime('');
-        setSelectedDays([]);
-        setError(''); 
-
-    }
     const handleSubmit = async (event) => {
         event.preventDefault();
     
-        if (commitment && startTime && endTime && selectedDays.length > 0) {
-            const newCommitment = new Commitment(commitment, startTime, endTime, selectedDays);
-    
-            if (checkForOverlap(newCommitment)) {
-                setError('The commitment overlaps with an existing commitment.');
-                return;
-            }
-    
-            const updatedCommitments = [...commitments, newCommitment];
-            setCommitments(updatedCommitments);
+        if (name && startTime && endTime && selectedDays.length > 0) {
+            const newCommitment = new Commitment(name, startTime, endTime, selectedDays);
+          
     
             try {
-               
+                
                 const user = new User({id: currentUser.id});
                 /* 
 
@@ -134,18 +73,31 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
                 and I can create a new user object.
                 
                 */
-           
-                user.createSchedule(scheduleName, updatedCommitments);
-                setCurrentUser(user);
-                setScheduleName('');
-                console.log("updated data: ", currentUser);
+                const updatedUser = await user.addCommitment(newCommitment);
+
+                if (updatedUser) {
+                    // Safely update the current user state
+                    setCurrentUser(updatedUser);
+                    console.log("User updated successfully:", updatedUser);
+                } else {
+                    console.log("error updating user")
+                }
+                   
+            
+                
 
             } catch (err) {
                 console.error("Error fetching user or creating schedule:", err);
             }
+        } else {
+            console.log('err: field empty', startTime , endTime , selectedDays.length)
         }
     
-        resetForm();
+        setName('');
+        setStartTime('');
+        setEndTime('');
+        setSelectedDays([]);
+        setError(''); 
         setShowForm(false);
     };
     
@@ -160,164 +112,142 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
         );
     };
 
-    const renderSchedules = () => {
-        let parsedSchedules = [];
-        try {
-            parsedSchedules = JSON.parse(currentUser.schedules || '[]'); // Parse once
-        } catch (e) {
-            console.error('Invalid schedules JSON', e);
-        }
+    const renderSchedule = () => {
+
+      
+        let parsedCommitments = JSON.parse(currentUser.commitments || '[]');
+       
+        // Parse schedules safely
     
-        // Check if parsed schedules exist and are non-empty
-        if (parsedSchedules.length > 0) {
-            return parsedSchedules.map((schedule, index) => (
-                <div key={index} className="schedule">
-                    {/* Display Schedule Name, or fallback to 'Unnamed Schedule' if name is missing */}
-                    <h3 className="schedule-name">{schedule.name || 'Unnamed Schedule'}</h3>
-    
-                    {schedule.commitments && schedule.commitments.length > 0 ? (
-                        schedule.commitments.map((commitment, cIndex) => (
-                            <div key={`${index}-${cIndex}`} className="commitment">
-                                <h4>Commitment {cIndex + 1}</h4>
-                                <p><strong>Commitment Name:</strong> {commitment.commitment || 'N/A'}</p>
-                                <p><strong>Time:</strong> {commitment.startTime} - {commitment.endTime}</p>
-                                <p><strong>Days:</strong> {Array.isArray(commitment.days) ? commitment.days.join(', ') : 'No days available'}</p>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="no-commitments">No commitments available.</div>
-                    )}
+        
+        if (parsedCommitments.length > 0) {
+            return (
+                <div className="schedule-container">
+                    {parsedCommitments.map((commitment, index) => (
+                        
+                                    <div key={index} className="commitment">
+                                        
+                                        <p>{commitment.name || 'N/A'}</p>
+                                        <p>{commitment.startTime} - {commitment.endTime}</p>
+                                        <p>{commitment.days}</p>
+
+                                    </div>
+                         
+                    ))}
                 </div>
-            ));
-        } else {
-            return <div className="no-schedules">No schedules available.</div>;
+            );
         }
+    
+        // If there are no schedules, show fallback message
+        return <h1> Empty </h1>;
     };
+    
     
 
     return (
-        <div>
-            <Header setCurrentPage={setCurrentPage} />
+    <div>
+        <Header setCurrentPage={setCurrentPage} />
+   
+    <div className="container">
 
-            {!showForm && (
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Button
-                        style={{ marginBottom: '20px' }}
-                        className="btn btn-primary"
-                        onClick={toggleForm}
-                    >
-                        Create New
-                    </Button>
-                </div>
-            )}
 
-            {showForm && (
-                    <form onSubmit={handleSubmit}>
-                        {/* Form Group for Schedule Name */}
-                        <div className="form-group">
-                            <label htmlFor="formScheduleName" className="form-label">Schedule Name</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                id="formScheduleName"
-                                placeholder="Enter schedule name"
-                                value={scheduleName}
-                                onChange={(e) => setScheduleName(e.target.value)} // Capture schedule name
-                            />
-                        </div>
+    {!showForm && (
+        <div className="form">
+            <button
+                className="btn btn-primary"
+                onClick={toggleForm}
+            >
+                Add Commitment
+            </button>
+        </div>
+    )}
 
-                        {/* Form Group for Commitment */}
-                        <div className="form-group">
-                            <label htmlFor="formCommitment" className="form-label">Commitment</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                id="formCommitment"
-                                placeholder="Enter commitment"
-                                value={commitment}
-                                onChange={(e) => setCommitment(e.target.value)}
-                            />
-                        </div>
-
-                        {/* Form Group for Start and End Time */}
-                        <div className="form-group">
-                            <label htmlFor="formStartTime" className="form-label">Start Time</label>
-                            <select
-                                className="form-control"
-                                id="formStartTime"
-                                value={startTime}
-                                onChange={(e) => setStartTime(e.target.value)}
-                            >
-                                <option value="">Select start time</option>
-                                {timeOptions.map((time, index) => (
-                                    <option key={index} value={time}>
-                                        {time}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <label htmlFor="formEndTime" className="form-label" style={{ marginTop: '10px' }}>End Time</label>
-                            <select
-                                className="form-control"
-                                id="formEndTime"
-                                value={endTime}
-                                onChange={(e) => setEndTime(e.target.value)}
-                            >
-                                <option value="">Select end time</option>
-                                {timeOptions.map((time, index) => (
-                                    <option key={index} value={time}>
-                                        {time}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Form Group for Days */}
-                        <div className="form-group">
-                            <label htmlFor="formDays" className="form-label">Days</label>
-                            <div>
-                                {daysOfWeek.map((day) => (
-                                    <button
-                                        key={day}
-                                        type="button"
-                                        className={`btn ${selectedDays.includes(day) ? 'btn-primary' : 'btn-outline-primary'}`}
-                                        onClick={() => toggleDaySelection(day)}
-                                    >
-                                        {day}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Error Message */}
-                        {error && <div className="alert alert-danger">{error}</div>}
-
-                        
-                            <button type="button" className="btn btn-secondary" onClick={handleAddCommitment}>
-                                Add
-                            </button>
-
-                            <button type="submit" className="btn btn-primary" style={{ marginLeft: '10px' }}>
-                                Create Schedule
-                            </button>
-
-                            <button type="button" className="btn btn-secondary" onClick={toggleForm}>
-                                Cancel
-                            </button>
-                        
-
-                    </form>
-            )}
-
+    {showForm && (
+        <form onSubmit={handleSubmit} className="form">
         
-            <div>
+           
               
-                <div style= {{textAlign: 'center'}}>
-                    <h1>My Schedules</h1>
+                <input
+                    type="text"
+                    id="formCommitment"
+                    placeholder="Commitment"
+                    value={name}
+                    className="form-control"
+                    onChange={(e) => setName(e.target.value)}
+                />
+                      
+                <select
+                    className="form-control"
+                    id="formStartTime"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                >
+                    <option value="">Select start time</option>
+                    {timeOptions.map((time, index) => (
+                        <option key={index} value={time}>
+                            {time}
+                        </option>
+                    ))}
+                </select>
+               
+                <select
+                    className="form-control"
+                    id="formEndTime"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                >
+                    <option value="">Select end time</option>
+                    {timeOptions.map((time, index) => (
+                        <option key={index} value={time}>
+                            {time}
+                        </option>
+                    ))}
+                </select>
+       
+
+            {/* Form Group for Days */}
+            
+               
+                <div className="day-selection">
+                    {daysOfWeek.map((day) => (
+                        <button
+                            key={day}
+                            type="button"
+                            className={`btn ${selectedDays.includes(day) ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick={() => toggleDaySelection(day)}
+                        >
+                            {day}
+                        </button>
+                    ))}
                 </div>
-                    
-                {renderSchedules()}
+
+           
+            {error && <div className="alert alert-danger">{error}</div>}
+
+            {/* Form Buttons */}
+            <div className="form-buttons">
+               
+                <button type="submit" className="btn btn-primary">
+                    Add
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={toggleForm}>
+                    Cancel
+                </button>
             </div>
+        </form>
+    
+    )}
+
+    {/* Schedules Section */}
+    <div>
+
+        <h1>My Commitments</h1>
+        {renderSchedule()}
+        <Footer />
+
     </div>
+</div>
+</div>
+
 );
 }

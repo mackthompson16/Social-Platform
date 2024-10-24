@@ -1,42 +1,44 @@
-/* Center the form on the page */
-form {
-    max-width: 600px; /* Limit the width of the form */
-    margin: 50px auto; /* Center the form vertically and horizontally */
-    padding: 20px; /* Add padding inside the form */
-    background-color: #f9f9f9; /* Light background color */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+/* Common container styles */
+
+
+/* Form specific styles */
+.form {
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: auto; /* Adjust height based on content */
+    width: 300px;
+    margin: auto; /* Horizontally center the form */
 }
 
-/* Style the labels */
-form .form-label {
-    font-weight: bold;
-    margin-bottom: 8px;
-    display: block;
-}
+.form .form-control {
 
-/* Style the form inputs */
-form .form-control {
     width: 100%; /* Ensure inputs take up the full width */
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc; /* Light gray border */
     border-radius: 5px; /* Rounded input fields */
     font-size: 16px;
-    box-sizing: border-box; /* Make padding and border part of the width */
+    box-sizing: border-box;
+
+
+}
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh; /* Makes sure the container takes at least the full viewport height */
+    margin: 0 auto;
 }
 
-/* Style select dropdowns */
-form select.form-control {
-    appearance: none; /* Remove default styles for dropdowns */
-    background-color: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Style the buttons inside the form */
-form .btn {
+/* Button styles */
+button, .btn {
     display: inline-block;
     padding: 10px 20px;
     font-size: 16px;
@@ -46,54 +48,39 @@ form .btn {
     transition: background-color 0.3s ease;
 }
 
-/* Style the button variants */
-form .btn-primary {
+.btn-primary {
     background-color: #007bff;
     border: none;
     color: white;
 }
 
-form .btn-secondary {
+.btn-secondary {
     background-color: #6c757d;
     border: none;
     color: white;
 }
 
-/* Button hover effect */
-form .btn:hover {
+button:hover, .btn:hover {
     opacity: 0.9;
 }
 
-/* Style the days button group */
-form .form-group .btn {
+.form-group .btn {
     margin: 5px;
-    border-radius: 50px; /* Make day buttons circular */
+    border-radius: 50px;
 }
 
-/* Responsive form */
-@media (max-width: 768px) {
-    form {
-        max-width: 90%; /* Make form more narrow on small screens */
-    }
-}
-/* Center container */
-.schedule {
-    margin: 20px auto;
-    padding: 20px;
-    max-width: 600px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Hover effect for commitment */
+.commitment:hover {
+    border-color: #007bff;
 }
 
-/* Schedule name */
+/* Schedule and commitment sections */
 .schedule-name {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
     color: #333;
 }
-
 
 .commitment {
     margin-bottom: 15px;
@@ -104,10 +91,9 @@ form .form-group .btn {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Commitment details */
 .commitment h4 {
-    margin-bottom: 10px;
     font-size: 20px;
+    margin-bottom: 10px;
     color: #555;
 }
 
@@ -122,72 +108,34 @@ form .form-group .btn {
     color: #333;
 }
 
-/* Fallback message for no commitments */
+/* Fallback messages */
 .no-commitments, .no-schedules {
     font-size: 18px;
     text-align: center;
     color: #888;
     padding: 10px;
 }
+h1 {
+    font-size: 48px;
+    font-weight: bold;
+    line-height: 1.2;
+  }
 
-/* Add hover effect for commitment */
-.commitment:hover {
-    border-color: #007bff;
-    
-}
+/* Responsive design */
+@media (max-width: 600px) {
+    .container, .form-container, .schedule {
+        max-width: 40%;
+    }
 
-/* Form container */
-.form-container {
-    max-width: 400px;      /* Limit the form's width */
-    margin: 0 auto;        /* Center the form */
-    padding: 20px;         /* Add padding around the form */
-    background-color: #f9f9f9;  /* Light background for the form */
-    border-radius: 10px;   /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
-}
+    .schedule-name {
+        font-size: 20px;
+    }
 
-/* Form group - each input label and field */
-.form-group {
-    margin-bottom: 20px;   /* Space between each input field */
-}
+    .commitment h4 {
+        font-size: 18px;
+    }
 
-/* Label styling */
-.form-group label {
-    display: block;        /* Ensure the label appears on a new line */
-    margin-bottom: 5px;    /* Space between label and input */
-    font-weight: bold;     /* Make labels bold */
-    font-size: 14px;
-}
-
-/* Input fields styling */
-.form-control {
-    width: 100%;           /* Make input fields full width */
-    padding: 10px;         /* Add padding inside the inputs */
-    border: 1px solid #ccc; /* Light border */
-    border-radius: 5px;    /* Slightly rounded corners */
-    box-sizing: border-box; /* Ensure padding doesn't increase input width */
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-
-/* Submit button styling */
-.submit-button {
-    display: block;        /* Ensure the button takes up its own line */
-    width: 100%;           /* Full width button */
-    padding: 10px;         /* Add padding inside the button */
-    font-size: 16px;       /* Larger font for the button */
-    margin-top: 10px;      /* Space above the button */
-    cursor: pointer;       /* Change the cursor on hover */
-}
-
-/* Add hover effect for button */
-.submit-button:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-/* Button to cancel */
-button {
-    margin-bottom: 20px;
-    cursor: pointer;
+    .commitment p {
+        font-size: 14px;
+    }
 }
