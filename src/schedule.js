@@ -151,16 +151,7 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
     <div className="container">
 
 
-    {!showForm && (
-        <div className="form">
-            <button
-                className="btn btn-primary"
-                onClick={toggleForm}
-            >
-                Add Commitment
-            </button>
-        </div>
-    )}
+   
 
     {showForm && (
         <form onSubmit={handleSubmit} className="form">
@@ -243,10 +234,21 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
 
         <h1>My Commitments</h1>
         {renderSchedule()}
-        <Footer />
+        
+        {!showForm && (
+        
+        <button
+            className="btn btn-primary"
+            onClick={toggleForm}
+        >
+            Add Commitment
+        </button>
+   
+)}
 
     </div>
 </div>
+<Footer />
 </div>
 
 );

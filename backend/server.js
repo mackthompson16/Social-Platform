@@ -19,36 +19,53 @@ app.post('/api/users/:userId/commitments', async (req, res) => {
   const userId = Number(req.params.userId);
   const newCommitment = req.body;
 
-
   try {
-      await db.run('BEGIN TRANSACTION');  // Start transaction
+    // Start transaction
+    await db.run('BEGIN TRANSACTION');
 
-      // Retrieve the current schedules from the database
-      const user = await getUserById(userId);
+    // Retrieve the current user from the database using the external getUserById function
+    const user = await getUserById(userId);
 
-      // Parse the existing schedules (stored as JSON string)
-    
-      commitments = JSON.parse(user.commitments);
-        
-    
-      // Add the new schedule to the array
-      commitments.push(newCommitment);
+    if (!user) {
+      throw new Error('User not found');
+    }
 
-      
-      // Update the schedules column in the database
-      await db.run(`UPDATE users SET commitments = ? WHERE id = ?`, [JSON.stringify(commitments), userId]);
+    // Parse the existing commitments (stored as JSON string)
+    let commitments = [];
+    if (user.commitments) {
+      commitments = JSON.parse(user.commitments); // Safely parse the commitments if they exist
+    }
 
-      // Commit transaction
-      await db.run('COMMIT');
-      console.log("Updated data: ", user)
-      res.json({ message: 'Commitment added successfully', user: user });
+    // Add the new commitment to the array
+    commitments.push(newCommitment);
+
+    // Update the commitments column in the database
+    await db.run(`UPDATE users SET commitments = ? WHERE id = ?`, [JSON.stringify(commitments), userId]);
+
+    // Commit transaction
+    await db.run('COMMIT');
+
+    // Re-fetch the updated user data
+    const updatedUser = await getUserById(userId);
+
+    if (!updatedUser) {
+      throw new Error('Error retrieving updated user');
+    }
+
+    // Log and return the updated user data
+    console.log("Updated user data: ", updatedUser);
+    res.json({ message: 'Commitment added successfully', user: updatedUser });
 
   } catch (error) {
-      console.error('Failed to update user commitments', error);
-      await db.run('ROLLBACK');  // Rollback transaction on error
-      res.status(500).send('Internal server error');
+    console.error('Failed to update user commitments', error);
+    
+    // Rollback transaction on error
+    await db.run('ROLLBACK');
+
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 
 async function getUserById(userId) {
@@ -64,39 +81,44 @@ async function getUserById(userId) {
 }
 
 
-app.post('/api/create-account', (req, res) => {
+app.post('/api/create-account', async (req, res) => {
   const { username, password, email } = req.body;
 
   // Check if all required fields are provided
   if (!username || !password || !email) {
-      return res.status(400).json({ success: false, message: 'All fields are required' });
+    return res.status(400).json({ success: false, message: 'All fields are required' });
   }
 
-  // Insert new user into the database
-  db.run(`INSERT INTO users (username, password, email) VALUES (?, ?, ?)`,
-      [username, password, email], function(err) {
+  try {
+    // Wrap the account creation in a Promise
+    const result = await new Promise((resolve, reject) => {
+      // Insert new user into the database
+      db.run(`INSERT INTO users (username, password, email) VALUES (?, ?, ?)`,
+        [username, password, email], function (err) {
           if (err) {
-              console.error('Error creating account:', err);
-              return res.status(500).json({ success: false, message: 'Error creating account' });
+            return reject({ success: false, message: 'Error creating account' });
           }
 
           const newUserId = this.lastID;  // `this.lastID` refers to the ID of the newly inserted user
 
           // Select the newly created user by ID to return the user data
           db.get(`SELECT * FROM users WHERE id = ?`, [newUserId], (err, row) => {
-              if (err) {
-                  console.error('Error retrieving new user:', err);
-                  return res.status(500).json({ success: false, message: 'Error retrieving new user' });
-              }
-
-              // Success: Account created and full user data retrieved
-              console.log('New user created:', row);
-              res.json({ success: true, message: 'Account created successfully', user: row });
+            if (err || !row) {
+              return reject({ success: false, message: 'Error retrieving new user' });
+            }
+            resolve({ success: true, user: row });  // Resolve with the newly created user
           });
-      }
-  );
-});
+        }
+      );
+    });
 
+    // Send the response with the new user data
+    res.json(result);
+  } catch (error) {
+    // Handle errors
+    res.status(500).json(error);
+  }
+});
 
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
