@@ -3,6 +3,11 @@
 
 /* Form specific styles */
 .form {
+    position: absolute; /* Overlay on top of calendar */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10; /* Higher z-index to stay on top of other content */
     padding: 20px;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -11,9 +16,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: auto; /* Adjust height based on content */
     width: 300px;
-    margin: auto; /* Horizontally center the form */
 }
 
 .form .form-control {
@@ -36,6 +39,7 @@
     min-height: 100vh; /* Makes sure the container takes at least the full viewport height */
     margin: 0 auto;
 }
+
 
 /* Button styles */
 button, .btn {
@@ -124,7 +128,87 @@ h1 {
     line-height: 1.2;
   }
 
-  
+  .side-menu {
+    width: 300px;
+    max-height: calc(100vh - 60px);
+    position: fixed;
+    left: 0;
+    top: 150px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    opacity: 1; /* Ensure full opacity */
+    z-index: 1; /* Lower z-index so form can appear on top */
+}
+
+/* Adjust schedule container height to fit within the sidebar */
+.side-menu .schedule-container {
+    max-height: calc(100vh - 210px); /* Adjust based on sidebar contents */
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Heading styling */
+.side-menu h1 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #333; /* Darker text color for emphasis */
+}
+
+
+/* Scrollbar styling for schedule container */
+.side-menu .schedule-container {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #ccc transparent; /* Scrollbar color */
+}
+.side-menu .schedule-container::-webkit-scrollbar {
+    width: 6px;
+}
+.side-menu .schedule-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+.side-menu .schedule-container::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+/* Show scrollbar only when hovering */
+.side-menu .schedule-container:hover {
+    overflow-y: auto;
+}
+
+/* Commitment item styling */
+.side-menu .commitment {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Add Commitment button */
+.side-menu .btn-primary {
+    width: 100%; /* Full width button */
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+/* Commitment text styling */
+.side-menu .commitment h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.1em;
+}
+
+.side-menu .commitment p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #666; /* Secondary text color */
+}
+
 /* Responsive design */
 @media (max-width: 600px) {
     .container, .form-container, .schedule {

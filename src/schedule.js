@@ -5,9 +5,8 @@ import './styles.css';
 import Footer from './footer.js';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import TimePicker from 'react-time-picker';
-import 'react-time-picker/dist/TimePicker.css';
 import { FaCalendarAlt } from 'react-icons/fa';
+import Calendar from './calendar.js';
 
 const User = require('./user'); 
 
@@ -27,6 +26,7 @@ class Commitment {
 
 export default function Schedule({ currentUser,setCurrentUser, setCurrentPage }) {
     const [showForm, setShowForm] = useState(false);
+    const [showCommitments, setShowCommitments] = useState(false);
 
     const [name, setName] = useState('');
     const [startTime, setStartTime] = useState('');
@@ -39,20 +39,13 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
     const daysOfWeek = ["Select All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
    
     
-    
-    
-
-    
-
-    const handleDateChange = (dates) => {
-        const [start, end] = dates;
-        setStartDate(start);
-        setEndDate(end);
-    };
-
 
     const toggleForm = () => {
         setShowForm(!showForm);
+    
+    };
+    const toggleSideMenu = () => {
+        setShowCommitments(!showCommitments);
     
     };
 
@@ -190,144 +183,138 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
     
     
     
-
-    return (
+return (
     <div>
-        <Header setCurrentPage={setCurrentPage} />
-   
+    <Header setCurrentPage={setCurrentPage} />
+
+    <button onClick={toggleSideMenu} className="btn btn-secondary">
+        {showCommitments ? 'Hide Menu' : 'Show Menu'}
+    </button>
+
+    <Calendar currentUser={currentUser} />
+
     <div className="container">
-
-
-   
-
-    {showForm && (
-            <form onSubmit={handleSubmit} className="form">
-                <input
-                    type="text"
-                    id="formCommitment"
-                    placeholder="Title"
-                    value={name}
-                    className="form-control"
-                    onChange={(e) => setName(e.target.value)}
-                />
-
-                <input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    step="300"
-                    className="form-control"
-                />
-                
-                <input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    step="300"
-                    className="form-control"
-                />
-
-                {/* Initial Date Picker */}
-                <div>
-                    <DatePicker
-                        selected={startDate}
-                        onChange={(date) => setStartDate(date)}
-                        placeholderText="Start date"
-                        isClearable={true}
-                        customInput={
-                            <button type="button" className="form-control">
-                                <FaCalendarAlt style={{ marginRight: '8px' }} />
-                                {startDate ? startDate.toLocaleDateString() : "Select date"}
-                            </button>
-                        }
-                    />
-                </div>
-
-                {/* Recurring Checkbox */}
-                <div className="form-check">
+        {showForm && (
+            <div className="form-overlay">
+                <form onSubmit={handleSubmit} className="form">
                     <input
-                        type="checkbox"
-                        id="recurring"
-                        checked={isRecurring}
-                        onChange={(e) => setIsRecurring(e.target.checked)}
-                        className="form-check-input"
+                        type="text"
+                        id="formCommitment"
+                        placeholder="Title"
+                        value={name}
+                        className="form-control"
+                        onChange={(e) => setName(e.target.value)}
                     />
-                    <label htmlFor="recurring" className="form-check-label">Recurring</label>
-                </div>
 
-                {/* Conditional End Date Picker and Days of the Week */}
-                {isRecurring && (
-                    <>
-                        
-                        <div>
-                            <DatePicker
-                                selected={endDate}
-                                onChange={(date) => setEndDate(date)}
-                                placeholderText="End date"
-                                isClearable={true}
-                                customInput={
-                                    <button type="button" className="form-control">
-                                        <FaCalendarAlt style={{ marginRight: '8px' }} />
-                                        {endDate ? endDate.toLocaleDateString() : "Select end date"}
-                                    </button>
-                                }
-                            />
-                        </div>
+                    <input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        step="300"
+                        className="form-control"
+                    />
 
-                        <h3>Active Days</h3>
+                    <input
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        step="300"
+                        className="form-control"
+                    />
 
-                        <div className="day-selection">
-                    {daysOfWeek.map((day) => (
-                        <div key={day} className="form-check form-check-inline">
-                            <input
-                                type="checkbox"
-                                id={`day-${day}`}
-                                className="form-check-input"
-                                checked={selectedDays.includes(day)}
-                                onChange={() => toggleDaySelection(day)}
-                            />
-                            <label htmlFor={`day-${day}`} className="form-check-label">
-                                {day}
-                            </label>
-                        </div>
-                    ))}
-                </div>
+                    {/* Initial Date Picker */}
+                    <div>
+                        <DatePicker
+                            selected={startDate}
+                            onChange={(date) => setStartDate(date)}
+                            placeholderText="Start date"
+                            isClearable={true}
+                            customInput={
+                                <button type="button" className="form-control">
+                                    <FaCalendarAlt style={{ marginRight: '8px' }} />
+                                    {startDate ? startDate.toLocaleDateString() : "Select date"}
+                                </button>
+                            }
+                        />
+                    </div>
 
-                    </>
-                )}
+                    {/* Recurring Checkbox */}
+                    <div className="form-check">
+                        <input
+                            type="checkbox"
+                            id="recurring"
+                            checked={isRecurring}
+                            onChange={(e) => setIsRecurring(e.target.checked)}
+                            className="form-check-input"
+                        />
+                        <label htmlFor="recurring" className="form-check-label">Recurring</label>
+                    </div>
 
-                
-                {error && <div className="alert alert-danger">{error}</div>}
+                    {/* Conditional End Date Picker and Days of the Week */}
+                    {isRecurring && (
+                        <>
+                            <div>
+                                <DatePicker
+                                    selected={endDate}
+                                    onChange={(date) => setEndDate(date)}
+                                    placeholderText="End date"
+                                    isClearable={true}
+                                    customInput={
+                                        <button type="button" className="form-control">
+                                            <FaCalendarAlt style={{ marginRight: '8px' }} />
+                                            {endDate ? endDate.toLocaleDateString() : "Select end date"}
+                                        </button>
+                                    }
+                                />
+                            </div>
 
-                {/* Form Buttons */}
-                <div className="form-buttons">
-                    <button type="submit" className="btn btn-primary">Add</button>
-                    <button type="button" className="btn btn-secondary" onClick={toggleForm}>Cancel</button>
-                </div>
-            </form>
+                            <h3>Active Days</h3>
+                            <div className="day-selection">
+                                {daysOfWeek.map((day) => (
+                                    <div key={day} className="form-check form-check-inline">
+                                        <input
+                                            type="checkbox"
+                                            id={`day-${day}`}
+                                            className="form-check-input"
+                                            checked={selectedDays.includes(day)}
+                                            onChange={() => toggleDaySelection(day)}
+                                        />
+                                        <label htmlFor={`day-${day}`} className="form-check-label">
+                                            {day}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+
+                    {error && <div className="alert alert-danger">{error}</div>}
+
+                    <div className="form-buttons">
+                        <button type="submit" className="btn btn-primary">Add</button>
+                        <button type="button" className="btn btn-secondary" onClick={toggleForm}>Cancel</button>
+                    </div>
+                </form>
+            </div>
         )}
-
-    {/* Schedules Section */}
-    <div>
-
-        <h1>My Commitments</h1>
-        {renderSchedule()}
-
-        {!showForm && (
-        
-        <button
-            className="btn btn-primary"
-            onClick={toggleForm}
-        >
-            Add Commitment
-        </button>
-   
-)}
-
     </div>
-</div>
-<Footer />
-</div>
 
-);
+    {showCommitments && (
+        <div className="side-menu">
+            <h1>My Commitments</h1>
+            {renderSchedule()}
+            {!showForm && (
+                <button
+                    className="btn btn-primary"
+                    onClick={toggleForm}
+                >
+                    Add Commitment
+                </button>
+            )}
+        </div>
+    )}
+
+    <Footer />
+</div>
+)
 }
