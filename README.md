@@ -11,7 +11,7 @@ npm install
 2. Ensure all dependencies are installed:
 
 ```bash
-npm install bootstrap react react-bootstrap react-scripts react-dom cors sqlite3 webvitals
+npm install bootstrap react react-bootstrap react-scripts react-dom react-datepicker cors sqlite3 webvitals react-time-picker react-icons
 ```
 | Dependency         |Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
@@ -20,9 +20,13 @@ npm install bootstrap react react-bootstrap react-scripts react-dom cors sqlite3
 | **react-bootstrap**| Bootstrap components built as React components for seamless integration.    |
 | **react-scripts**  | Scripts and configuration for Create React App, including build and test tools. |
 | **react-dom**      | Provides DOM-specific methods for rendering React components to the DOM.    |
+|**react-datepicker**| UI packagage for date selection in the schedule form. |
+|**react-time-picker**| UI package for time input and selection in the schedule form. | 
+|**react-icons**| React icons |
 | **cors**           | Middleware to enable cross-origin requests between server and app.          |
 | **sqlite3**        | Lightweight SQL database engine used for storing user data locally.         |
 | **web-vitals**     | Reports essential web performance metrics like loading time, interactivity, and stability. |
+
 
 
 4.  Start the server

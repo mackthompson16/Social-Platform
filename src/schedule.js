@@ -1,18 +1,25 @@
-import { Button, Form, Alert } from 'react-bootstrap';
+
 import React, { useState } from 'react';
 import Header from './header.js';
 import './styles.css';
 import Footer from './footer.js';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import TimePicker from 'react-time-picker';
+import 'react-time-picker/dist/TimePicker.css';
+import { FaCalendarAlt } from 'react-icons/fa';
+
 const User = require('./user'); 
 
 
 // Commitment class to store commitment data
 class Commitment {
-    constructor(commitment, startTime, endTime, days) {
+    constructor(commitment, startTime, endTime, days,dates) {
         this.name = commitment;
         this.startTime = startTime;
         this.endTime = endTime;
         this.days = days;
+        this.dates = dates;
     }
 }
 
@@ -20,30 +27,29 @@ class Commitment {
 
 export default function Schedule({ currentUser,setCurrentUser, setCurrentPage }) {
     const [showForm, setShowForm] = useState(false);
+
     const [name, setName] = useState('');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [isRecurring, setIsRecurring] = useState(false);
     const [selectedDays, setSelectedDays] = useState([]);
-    const [error, setError] = useState(''); 
+    const [error, setError] = useState(null);
+    const daysOfWeek = ["Select All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+   
     
     
     
 
-    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    
 
-    const generateTimeOptions = () => {
-        const times = [];
-        for (let hour = 0; hour < 24; hour++) {
-            for (let minute = 0; minute < 60; minute += 30) {
-                const formattedTime = new Date(0, 0, 0, hour, minute)
-                    .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                times.push(formattedTime);
-            }
-        }
-        return times;
+    const handleDateChange = (dates) => {
+        const [start, end] = dates;
+        setStartDate(start);
+        setEndDate(end);
     };
 
-    const timeOptions = generateTimeOptions();
 
     const toggleForm = () => {
         setShowForm(!showForm);
@@ -52,56 +58,88 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-    
-        if (name && startTime && endTime && selectedDays.length > 0) {
-            const newCommitment = new Commitment(name, startTime, endTime, selectedDays);
-          
+        let newCommitment;
+        if(!name || !startTime || !endTime || !startDate){
+            setError("Missing field(s)");
+            return;
+        }
+        if (endTime < startTime) {
+            setError("End time before start time");
+            return;
+        }
+
+        if (isRecurring) {
+            if ( new Date(startDate) > new Date(endDate)) {
+                setError("End date before start date");
+                return;
+            }
+            if (selectedDays.length === 0) {
+                setError("select at least one day of the week.");
+                return;
+            }
+
+                newCommitment = new Commitment(
+                    name,
+                    startTime,
+                    endTime,
+                    selectedDays,  // Pass selected days for recurring commitment
+                    [startDate, endDate]  // Pass date range for recurring
+                );
+                // Add newCommitment to your list or handle it as needed
+               
+        } else {
+            
+                newCommitment = new Commitment(
+                    name,
+                    startTime,
+                    endTime,
+                    [],            // Empty array for selected days as it's non-recurring
+                    [startDate]    // Only start date is needed for non-recurring
+                );
+            }
+        
+            
+        if(newCommitment){
     
             try {
-                
-                const user = new User({id: currentUser.id});
+                const user = new User({ id: currentUser.id });
+    
                 /* 
-
-                user data is serialized in the database 
-                so i need to reinitialize the user object 
-                to access createSchedule.
-
+                The user data is serialized in the database, 
+                so I need to reinitialize the user object to access createSchedule.
                 This is something that took me a long time
-                as I tried to fetch the user instance i created initially.
-                This is not how the program should work. All i need is the 
+                as I tried to fetch the user instance I created initially.
+                This is not how the program should work. All I need is the 
                 database location to update it, so currentUser.id works fine,
                 and I can create a new user object.
-                
                 */
+    
                 const updatedUser = await user.addCommitment(newCommitment);
-
+    
                 if (updatedUser) {
                     // Safely update the current user state
                     setCurrentUser(updatedUser);
                     console.log("User updated successfully:", updatedUser);
                 } else {
-                    console.log("error updating user")
+                    console.log("Error updating user");
                 }
-                   
-            
-                
-
             } catch (err) {
                 console.error("Error fetching user or creating schedule:", err);
             }
-        } else {
-            console.log('err: field empty', startTime , endTime , selectedDays.length)
+        
+        }else{
+            console.log('error: one or more fields empty');
         }
-    
         setName('');
         setStartTime('');
         setEndTime('');
+        setStartDate('');
+        setEndDate('');
         setSelectedDays([]);
-        setError(''); 
+        setError('');
+        setIsRecurring(false);
         setShowForm(false);
     };
-    
-    
     
 
     const toggleDaySelection = (day) => {
@@ -111,36 +149,45 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
                 : [...prevSelectedDays, day]
         );
     };
-
-    const renderSchedule = () => {
-
-      
-        let parsedCommitments = JSON.parse(currentUser.commitments || '[]');
-       
-        // Parse schedules safely
+    const formatTime = (time) => {
+        const [hours, minutes] = time.split(':');
+        const hour = parseInt(hours, 10);
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const formattedHour = hour % 12 || 12; // Converts "0" to "12" for midnight
     
-        
+        return `${formattedHour}:${minutes} ${period}`;
+    };
+   
+    const renderSchedule = () => {
+        const parsedCommitments = JSON.parse(currentUser.commitments || '[]');
+    
         if (parsedCommitments.length > 0) {
             return (
                 <div className="schedule-container">
                     {parsedCommitments.map((commitment, index) => (
-                        
-                                    <div key={index} className="commitment">
-                                        
-                                        <p>{commitment.name || 'N/A'}</p>
-                                        <p>{commitment.startTime} - {commitment.endTime}</p>
-                                        <p>{commitment.days}</p>
-
-                                    </div>
-                         
+                        <div key={index} className="commitment">
+                            <h3>{commitment.name || 'N/A'}</h3>
+                            <p>
+                            Time: {formatTime(commitment.startTime)} - {formatTime(commitment.endTime)}
+                            </p>
+                            <p>
+                                {commitment.days.length>0? `Days: ${commitment.days.join(', ')}`:''}
+                            </p>
+                            <p>
+                            Dates: {new Date(commitment.dates[0]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
+                                {commitment.dates.length > 1 ? ` - ${new Date(commitment.dates[1]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` : ''}
+     
+                            </p>
+                        </div>
                     ))}
                 </div>
             );
         }
     
-        // If there are no schedules, show fallback message
-        return <h1> Empty </h1>;
+        // If there are no schedules, show a fallback message
+        return <h1>Empty</h1>;
     };
+    
     
     
 
@@ -154,87 +201,118 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
    
 
     {showForm && (
-        <form onSubmit={handleSubmit} className="form">
-        
-           
-              
+            <form onSubmit={handleSubmit} className="form">
                 <input
                     type="text"
                     id="formCommitment"
-                    placeholder="Commitment"
+                    placeholder="Title"
                     value={name}
                     className="form-control"
                     onChange={(e) => setName(e.target.value)}
                 />
-                      
-                <select
-                    className="form-control"
-                    id="formStartTime"
+
+                <input
+                    type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                >
-                    <option value="">Select start time</option>
-                    {timeOptions.map((time, index) => (
-                        <option key={index} value={time}>
-                            {time}
-                        </option>
-                    ))}
-                </select>
-               
-                <select
+                    step="300"
                     className="form-control"
-                    id="formEndTime"
+                />
+                
+                <input
+                    type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                >
-                    <option value="">Select end time</option>
-                    {timeOptions.map((time, index) => (
-                        <option key={index} value={time}>
-                            {time}
-                        </option>
-                    ))}
-                </select>
-       
+                    step="300"
+                    className="form-control"
+                />
 
-            {/* Form Group for Days */}
-            
-               
-                <div className="day-selection">
+                {/* Initial Date Picker */}
+                <div>
+                    <DatePicker
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date)}
+                        placeholderText="Start date"
+                        isClearable={true}
+                        customInput={
+                            <button type="button" className="form-control">
+                                <FaCalendarAlt style={{ marginRight: '8px' }} />
+                                {startDate ? startDate.toLocaleDateString() : "Select date"}
+                            </button>
+                        }
+                    />
+                </div>
+
+                {/* Recurring Checkbox */}
+                <div className="form-check">
+                    <input
+                        type="checkbox"
+                        id="recurring"
+                        checked={isRecurring}
+                        onChange={(e) => setIsRecurring(e.target.checked)}
+                        className="form-check-input"
+                    />
+                    <label htmlFor="recurring" className="form-check-label">Recurring</label>
+                </div>
+
+                {/* Conditional End Date Picker and Days of the Week */}
+                {isRecurring && (
+                    <>
+                        
+                        <div>
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}
+                                placeholderText="End date"
+                                isClearable={true}
+                                customInput={
+                                    <button type="button" className="form-control">
+                                        <FaCalendarAlt style={{ marginRight: '8px' }} />
+                                        {endDate ? endDate.toLocaleDateString() : "Select end date"}
+                                    </button>
+                                }
+                            />
+                        </div>
+
+                        <h3>Active Days</h3>
+
+                        <div className="day-selection">
                     {daysOfWeek.map((day) => (
-                        <button
-                            key={day}
-                            type="button"
-                            className={`btn ${selectedDays.includes(day) ? 'btn-primary' : 'btn-outline-primary'}`}
-                            onClick={() => toggleDaySelection(day)}
-                        >
-                            {day}
-                        </button>
+                        <div key={day} className="form-check form-check-inline">
+                            <input
+                                type="checkbox"
+                                id={`day-${day}`}
+                                className="form-check-input"
+                                checked={selectedDays.includes(day)}
+                                onChange={() => toggleDaySelection(day)}
+                            />
+                            <label htmlFor={`day-${day}`} className="form-check-label">
+                                {day}
+                            </label>
+                        </div>
                     ))}
                 </div>
 
-           
-            {error && <div className="alert alert-danger">{error}</div>}
+                    </>
+                )}
 
-            {/* Form Buttons */}
-            <div className="form-buttons">
-               
-                <button type="submit" className="btn btn-primary">
-                    Add
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={toggleForm}>
-                    Cancel
-                </button>
-            </div>
-        </form>
-    
-    )}
+                
+                {error && <div className="alert alert-danger">{error}</div>}
+
+                {/* Form Buttons */}
+                <div className="form-buttons">
+                    <button type="submit" className="btn btn-primary">Add</button>
+                    <button type="button" className="btn btn-secondary" onClick={toggleForm}>Cancel</button>
+                </div>
+            </form>
+        )}
 
     {/* Schedules Section */}
     <div>
 
         <h1>My Commitments</h1>
         {renderSchedule()}
-        
+
         {!showForm && (
         
         <button

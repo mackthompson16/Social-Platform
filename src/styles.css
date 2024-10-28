@@ -124,6 +124,7 @@ h1 {
     line-height: 1.2;
   }
 
+  
 /* Responsive design */
 @media (max-width: 600px) {
     .container, .form-container, .schedule {
