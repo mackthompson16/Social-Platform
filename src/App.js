@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import CreateAccount from './createAccount';
+import Header from './header.js';
+import Footer from './footer.js';
 import Login from './login';
-import Home from './home';
 import Schedule from './schedule';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function Myapp() {
-  const [currentPage, setCurrentPage] = useState('login');
+  const [currentPage, setCurrentPage] = useState('Login');
   const [currentUser, setCurrentUser] = useState(null);
    const renderPage = () => {
     switch (currentPage) {
       case 'CreateAccount':
         return <CreateAccount setCurrentPage={setCurrentPage} setCurrentUser={setCurrentUser}/>;
-      case 'Home':
-        return <Home currentUser={currentUser} setCurrentPage={setCurrentPage} />;
       case 'Schedule':
         return <Schedule current currentUser={currentUser} setCurrentUser={setCurrentUser} setCurrentPage={setCurrentPage}/>;
       case 'Friends':
@@ -26,10 +25,13 @@ export default function Myapp() {
   };
   
   return (
-  
-        <div>
-          {renderPage()} 
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <main style={{ flexGrow: 1 }}>
+    <Header setCurrentPage={setCurrentPage} />
+      {renderPage()}
+    </main>
+    <Footer />
+  </div>
       
   );
 }

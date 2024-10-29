@@ -147,6 +147,37 @@ app.post('/api/login', async (req, res) => {
     res.status(400).json(err);
   }
 });
+app.post('/api/removeCommitment/:userId/:commitmentId', async (req, res) => {
+  const userId = Number(req.params.userId);
+  const commitmentId = Number(req.params.commitmentId);
+
+  // Retrieve user by ID
+  const user = getUserById(userId);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  
+  const commitments = typeof user.commitments === 'string' ? JSON.parse(user.commitments) : user.commitments;
+
+  
+  const commitmentExists = commitments.some(commitment => commitment.id === commitmentId);
+  if (!commitmentExists) {
+    return res.status(404).json({ error: 'Commitment not found' });
+  }
+
+  
+  const updatedCommitments = commitments.filter(commitment => commitment.id !== commitmentId);
+  user.commitments = JSON.stringify(updatedCommitments); // Update with the modified commitments
+
+  // Save the updated user back to the database
+  await saveUser(user); // Replace this with your database update logic
+
+  // Send success response
+  res.status(200).json({ message: 'Commitment removed successfully', user:getUserById(userId) });
+});
+
+
 
 app.listen(5000, () => {
   console.log('Server is running on port 5000');

@@ -36,7 +36,6 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    min-height: 100vh; /* Makes sure the container takes at least the full viewport height */
     margin: 0 auto;
 }
 
@@ -49,6 +48,7 @@ button, .btn {
     border-radius: 5px;
     margin: 10px;
     cursor: pointer;
+    
     transition: background-color 0.3s ease;
 }
 
@@ -59,7 +59,7 @@ button, .btn {
 }
 
 .btn-secondary {
-    background-color: #6c757d;
+    background-color: #333;
     border: none;
     color: white;
 }
@@ -73,7 +73,11 @@ button:hover, .btn:hover {
     border-radius: 50px;
 }
 
-/* Hover effect for commitment */
+.calendar-container {
+    margin: 0 auto;
+    justify-content: center;
+    width: 80%; /* Set width to 2/3 of the screen */
+  }
 .commitment:hover {
     border-color: #007bff;
 }
@@ -93,6 +97,20 @@ button:hover, .btn:hover {
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.remove-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #ff4d4d;
+    cursor: pointer;
+}
+
+.remove-button:hover {
+    color: #ff0000;
 }
 
 .commitment h4 {

@@ -34,7 +34,7 @@ export default function Login({ setCurrentPage, setCurrentUser }) {
       if (data.success) {
         console.log('Login Success: ', data.user)
         setCurrentUser(data.user);
-        setCurrentPage('Home');     // Navigate to the home page
+        setCurrentPage('Schedule');     // Navigate to the home page
       } else {
         alert('Login failed');
       }

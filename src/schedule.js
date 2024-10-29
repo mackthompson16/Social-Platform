@@ -154,38 +154,56 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
     const renderSchedule = () => {
         const parsedCommitments = JSON.parse(currentUser.commitments || '[]');
     
+        // Function to handle the removal of a commitment
+        const handleRemoveCommitment = async (commitmentId) => {
+            try {
+                const response = await fetch(`/api/removeCommitment/${commitmentId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    // Update the commitments after deletion
+                    const updatedCommitments = parsedCommitments.filter(c => c.id !== commitmentId);
+                    currentUser.commitments = JSON.stringify(updatedCommitments); // Update the user data
+                    setCurrentUser({ ...currentUser }); // Trigger re-render
+                } else {
+                    console.error("Failed to delete commitment");
+                }
+            } catch (error) {
+                console.error("Error deleting commitment:", error);
+            }
+        };
+    
         if (parsedCommitments.length > 0) {
             return (
                 <div className="schedule-container">
                     {parsedCommitments.map((commitment, index) => (
                         <div key={index} className="commitment">
+                            <button 
+                                onClick={() => handleRemoveCommitment(commitment.id)}
+                                className="remove-button"
+                            >
+                                &times;
+                            </button>
                             <h3>{commitment.name || 'N/A'}</h3>
+                            <p>Time: {formatTime(commitment.startTime)} - {formatTime(commitment.endTime)}</p>
+                            <p>{commitment.days.length > 0 ? `Days: ${commitment.days.join(', ')}` : ''}</p>
                             <p>
-                            Time: {formatTime(commitment.startTime)} - {formatTime(commitment.endTime)}
-                            </p>
-                            <p>
-                                {commitment.days.length>0? `Days: ${commitment.days.join(', ')}`:''}
-                            </p>
-                            <p>
-                            Dates: {new Date(commitment.dates[0]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
+                                Dates: {new Date(commitment.dates[0]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
                                 {commitment.dates.length > 1 ? ` - ${new Date(commitment.dates[1]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` : ''}
-     
                             </p>
                         </div>
                     ))}
                 </div>
             );
         }
-    
-        // If there are no schedules, show a fallback message
-        return <h1>Empty</h1>;
     };
+    
+    
     
     
     
 return (
     <div>
-    <Header setCurrentPage={setCurrentPage} />
 
     <button onClick={toggleSideMenu} className="btn btn-secondary">
         {showCommitments ? 'Hide Menu' : 'Show Menu'}
@@ -313,8 +331,6 @@ return (
             )}
         </div>
     )}
-
-    <Footer />
 </div>
 )
 }

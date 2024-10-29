@@ -49,11 +49,13 @@ export default function Calendar({ currentUser }) {
     });
 
     return (
-        <FullCalendar
-            plugins={[dayGridPlugin]}
-            initialView="dayGridMonth"
-            weekends={false}
-            events={events}
-        />
+        <div class="calendar-container">
+            <FullCalendar
+                plugins={[dayGridPlugin]}
+                initialView="dayGridMonth"
+                weekends={false}
+                events={events}
+            />
+        </div>
     );
 }

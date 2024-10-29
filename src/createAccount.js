@@ -35,7 +35,7 @@ export default function CreateAccount({setCurrentUser, setCurrentPage}) {
     if (data.success) {
       console.log(data.user)
       setCurrentUser(data.user)
-      setCurrentPage('Home')
+      setCurrentPage('Schedule')
 
     } else {
       alert('Error creating account: ' + data.message);

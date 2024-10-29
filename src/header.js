@@ -1,11 +1,11 @@
-export default function Header({ setCurrentPage }) {
+export default function Header({ setCurrentPage,currentPage }) {
   const headerContainerStyle = {
       display: 'flex',
       justifyContent: 'center',
       padding: '10px',
       gap: '20px',
       marginTop: '20px',
-      backgroundColor: '#000', // Black background for the header
+      backgroundColor: '#333', // Black background for the header
   };
 
   const linkStyle = {
@@ -24,31 +24,32 @@ export default function Header({ setCurrentPage }) {
   };
 
   return (
-      <div style={headerContainerStyle}>
-          <span
-              style={linkStyle}
-              onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
-              onMouseLeave={(e) => Object.assign(e.target.style, linkStyle)}
-              onClick={() => setCurrentPage('Schedule')}
-          >
-              My Schedule
-          </span>
-          <span
-              style={linkStyle}
-              onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
-              onMouseLeave={(e) => Object.assign(e.target.style, linkStyle)}
-              onClick={() => setCurrentPage('Friends')}
-          >
-              Friends
-          </span>
-          <span
-              style={linkStyle}
-              onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
-              onMouseLeave={(e) => Object.assign(e.target.style, linkStyle)}
-              onClick={() => setCurrentPage('Preferences')}
-          >
-              Preferences
-          </span>
-      </div>
+    <div style={headerContainerStyle}>
+    <span
+        style={linkStyle}
+        onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
+        onMouseLeave={(e) => Object.assign(e.target.style, linkStyle)}
+        onClick={() => currentPage !== 'login' && setCurrentPage('Schedule')}
+    >
+        Calendar
+    </span>
+    <span
+        style={linkStyle}
+        onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
+        onMouseLeave={(e) => Object.assign(e.target.style, linkStyle)}
+        onClick={() => currentPage !== 'login' && setCurrentPage('Friends')}
+    >
+        Friends
+    </span>
+    <span
+        style={linkStyle}
+        onMouseEnter={(e) => Object.assign(e.target.style, hoverStyle)}
+        onMouseLeave={(e) => Object.assign(e.target.style, linkStyle)}
+        onClick={() => currentPage !== 'login' && setCurrentPage('Preferences')}
+    >
+        Preferences
+    </span>
+  </div>
+  
   );
 }
