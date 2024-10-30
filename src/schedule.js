@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
-import Header from './header.js';
+import React, { useState, useEffect } from 'react';
+
 import './styles.css';
-import Footer from './footer.js';
+
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from 'react-icons/fa';
@@ -13,7 +13,8 @@ const User = require('./user');
 
 // Commitment class to store commitment data
 class Commitment {
-    constructor(commitment, startTime, endTime, days,dates) {
+    constructor(commitment, startTime, endTime, days,dates,id='id') {
+        this.id = id;
         this.name = commitment;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -24,10 +25,11 @@ class Commitment {
 
 
 
-export default function Schedule({ currentUser,setCurrentUser, setCurrentPage }) {
+export default function Schedule({ currentUser }) {
+    const [user,setUser] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [showCommitments, setShowCommitments] = useState(false);
-
+    const [commitments, setCommitments] = useState([]);
     const [name, setName] = useState('');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
@@ -37,8 +39,33 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
     const [selectedDays, setSelectedDays] = useState([]);
     const [error, setError] = useState(null);
     const daysOfWeek = ["Select All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-   
+    const [loading, setLoading] = useState(true);
     
+    useEffect(() => {
+        if (currentUser?.id) {
+            const loadUser = new User({ id: currentUser.id });
+            setUser(loadUser);
+        }
+    }, [currentUser]);
+
+    useEffect(() => {
+        const loadCommitments = async () => {
+            if (user) {
+                try {
+                    const commitmentsData = await user.getUserCommitments();
+                    setCommitments(commitmentsData);
+                    setLoading(false); // Set loading to false once commitments are loaded
+                } catch (err) {
+                    console.error("Failed to load commitments:", err);
+                }
+            }
+        };
+        loadCommitments();
+    }, [user]); // This effect runs only after `user` is set
+
+    if (loading) {
+        return <div>Loading...</div>; // Display a loading message or spinner
+    }
 
     const toggleForm = () => {
         setShowForm(!showForm);
@@ -48,6 +75,20 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
         setShowCommitments(!showCommitments);
     
     };
+      
+      const handleRemoveCommitment = async (commentmentId) =>{
+        
+        await user.removeCommitment(commentmentId);
+        const updatedCommitments = await user.getUserCommitments();
+    
+        if (updatedCommitments) {
+          setCommitments(updatedCommitments);
+        
+          console.log("Commitment removed? Check: ", commitments);
+        } 
+
+    };
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -92,35 +133,23 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
             }
         
             
-        if(newCommitment){
-    
-            try {
-                const user = new User({ id: currentUser.id });
-    
-                /* 
-                The user data is serialized in the database, 
-                so I need to reinitialize the user object to access createSchedule.
-                This is something that took me a long time
-                as I tried to fetch the user instance I created initially.
-                This is not how the program should work. All I need is the 
-                database location to update it, so currentUser.id works fine,
-                and I can create a new user object.
-                */
-    
-                const updatedUser = await user.addCommitment(newCommitment);
-    
-                if (updatedUser) {
-                    // Safely update the current user state
-                    setCurrentUser(updatedUser);
-                    console.log("User updated successfully:", updatedUser);
-                } else {
-                    console.log("Error updating user");
+            if (newCommitment) {
+                try {
+
+                  await user.addCommitment(newCommitment);
+                  const updatedCommitments = await user.getUserCommitments();
+              
+                  if (updatedCommitments) {
+                    setCommitments(updatedCommitments);
+                  
+                    console.log("Commitments updated? Check: ", commitments);
+                  } else {
+                    console.log("Error updating commitments");
+                  }
+                } catch (err) {
+                  console.error("Error adding commitment:", err);
                 }
-            } catch (err) {
-                console.error("Error fetching user or creating schedule:", err);
-            }
-        
-        }else{
+              }else{
             console.log('error: one or more fields empty');
         }
         setName('');
@@ -150,52 +179,50 @@ export default function Schedule({ currentUser,setCurrentUser, setCurrentPage })
     
         return `${formattedHour}:${minutes} ${period}`;
     };
+
    
     const renderSchedule = () => {
-        const parsedCommitments = JSON.parse(currentUser.commitments || '[]');
-    
-        // Function to handle the removal of a commitment
-        const handleRemoveCommitment = async (commitmentId) => {
-            try {
-                const response = await fetch(`/api/removeCommitment/${commitmentId}`, {
-                    method: 'DELETE'
-                });
-                if (response.ok) {
-                    // Update the commitments after deletion
-                    const updatedCommitments = parsedCommitments.filter(c => c.id !== commitmentId);
-                    currentUser.commitments = JSON.stringify(updatedCommitments); // Update the user data
-                    setCurrentUser({ ...currentUser }); // Trigger re-render
-                } else {
-                    console.error("Failed to delete commitment");
-                }
-            } catch (error) {
-                console.error("Error deleting commitment:", error);
-            }
-        };
-    
-        if (parsedCommitments.length > 0) {
+        
+        if (commitments.length > 0) {
             return (
                 <div className="schedule-container">
-                    {parsedCommitments.map((commitment, index) => (
-                        <div key={index} className="commitment">
-                            <button 
-                                onClick={() => handleRemoveCommitment(commitment.id)}
-                                className="remove-button"
-                            >
-                                &times;
-                            </button>
-                            <h3>{commitment.name || 'N/A'}</h3>
-                            <p>Time: {formatTime(commitment.startTime)} - {formatTime(commitment.endTime)}</p>
-                            <p>{commitment.days.length > 0 ? `Days: ${commitment.days.join(', ')}` : ''}</p>
-                            <p>
-                                Dates: {new Date(commitment.dates[0]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
-                                {commitment.dates.length > 1 ? ` - ${new Date(commitment.dates[1]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` : ''}
-                            </p>
-                        </div>
-                    ))}
+                    {commitments.map((commitment, index) => {
+                        // Parse days if it is a JSON string or comma-separated string
+                        const parsedDays = Array.isArray(commitment.days)
+                            ? commitment.days
+                            : JSON.parse(commitment.days) || commitment.days.split(',');
+        
+                        // Parse dates if it's a JSON string
+                        const parsedDates = Array.isArray(commitment.dates)
+                            ? commitment.dates
+                            : JSON.parse(commitment.dates);
+        
+                        return (
+                            <div key={index} className="commitment">
+                                <button 
+                                    onClick={() => handleRemoveCommitment(commitment.id)}
+                                    className="remove-button"
+                                >
+                                    &times;
+                                </button>
+                                <h3>{commitment.name || 'N/A'}</h3>
+                                <p>Time: {formatTime(commitment.startTime)} - {formatTime(commitment.endTime)}</p>
+                                <p>{parsedDays.length > 0 ? `Days: ${parsedDays.join(', ')}` : ''}</p>
+                                <p>
+                                    Date{parsedDates.length > 1?'s': ''}: {parsedDates.length > 0 
+                                        ? `${new Date(parsedDates[0]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` 
+                                        : ''}
+                                    {parsedDates.length > 1 
+                                        ? ` - ${new Date(parsedDates[1]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` 
+                                        : ''}
+                                </p>
+                            </div>
+                        );
+                    })}
                 </div>
             );
         }
+        
     };
     
     
@@ -209,7 +236,7 @@ return (
         {showCommitments ? 'Hide Menu' : 'Show Menu'}
     </button>
 
-    <Calendar currentUser={currentUser} />
+    <Calendar commitments={commitments} />
 
     <div className="container">
         {showForm && (
