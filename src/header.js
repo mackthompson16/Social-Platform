@@ -2,9 +2,8 @@ export default function Header({ setCurrentPage,currentPage }) {
   const headerContainerStyle = {
       display: 'flex',
       justifyContent: 'center',
-      padding: '10px',
-      gap: '20px',
-      marginTop: '20px',
+      padding: '20px',
+    
       backgroundColor: '#333', // Black background for the header
   };
 
