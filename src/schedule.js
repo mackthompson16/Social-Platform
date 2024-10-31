@@ -61,11 +61,26 @@ export default function Schedule({ currentUser }) {
             }
         };
         loadCommitments();
-    }, [user]); // This effect runs only after `user` is set
+    }, [user]); 
+
+
 
     if (loading) {
         return <div>Loading...</div>; // Display a loading message or spinner
     }
+
+    const colorPalette = [
+        '#B0E0E6', // Pale blue
+        '#D5E8D4', // Light green
+        '#F8E6D2', // Soft peach
+        '#D3D3E7', // Lavender
+        '#FAE3E3', // Light blush
+        '#F2D7EE', // Pale pink
+        '#C2D9E7', // Light sky blue
+        '#F8EDD3', // Cream
+        '#D4E2D4', // Mint
+        '#E7D3C2'  // Beige
+    ];
 
     const toggleForm = () => {
         setShowForm(!showForm);
@@ -185,7 +200,7 @@ export default function Schedule({ currentUser }) {
         
         if (commitments.length > 0) {
             return (
-                <div className="schedule-container">
+                <div className="menu-container">
                     {commitments.map((commitment, index) => {
                         // Parse days if it is a JSON string or comma-separated string
                         const parsedDays = Array.isArray(commitment.days)
@@ -196,9 +211,10 @@ export default function Schedule({ currentUser }) {
                         const parsedDates = Array.isArray(commitment.dates)
                             ? commitment.dates
                             : JSON.parse(commitment.dates);
-        
+                        const lastDigit = commitment.id % 10;
+                        const color = colorPalette[lastDigit];
                         return (
-                            <div key={index} className="commitment">
+                            <div key={index} className="commitment" style={{backgroundColor:color}}>
                                 <button 
                                     onClick={() => handleRemoveCommitment(commitment.id)}
                                     className="remove-button"

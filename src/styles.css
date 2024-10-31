@@ -148,11 +148,10 @@ h1 {
   }
 
   .side-menu {
-    width: 300px;
     max-height: calc(100vh - 60px);
     position: fixed;
     left: 0;
-    top: 150px;
+    top: 80px;
     padding: 20px;
     background-color: #f9f9f9;
     border-right: 1px solid #ddd;
@@ -163,7 +162,7 @@ h1 {
 }
 
 /* Adjust schedule container height to fit within the sidebar */
-.side-menu .schedule-container {
+.side-menu .menu-container {
     max-height: calc(100vh - 210px); /* Adjust based on sidebar contents */
     overflow-y: auto;
     padding-right: 10px;
