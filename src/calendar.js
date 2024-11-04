@@ -1,13 +1,15 @@
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import React, { useState, useEffect } from 'react';
+import { useUser } from './UserContext';
 
-export default function Calendar({ commitments }) {
+export default function Calendar() {
+    const { state } = useUser();
     const [events, setEvents] = useState([]);
+
     useEffect(() => {
-        setEvents([]); // Clear previous events to avoid duplicates
-        
-        const processedEvents = commitments.flatMap(commitment => {
+        const events = [];
+        state.commitments.forEach(commitment => {
             const parsedDates = JSON.parse(commitment.dates);
             const parsedDays = JSON.parse(commitment.days);
     
@@ -17,46 +19,47 @@ export default function Calendar({ commitments }) {
             const id = commitment.id;
     
             if (parsedDates.length > 1) {
-                return generateRecurringEvents({ ...commitment, dates: parsedDates, days: parsedDays });
+                // Generate recurring events and push each to events array
+                const recurringEvents = generateRecurringEvents({ ...commitment, dates: parsedDates, days: parsedDays });
+                recurringEvents.forEach(event => events.push(event));
             } else {
-                return {
+                // Push non-recurring event directly to events array
+                events.push({
                     id,
                     title,
                     start,
                     end
-                };
+                });
             }
         });
-        
-        setEvents(processedEvents);
-    }, [commitments]);
     
+        setEvents(events);
+        console.log('event array:', events)
+    }, [state.commitments]);
 
     const generateRecurringEvents = (commitment) => {
-      const events = [];
-      const [startDate, endDate] = commitment.dates; // Assuming dates is already an array
-      const daysOfWeek = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-  
-      const isSelectAll = commitment.days.includes("Select All"); // Assuming days is already an array
-  
-      for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-          const dayName = Object.keys(daysOfWeek)[date.getDay()];
-  
-          if (isSelectAll || commitment.days.includes(dayName)) {
-              events.push({
-                  id: commitment.id,
-                  title: commitment.name,
-                  start: new Date(`${date.toISOString().split('T')[0]}T${commitment.startTime}`),
-                  end: new Date(`${date.toISOString().split('T')[0]}T${commitment.endTime}`)
-              });
-          }
-      }
-      return events;
-  };
+        const events = [];
+        const [startDate, endDate] = commitment.dates;
+        const daysOfWeek = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
+        const isSelectAll = commitment.days.includes("Select All");
 
+        for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+            const dayName = Object.keys(daysOfWeek)[date.getDay()];
+
+            if (isSelectAll || commitment.days.includes(dayName)) {
+                events.push({
+                    id: commitment.id,
+                    title: commitment.name,
+                    start: new Date(`${date.toISOString().split('T')[0]}T${commitment.startTime}`),
+                    end: new Date(`${date.toISOString().split('T')[0]}T${commitment.endTime}`)
+                });
+            }
+        }
+        return events;
+    };
 
     
 
@@ -114,6 +117,7 @@ export default function Calendar({ commitments }) {
     return (
         <div className="calendar-container">
             <FullCalendar
+                key={events.length} // Use `events.length` or a unique identifier to force re-render
                 plugins={[dayGridPlugin]}
                 initialView="dayGridMonth"
                 events={events}

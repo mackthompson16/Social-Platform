@@ -3,7 +3,7 @@
 
 /* Form specific styles */
 .form {
-    position: absolute; /* Overlay on top of calendar */
+   position: fixed; /* Overlay on top of calendar */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -39,40 +39,6 @@
     margin: 0 auto;
 }
 
-
-/* Button styles */
-button, .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    margin: 10px;
-    cursor: pointer;
-    
-    transition: background-color 0.3s ease;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    border: none;
-    color: white;
-}
-
-.btn-secondary {
-    background-color: #333;
-    border: none;
-    color: white;
-}
-
-button:hover, .btn:hover {
-    opacity: 0.9;
-}
-
-.form-group .btn {
-    margin: 5px;
-    border-radius: 50px;
-}
-
 .calendar-container {
     margin: 0 auto;
     justify-content: center;
@@ -90,54 +56,7 @@ button:hover, .btn:hover {
     color: #333;
 }
 
-.commitment {
-    position: relative;
-    margin-bottom: 15px;
-    padding: 15px;
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-.remove-button {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: transparent;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: red; /* Optional: make it visible */
-}
 
-.remove-button:hover {
-    color: #ff0000;
-}
-
-.commitment h4 {
-    font-size: 20px;
-    margin-bottom: 10px;
-    color: #555;
-}
-
-.commitment p {
-    margin: 5px 0;
-    font-size: 16px;
-    color: #666;
-}
-
-.commitment strong {
-    font-weight: bold;
-    color: #333;
-}
-
-/* Fallback messages */
-.no-commitments, .no-schedules {
-    font-size: 18px;
-    text-align: center;
-    color: #888;
-    padding: 10px;
-}
 h1 {
     display:flex;
     justify-content: center;
@@ -147,101 +66,65 @@ h1 {
     line-height: 1.2;
   }
 
-  .side-menu {
-    max-height: calc(100vh - 60px);
-    position: fixed;
-    left: 0;
-    top: 80px;
-    padding: 20px;
+/* General container styling */
+.menu-container {
+    position: absolute;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-right: 2px solid #ccc;
+}
+
+/* Button styling */
+.menu-container button {
+    padding: 12px 20px;
+    border: none;
+    background-color: #ffffff;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hover styling */
+.menu-container button:hover,
+.menu-container button:focus {
+    background-color: #ddd;
+    color: #000;
+}
+
+/* Dropdown menu styling */
+.commitment-menu {
+    display: block;
+    margin-left: 20px; /* Offset for dropdown items */
+    padding: 5px 0;
+    border-left: 2px solid #ddd;
+}
+
+.commitment-menu button {
+    padding: 10px 20px;
+    font-size: 14px;
     background-color: #f9f9f9;
-    border-right: 1px solid #ddd;
-    overflow-y: auto;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    opacity: 1; /* Ensure full opacity */
-    z-index: 1; /* Lower z-index so form can appear on top */
+    color: #555;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Adjust schedule container height to fit within the sidebar */
-.side-menu .menu-container {
-    max-height: calc(100vh - 210px); /* Adjust based on sidebar contents */
-    overflow-y: auto;
-    padding-right: 10px;
+/* Dropdown button hover styling */
+.commitment-menu button:hover {
+    background-color: #ececec;
+    color: #333;
 }
-
-/* Heading styling */
-.side-menu h1 {
-    font-size: 1.5em;
-    margin-bottom: 20px;
-    color: #333; /* Darker text color for emphasis */
-}
-
-
-/* Scrollbar styling for schedule container */
-.side-menu .schedule-container {
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: #ccc transparent; /* Scrollbar color */
-}
-.side-menu .schedule-container::-webkit-scrollbar {
-    width: 6px;
-}
-.side-menu .schedule-container::-webkit-scrollbar-track {
-    background: transparent;
-}
-.side-menu .schedule-container::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 10px;
-}
-
-/* Show scrollbar only when hovering */
-.side-menu .schedule-container:hover {
-    overflow-y: auto;
-}
-
-/* Commitment item styling */
-.side-menu .commitment {
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-/* Add Commitment button */
-.side-menu .btn-primary {
-    width: 100%; /* Full width button */
-    margin-top: 20px;
-    padding: 10px;
-    font-size: 1em;
-    font-weight: bold;
-}
-
-/* Commitment text styling */
-.side-menu .commitment h3 {
-    margin: 0 0 5px 0;
-    font-size: 1.1em;
-}
-
-.side-menu .commitment p {
-    margin: 0;
-    font-size: 0.9em;
-    color: #666; /* Secondary text color */
-}
-
-/* Responsive design */
-@media (max-width: 600px) {
-    .container, .form-container, .schedule {
-        max-width: 40%;
-    }
-
-    .schedule-name {
-        font-size: 20px;
-    }
-
-    .commitment h4 {
-        font-size: 18px;
-    }
-
-    .commitment p {
-        font-size: 14px;
-    }
+.commitment-form {
+    position: center;
+    background-color: #ffffff;
+    padding: 20px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    /* Add any specific styles */
 }

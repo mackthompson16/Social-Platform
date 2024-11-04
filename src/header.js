@@ -1,9 +1,11 @@
 import { TfiAngleRight,TfiAngleDown } from "react-icons/tfi";
+import CommitmentMenu from "./commitmentMenu";
+import {useState} from 'react';
+export default function Header() {
 
-import react, {useState} from 'react';
-export default function Header({ setCurrentPage,currentPage }) {
-const [showMenu, setShowMenu] = useState(false);
-const [hoveredButton, setHoveredButton] = useState(null);
+    const [showMenu, setShowMenu] = useState(false);
+    const [hoveredButton, setHoveredButton] = useState(null);
+    const [showCommitmentMenu, setShowCommitmentMenu] = useState(false);
 
   const headerContainerStyle = {
       display: 'flex',
@@ -34,7 +36,7 @@ const title ={
 }
 
 const hoverStyle = {
-    transform: 'scale(1.1)', // Example hover effect, can adjust as needed
+    transform: 'scale(1.1)', 
 };
 
   const toggleSideMenu = () => {
@@ -55,7 +57,7 @@ const hoverStyle = {
                     }}
                     onMouseEnter={() => setHoveredButton('Friends')}
                     onMouseLeave={() => setHoveredButton(null)}
-                    onClick={() => setCurrentPage('Friends')}
+                    onClick={()=>setShowCommitmentMenu(!showCommitmentMenu) }
                 >
                     Friends
                 </button>
@@ -66,7 +68,7 @@ const hoverStyle = {
                     }}
                     onMouseEnter={() => setHoveredButton('Preferences')}
                     onMouseLeave={() => setHoveredButton(null)}
-                    onClick={() => setCurrentPage('Preferences')}
+                    onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
                 >
                     Preferences
                 </button>
@@ -77,10 +79,16 @@ const hoverStyle = {
                     }}
                     onMouseEnter={() => setHoveredButton('EditSchedule')}
                     onMouseLeave={() => setHoveredButton(null)}
-                    onClick={() => setCurrentPage('EditSchedule')}
+                    onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
                 >
-                    Schedule
+                   {showCommitmentMenu? 'Hide':'Manage'}
                 </button>
+                {showCommitmentMenu && (
+
+                    <CommitmentMenu/>
+
+
+                )}
             </div>
         );
 
@@ -101,7 +109,7 @@ const hoverStyle = {
             }}
             onMouseEnter={() => setHoveredButton('ToggleMenu')}
             onMouseLeave={() => setHoveredButton(null)}
-            onClick={() => currentPage !== 'login' && toggleSideMenu()}
+            onClick={() => toggleSideMenu()}
             aria-label="Toggle menu" // Accessibility feature
         >
 
@@ -116,14 +124,16 @@ const hoverStyle = {
             <h3>WeCal</h3>
         </div>
        
+    
+            
+    </div>
+
     {showMenu &&(
          <div className="side-menu">
                 {renderMenu()}
         </div>
         
     )}
-            
-    </div>
     </div>
   );
 }

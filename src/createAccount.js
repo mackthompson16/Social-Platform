@@ -1,14 +1,15 @@
 import { Button } from 'react-bootstrap';
 import React, {useState} from 'react';
+import { useUser } from './UserContext';
 
-export default function CreateAccount({setCurrentUser, setCurrentPage}) {
+export default function CreateAccount() {
+  const { dispatch } = useUser();
   const [accInfo, setAccInfo] = useState({
     username: '',
     password: '',
     email: ''
   });
 
-  const [showForm, setShowForm] = useState(false); // State to show/hide the form
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -21,38 +22,39 @@ export default function CreateAccount({setCurrentUser, setCurrentPage}) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Perform the account creation logic here (e.g., API call)
+    // Send a POST request to the backend to create the account
     const response = await fetch('http://localhost:5000/api/create-account', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(accInfo),
+      body: JSON.stringify(accInfo),  // Send the user input to the backend
     });
 
-    const data = await response.json();
-
+    const data = await response.json();  // Get the response from the backend
     if (data.success) {
-      console.log(data.user)
-      setCurrentUser(data.user)
-      setCurrentPage('Schedule')
+      // Account was created successfully
+      console.log('Account created successfully:', data.id);
 
+      // Dispatch action to update context with accInfo (already available in the frontend)
+      dispatch({
+        type: 'SET_USER',
+        payload: { id: data.id, ...accInfo }  // Use accInfo to set data in the context
+      });
     } else {
-      alert('Error creating account: ' + data.message);
+      alert('Account creation failed');
     }
 
-    // Reset the form after submission
+    // Reset the form
     setAccInfo({
       username: '',
       password: '',
       email: ''
     });
-    setShowForm(false); // Hide the form after successful account creation
+
   };
 
-  const toggleForm = () => {
-    setShowForm(!showForm); // Toggle the visibility of the form
-  };
+
 
   return (
     <div className="container">

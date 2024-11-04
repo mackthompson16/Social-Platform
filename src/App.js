@@ -1,38 +1,21 @@
-import React, { useState } from 'react';
-import CreateAccount from './createAccount';
-import Header from './header.js';
-import Footer from './footer.js';
+import React from 'react';
+import { useUser } from './UserContext'; // Correct path
+import Header from './header';
+import Footer from './footer';
 import Login from './login';
-import Schedule from './schedule';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import Calendar from './calendar';
 
-export default function Myapp() {
-  const [currentPage, setCurrentPage] = useState('Login');
-  const [currentUser, setCurrentUser] = useState(null);
-   const renderPage = () => {
-    switch (currentPage) {
-      case 'CreateAccount':
-        return <CreateAccount setCurrentPage={setCurrentPage} setCurrentUser={setCurrentUser}/>;
-      case 'Schedule':
-        return <Schedule current currentUser={currentUser} setCurrentUser={setCurrentUser} setCurrentPage={setCurrentPage}/>;
-      case 'Friends':
-        return <Friends currentUser={currentUser} setCurrentPage={setCurrentPage}/>;
-      case 'Preferences':
-        return <Preferences currentUser={currentUser} setCurrentUser={setCurrentUser} setCurrentPage={setCurrentPage} />;
-      default:
-        return <Login setCurrentPage={setCurrentPage} setCurrentUser={setCurrentUser} />;
-    }
-  };
-  
+export default function App() {
+  const { state } = useUser(); // Now `useUser` has access to the context
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-    <main style={{ flexGrow: 1 }}>
-    <Header setCurrentPage={setCurrentPage} />
-      {renderPage()}
-    </main>
-    <Footer />
-  </div>
-      
+      <main style={{ flexGrow: 1 }}>
+        <Header />
+        {!state.isLoggedIn && <Login />}
+        {state.isLoggedIn && <Calendar />}
+      </main>
+      <Footer />
+    </div>
   );
 }
-
