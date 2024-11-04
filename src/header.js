@@ -50,36 +50,19 @@ const hoverStyle = {
 
         return (
             <div className="menu-container">
-                <button
-                    style={{
-                        ...iconStyle,
-                        ...(hoveredButton === 'Friends' ? hoverStyle : {}),
-                    }}
-                    onMouseEnter={() => setHoveredButton('Friends')}
-                    onMouseLeave={() => setHoveredButton(null)}
+                <button className="btn btn-primary"
                     onClick={()=>setShowCommitmentMenu(!showCommitmentMenu) }
                 >
                     Friends
                 </button>
-                <button
-                    style={{
-                        ...iconStyle,
-                        ...(hoveredButton === 'Preferences' ? hoverStyle : {}),
-                    }}
-                    onMouseEnter={() => setHoveredButton('Preferences')}
-                    onMouseLeave={() => setHoveredButton(null)}
-                    onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
+                <button 
+                className="btn btn-primary"
+                 onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
                 >
                     Preferences
                 </button>
-                <button
-                    style={{
-                        ...iconStyle,
-                        ...(hoveredButton === 'EditSchedule' ? hoverStyle : {}),
-                    }}
-                    onMouseEnter={() => setHoveredButton('EditSchedule')}
-                    onMouseLeave={() => setHoveredButton(null)}
-                    onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
+                <button className="btn btn-primary"
+                onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
                 >
                    {showCommitmentMenu? 'Hide':'Manage'}
                 </button>

@@ -129,16 +129,16 @@ export default function CommitmentMenu(){
 
         <div>
 
-            {!state.commitments.length > 0 ? 'Empty' : renderCommitments()}
+            {state.commitments.length > 0 && (renderCommitments())}
 
-            {!showForm && (
-                <button
-                    className="btn btn-primary"
-                    onClick={() => setShowForm(true)}
-                >
-                    Add Commitment
-                </button>
-            )}
+            
+            <button
+                className="btn btn-primary"
+                onClick={() => setShowForm(true)}
+            >
+                Add Commitment
+            </button>
+            
             {showForm && (
                 <CommitmentForm />
             )}

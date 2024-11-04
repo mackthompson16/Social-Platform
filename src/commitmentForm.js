@@ -29,7 +29,7 @@ export default function CommitmentForm(){
     const [isRecurring, setIsRecurring] = useState(false);
     const [selectedDays, setSelectedDays] = useState([]);
     const [error, setError] = useState(null);
-    const daysOfWeek = ["Select All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const daysOfWeek = ["All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     
 
@@ -170,7 +170,7 @@ export default function CommitmentForm(){
                             placeholderText="Start date"
                             isClearable={true}
                             customInput={
-                                <button type="button" className="form-control">
+                                <button className="btn">
                                     <FaCalendarAlt style={{ marginRight: '8px' }} />
                                     {startDate ? startDate.toLocaleDateString() : "Select date"}
                                 </button>
@@ -199,7 +199,7 @@ export default function CommitmentForm(){
                                     placeholderText="End date"
                                     isClearable={true}
                                     customInput={
-                                        <button type="button" className="form-control">
+                                        <button className="btn btn-secondary">
                                             <FaCalendarAlt style={{ marginRight: '8px' }} />
                                             {endDate ? endDate.toLocaleDateString() : "Select end date"}
                                         </button>
@@ -208,9 +208,9 @@ export default function CommitmentForm(){
                             </div>
 
                             <h3>Active Days</h3>
-                            <div className="day-selection">
+                            <div className="form-check-container">
                                 {daysOfWeek.map((day) => (
-                                    <div key={day} className="form-check form-check-inline">
+                                    <div key={day} className="form-check">
                                         <input
                                             type="checkbox"
                                             id={`day-${day}`}
@@ -229,7 +229,7 @@ export default function CommitmentForm(){
 
                     {error && <div className="alert alert-danger">{error}</div>}
 
-                    <div className="form-buttons">
+                    <div className="button-container">
                         <button type="submit" className="btn btn-primary" >Add</button>
                         <button type="button" className="btn btn-secondary" onClick={()=>setShowForm(false)}>Cancel</button>
                     </div>
