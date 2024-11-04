@@ -126,12 +126,13 @@ export default function CommitmentForm(){
         setSelectedDays([]);
         setError('');
         setIsRecurring(false);
+        setShowForm(false);
     };
 
     return(
        
    
-        <div className="commitment-form">
+        <div>
              {showForm && (
              
             <div className="form-overlay">
@@ -229,7 +230,7 @@ export default function CommitmentForm(){
                     {error && <div className="alert alert-danger">{error}</div>}
 
                     <div className="form-buttons">
-                        <button type="submit" className="btn btn-primary">Add</button>
+                        <button type="submit" className="btn btn-primary" >Add</button>
                         <button type="button" className="btn btn-secondary" onClick={()=>setShowForm(false)}>Cancel</button>
                     </div>
                 </form>

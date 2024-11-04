@@ -9,21 +9,40 @@ export default function Calendar() {
 
     useEffect(() => {
         const events = [];
+    
         state.commitments.forEach(commitment => {
             const parsedDates = JSON.parse(commitment.dates);
             const parsedDays = JSON.parse(commitment.days);
-    
-            const start = new Date(`${parsedDates[0]}T${commitment.startTime}`);
-            const end = new Date(`${parsedDates[0]}T${commitment.endTime}`);
+            
+            // Extract common fields
             const title = commitment.name;
             const id = commitment.id;
     
-            if (parsedDates.length > 1) {
-                // Generate recurring events and push each to events array
+            if (Array.isArray(parsedDates) && parsedDates.length > 1) {
+                // Recurring commitment: Use generateRecurringEvents
                 const recurringEvents = generateRecurringEvents({ ...commitment, dates: parsedDates, days: parsedDays });
                 recurringEvents.forEach(event => events.push(event));
-            } else {
-                // Push non-recurring event directly to events array
+            } else if (typeof parsedDates === 'string' || (Array.isArray(parsedDates) && parsedDates.length === 1)) {
+                // Non-recurring commitment: Handle single date
+                const singleDate = Array.isArray(parsedDates) ? parsedDates[0] : parsedDates;
+                const startDate = new Date(singleDate);
+    
+                if (isNaN(startDate.getTime())) {
+                    console.error(`Invalid date for non-recurring commitment ID: ${commitment.id}`);
+                    return; // Skip invalid dates
+                }
+    
+                // Set start and end times
+                const [startHour, startMinute] = commitment.startTime.split(':').map(Number);
+                const [endHour, endMinute] = commitment.endTime.split(':').map(Number);
+    
+                const start = new Date(startDate);
+                start.setHours(startHour, startMinute);
+    
+                const end = new Date(startDate);
+                end.setHours(endHour, endMinute);
+    
+                // Add non-recurring event directly to events array
                 events.push({
                     id,
                     title,
@@ -34,8 +53,8 @@ export default function Calendar() {
         });
     
         setEvents(events);
-        console.log('event array:', events)
     }, [state.commitments]);
+    
 
     const generateRecurringEvents = (commitment) => {
         const events = [];

@@ -1,4 +1,3 @@
-import { Button } from 'react-bootstrap';
 import React, {useState} from 'react';
 import { useUser } from './UserContext';
 
@@ -95,9 +94,9 @@ export default function CreateAccount() {
                 className="form-control"
             />
        
-        <div stlyes={{display: 'flex', flexDirection: 'row'}}>
-          <Button type="submit" className="btn btn-primary">Submit</Button>
-          <Button onClick={() => setCurrentPage('login')} className="btn btn-secondary">Cancel</Button>
+        <div className="button-container">
+          <button type="submit" className="btn btn-primary">Submit</button>
+          <button onClick={() => setCurrentPage('login')} className="btn btn-secondary">Cancel</button>
           </div>
         </div>
     </form>

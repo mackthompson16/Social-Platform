@@ -4,7 +4,6 @@ import CommitmentForm from './commitmentForm';
 export default function CommitmentMenu(){
 
     const { state, dispatch } = useUser();
-    const [commitments, setCommitments] = useState([]);
     const [showForm, setShowForm] = useState(false);
 
     const colorPalette = [
@@ -30,6 +29,7 @@ export default function CommitmentMenu(){
       };
       
       const removeButtonStyle = {
+        zIndex: 10,
         position: 'absolute',
         top: '5px',
         right: '5px',
@@ -37,18 +37,9 @@ export default function CommitmentMenu(){
         border: 'none',
         fontSize: '18px',
         cursor: 'pointer',
-        color: 'red', // Optional: make it visible
+        color: 'red',
       };
          
-
-    useEffect(() => { 
-           
-          if (state.commitments && state.commitments.length > 0) {
-            setCommitments(state.commitments);
-            return;
-          }     
-   
-      }, [state.id, dispatch, state.commitments]);
     
       
 
@@ -62,7 +53,7 @@ export default function CommitmentMenu(){
     };
     
     const handleRemoveCommitment = async (commitmentId) =>{
-        
+
         try {
             const response = await fetch(`http://localhost:5000/api/removeCommitment/${state.id}/${commitmentId}`, {
                 method: 'DELETE'
@@ -88,10 +79,10 @@ export default function CommitmentMenu(){
     
     const renderCommitments = () => {
         
-        if (commitments.length > 0) {
+        if (state.commitments && state.commitments.length > 0) {
             return (
                 <div>
-                    {commitments.map((commitment, index) => {
+                    {state.commitments.map((commitment, index) => {
                         // Parse days if it is a JSON string or comma-separated string
                         const parsedDays = Array.isArray(commitment.days)
                             ? commitment.days
@@ -138,7 +129,7 @@ export default function CommitmentMenu(){
 
         <div>
 
-            {!commitments.length > 0 ? 'Empty' : renderCommitments()}
+            {!state.commitments.length > 0 ? 'Empty' : renderCommitments()}
 
             {!showForm && (
                 <button

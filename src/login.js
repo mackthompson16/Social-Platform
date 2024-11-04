@@ -1,4 +1,4 @@
-import { Button } from 'react-bootstrap';
+
 import React, { useState } from 'react';
 import { useUser } from './UserContext';
 import CreateAccount from './createAccount';
@@ -72,17 +72,17 @@ export default function Login() {
           <div className="form">
             <h1>Welcome</h1>
     
-            <div style={{ display: 'flex', flexDirection: 'row' }}>
-              <Button 
+            <div className="button-container">
+              <button 
                 className="btn btn-primary" 
                 onClick={() => setShowLoginForm(true)}>  
                 Login
-              </Button>
-              <Button 
+              </button>
+              <button 
                 className="btn btn-secondary" 
                 onClick={() => setShowCreateAccount(true)}>  
                 Create Account
-              </Button>
+              </button>
             </div>
           </div>
         )}
@@ -108,18 +108,18 @@ export default function Login() {
                 className="form-control"
               />
     
-              <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <Button 
-                  className="btn btn-primary"
+              <div className="button-container">
+                <button 
+                  className="btn btn-primary" 
                   onClick={handleSubmit}>
                   Login
-                </Button>
+                </button>
     
-                <Button 
+                <button 
                   className="btn btn-secondary" 
                   onClick={() => setShowLoginForm(false)}> 
                   Cancel
-                </Button>
+                </button>
               </div>
             </div>
           </form>

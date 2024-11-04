@@ -68,6 +68,7 @@ h1 {
 
 /* General container styling */
 .menu-container {
+    opacity:1;
     position: absolute;
     width: 200px;
     display: flex;
@@ -105,21 +106,54 @@ h1 {
     border-left: 2px solid #ddd;
 }
 
-.commitment-menu button {
-    padding: 10px 20px;
-    font-size: 14px;
-    background-color: #f9f9f9;
-    color: #555;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+.button-container {
+    display: flex;
+    justify-content: center; /* Center align buttons */
+    gap: 15px; /* Increase space between buttons */
+    margin-top: 30px; /* Additional space above the container */
 }
 
-/* Dropdown button hover styling */
-.commitment-menu button:hover {
-    background-color: #ececec;
-    color: #333;
+.button {
+    padding: 15px 30px; /* Increase padding for larger buttons */
+    font-size: 16px; /* Slightly larger font size */
+    font-weight: 600; /* Bold font for better readability */
+    color: #555;
+    border: none;
+    border-radius: 6px; /* Slightly more rounded corners */
+    cursor: pointer;
+    transition: background-color 0.4s ease, color 0.4s ease, transform 0.2s ease;
 }
+
+/* Primary Button */
+.btn-primary {
+    background-color: #007bff; /* Blue color */
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    color: #fff;
+  /* Slight lift on hover */
+}
+
+/* Secondary Button */
+.btn-secondary {
+    background-color: #6c757d; /* Gray color */
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Darker gray on hover */
+    color: #fff;
+    /* Slight lift on hover */
+}
+
+/* Optional focus styling for better accessibility */
+.button:focus {
+    outline: 3px solid rgba(0, 123, 255, 0.5); /* Light blue outline */
+}
+
+
 .commitment-form {
     position: center;
     background-color: #ffffff;

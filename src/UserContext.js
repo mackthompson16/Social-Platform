@@ -8,7 +8,7 @@ export const useUser = () => useContext(UserContext);
 const userReducer = (state, action) => {
   switch (action.type) {
     case 'SET_USER':
-      console.log(action.payload)
+      
        return {
         ...state,
         id: action.payload.id,

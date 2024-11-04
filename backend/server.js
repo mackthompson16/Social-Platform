@@ -15,7 +15,8 @@ app.get('/api/users/:userId/getCommitments', async (req, res) => {
         console.error('Error fetching commitments:', err);
         res.status(500).json({ message: 'Internal server error' });
       } else {
-        console.log('Fetched commitments:', rows); // Log commitments to verify structure
+        console.dir(rows, { depth: null }); // Log the complete structure
+        rows.forEach(row => console.log(`Fetched commitment ID: ${row.id}, Name: ${row.name}, Dates: ${row.dates}`));
         res.json({ rows });
       }
     });
