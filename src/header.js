@@ -1,11 +1,19 @@
 import { TfiAngleRight,TfiAngleDown } from "react-icons/tfi";
 import CommitmentMenu from "./commitmentMenu";
 import {useState} from 'react';
-export default function Header() {
+import CommitmentForm from './commitmentForm';
+import Preferences from './preferences';
+import Friends from './friends';
+import { useUser } from './UserContext';
 
+export default function Header() {
+    const { state } = useUser();
+   
+    const [showForm, setShowForm] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
-    const [hoveredButton, setHoveredButton] = useState(null);
     const [showCommitmentMenu, setShowCommitmentMenu] = useState(false);
+    const [showFriendsMenu, setShowFriendsMenu] = useState(false);
+    const [showPreferences, setShowPreferences] = useState(false);
 
   const headerContainerStyle = {
       display: 'flex',
@@ -34,66 +42,54 @@ const title ={
     color:'#FFFFFF'
 
 }
-
-const hoverStyle = {
-    transform: 'scale(1.1)', 
-};
-
-  const toggleSideMenu = () => {
-    setShowMenu(!showMenu);
-
-};
-
-
-    const renderMenu = () => {
-
-
-        return (
+ const renderMenu = () => {
+     return (
             <div className="menu-container">
                 <button className="btn btn-primary"
-                    onClick={()=>setShowCommitmentMenu(!showCommitmentMenu) }
+                    onClick={()=>setShowFriendsMenu(!showCommitmentMenu) }
                 >
-                    Friends
+                    {showFriendsMenu? 'Hide':'Friends'}
                 </button>
+                    {showFriendsMenu && (<Friends/>)}
                 <button 
                 className="btn btn-primary"
-                 onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
+                 onClick={() => setShowPreferences(!showPreferences)}
                 >
-                    Preferences
+                    {showPreferences? 'Hide':'Preferences'}
                 </button>
+                    {showPreferences && (<Preferences/>)}
                 <button className="btn btn-primary"
                 onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
                 >
                    {showCommitmentMenu? 'Hide':'Manage'}
                 </button>
-                {showCommitmentMenu && (
-
-                    <CommitmentMenu/>
-
-
+                {showCommitmentMenu && ( <CommitmentMenu/>)}
+                
+                   
+                {showCommitmentMenu&& (
+                    <button
+                    className="btn btn-primary"
+                    onClick={() => setShowForm(true)}
+                        >
+                    Add Commitment
+                    </button>
                 )}
+               
             </div>
         );
 
     };
-  
-  
-
-  return (
+   return (
     <div>
         
+        {showForm && (<CommitmentForm setShowForm={setShowForm}/>)}
     
     <div style={headerContainerStyle}>
         
          <button
-            style={{
-                ...iconStyle,
-                ...(hoveredButton === 'ToggleMenu' ? hoverStyle : {}),
-            }}
-            onMouseEnter={() => setHoveredButton('ToggleMenu')}
-            onMouseLeave={() => setHoveredButton(null)}
-            onClick={() => toggleSideMenu()}
-            aria-label="Toggle menu" // Accessibility feature
+            style={iconStyle}
+            onClick={() => setShowMenu(!showMenu)}
+            aria-label="Toggle menu" 
         >
 
         
@@ -111,7 +107,7 @@ const hoverStyle = {
             
     </div>
 
-    {showMenu &&(
+    {(showMenu && state.isLoggedIn) && (
          <div className="side-menu">
                 {renderMenu()}
         </div>

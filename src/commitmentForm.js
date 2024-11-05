@@ -1,11 +1,10 @@
 
 import React, { useState } from 'react';
-import './styles.css';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from 'react-icons/fa';
 import { useUser } from './UserContext';
-
+import './styles.css';
 class Commitment {
     constructor(commitment, startTime, endTime, days,dates,id='id') {
         this.id = id;
@@ -18,8 +17,7 @@ class Commitment {
 }
 
 
-export default function CommitmentForm(){
-    const [showForm,setShowForm] = useState(true);
+export default function CommitmentForm({setShowForm}){
     const { state, dispatch } = useUser();
     const [name, setName] = useState('');
     const [startTime, setStartTime] = useState('');
@@ -27,21 +25,24 @@ export default function CommitmentForm(){
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [isRecurring, setIsRecurring] = useState(false);
-    const [selectedDays, setSelectedDays] = useState([]);
+
     const [error, setError] = useState(null);
     const daysOfWeek = ["All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-    
-
+    const [selectedDays, setSelectedDays] = useState([]);
 
     const toggleDaySelection = (day) => {
-        setSelectedDays((prevSelectedDays) =>
-            prevSelectedDays.includes(day)
-                ? prevSelectedDays.filter((d) => d !== day)
-                : [...prevSelectedDays, day]
-        );
+        if (day === "All") {
+            // If "All" is selected, either select or deselect all days
+            setSelectedDays(selectedDays.length === daysOfWeek.length ? [] : daysOfWeek);
+        } else {
+            // Toggle individual days
+            setSelectedDays((prevSelectedDays) =>
+                prevSelectedDays.includes(day)
+                    ? prevSelectedDays.filter((d) => d !== day)
+                    : [...prevSelectedDays, day]
+            );
+        }
     };
-
     
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -65,11 +66,13 @@ export default function CommitmentForm(){
                 return;
             }
 
+            const validDays = selectedDays.filter(day => day !== "All");
+
                 newCommitment = new Commitment(
                     name,
                     startTime,
                     endTime,
-                    selectedDays,  // Pass selected days for recurring commitment
+                    validDays,  // Pass selected days for recurring commitment
                     [startDate, endDate]  // Pass date range for recurring
                 );
                 // Add newCommitment to your list or handle it as needed
@@ -133,9 +136,9 @@ export default function CommitmentForm(){
        
    
         <div>
-             {showForm && (
+            
              
-            <div className="form-overlay">
+            <div className="menu-container">
                 <form onSubmit={handleSubmit} className="form">
                     <input
                         type="text"
@@ -168,7 +171,7 @@ export default function CommitmentForm(){
                             selected={startDate}
                             onChange={(date) => setStartDate(date)}
                             placeholderText="Start date"
-                            isClearable={true}
+        
                             customInput={
                                 <button className="btn">
                                     <FaCalendarAlt style={{ marginRight: '8px' }} />
@@ -193,18 +196,18 @@ export default function CommitmentForm(){
                     {isRecurring && (
                         <>
                             <div>
-                                <DatePicker
-                                    selected={endDate}
-                                    onChange={(date) => setEndDate(date)}
-                                    placeholderText="End date"
-                                    isClearable={true}
-                                    customInput={
-                                        <button className="btn btn-secondary">
-                                            <FaCalendarAlt style={{ marginRight: '8px' }} />
-                                            {endDate ? endDate.toLocaleDateString() : "Select end date"}
-                                        </button>
-                                    }
-                                />
+                            <p/>
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}
+                                placeholderText="End date"
+                                customInput={
+                                    <button className="btn btn-secondary">
+                                        <FaCalendarAlt style={{ marginRight: '8px' }} />
+                                        {endDate ? endDate.toLocaleDateString() : "Select end date"}
+                                    </button>
+                                }
+                            />
                             </div>
 
                             <h3>Active Days</h3>
@@ -215,7 +218,11 @@ export default function CommitmentForm(){
                                             type="checkbox"
                                             id={`day-${day}`}
                                             className="form-check-input"
-                                            checked={selectedDays.includes(day)}
+                                            checked={
+                                                day === "All"
+                                                    ? selectedDays.length === daysOfWeek.length
+                                                    : selectedDays.includes(day)
+                                            }
                                             onChange={() => toggleDaySelection(day)}
                                         />
                                         <label htmlFor={`day-${day}`} className="form-check-label">
@@ -235,7 +242,7 @@ export default function CommitmentForm(){
                     </div>
                 </form>
             </div>
-             )}
+             
     </div>
     )
 

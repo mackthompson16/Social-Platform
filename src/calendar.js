@@ -63,12 +63,11 @@ export default function Calendar() {
         const start = new Date(startDate);
         const end = new Date(endDate);
 
-        const isSelectAll = commitment.days.includes("All");
-
+       
         for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
             const dayName = Object.keys(daysOfWeek)[date.getDay()];
 
-            if (isSelectAll || commitment.days.includes(dayName)) {
+            if (commitment.days.includes(dayName)) {
                 events.push({
                     id: commitment.id,
                     title: commitment.name,

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from './UserContext';
-import CommitmentForm from './commitmentForm';
+
+import './styles.css';
 export default function CommitmentMenu(){
 
     const { state, dispatch } = useUser();
-    const [showForm, setShowForm] = useState(false);
+   
 
     const colorPalette = [
         '#B0E0E6', // Pale blue
@@ -104,7 +105,7 @@ export default function CommitmentMenu(){
                                 </button>
                                 <h3>{commitment.name || 'N/A'}</h3>
                                 <p>{formatTime(commitment.startTime)} - {formatTime(commitment.endTime)}</p>
-                                <p>{parsedDays.length > 0 ? `${parsedDays.join(', ')}` : ''}</p>
+                                <p>{(parsedDays.length > 0 && parsedDays.length < 7)? `${parsedDays.join(', ')}` : ''}</p>
                                 <p>
                                     {parsedDates.length > 0 
                                         ? `${new Date(parsedDates[0]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` 
@@ -130,18 +131,6 @@ export default function CommitmentMenu(){
         <div>
 
             {state.commitments.length > 0 && (renderCommitments())}
-
-            
-            <button
-                className="btn btn-primary"
-                onClick={() => setShowForm(true)}
-            >
-                Add Commitment
-            </button>
-            
-            {showForm && (
-                <CommitmentForm />
-            )}
 
         </div>
 

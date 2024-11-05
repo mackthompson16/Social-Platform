@@ -86,26 +86,27 @@ h1 {
 
 /* General container styling */
 .menu-container {
+    z-index: 5;
     opacity:1;
     position: absolute;
     width: 200px;
     display: flex;
     flex-direction: column;
     background-color: #f0f0f0;
-    padding: 10px;
+   
     border-right: 2px solid #ccc;
 }
 
 /* Button styling */
 .menu-container button {
-    padding: 12px 20px;
+    padding: 12px 15px;
     border: none;
     background-color: #ffffff;
     color: #333;
     font-size: 16px;
     cursor: pointer;
-    text-align: left;
-    margin-bottom: 5px;
+    text-align: center;
+    margin-bottom: 10px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 

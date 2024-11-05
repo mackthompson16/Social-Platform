@@ -151,6 +151,27 @@ app.delete('/api/removeCommitment/:userId/:commitmentId', async (req, res) => {
   }
 });
 
+app.post('/api/update-account', async (req, res) => {
+  const { id, username, password, email } = req.body;
+
+  if (!id || !username || !password || !email) {
+      return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  try {
+      db.run(`UPDATE users SET username = ?, password = ?, email = ? WHERE id = ?`, 
+      [username, password, email, id], function (err) {
+          if (err) {
+              return res.status(500).json({ success: false, message: 'Error updating account' });
+          }
+          res.json({ success: true });
+      });
+  } catch (err) {
+      console.error('Error updating account:', err);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 
 
 

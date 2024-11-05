@@ -1,13 +1,15 @@
 import React, {useState} from 'react';
 import { useUser } from './UserContext';
-
+import Login from './login';
 export default function CreateAccount() {
+  
   const { dispatch } = useUser();
   const [accInfo, setAccInfo] = useState({
     username: '',
     password: '',
     email: ''
   });
+  const [login, setLogin] = useState(false);
 
 
   const handleChange = (event) => {
@@ -56,7 +58,12 @@ export default function CreateAccount() {
 
 
   return (
+    
+
     <div className="container">
+
+    {login && (<Login/> )}
+    {!login && (
     <form onSubmit={handleSubmit}>
         <div className="form">
           
@@ -96,10 +103,11 @@ export default function CreateAccount() {
        
         <div className="button-container">
           <button type="submit" className="btn btn-primary">Submit</button>
-          <button onClick={() => setCurrentPage('login')} className="btn btn-secondary">Cancel</button>
+          <button onClick={() => setLogin(true)} className="btn btn-secondary">Cancel</button>
           </div>
         </div>
     </form>
+    )}
 </div>
 
 );

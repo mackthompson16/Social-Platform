@@ -4,7 +4,7 @@ import Header from './header';
 import Footer from './footer';
 import Login from './login';
 import Calendar from './calendar';
-
+import './styles.css';
 export default function App() {
   const { state } = useUser(); // Now `useUser` has access to the context
 
