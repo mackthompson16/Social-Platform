@@ -11,7 +11,7 @@ npm install
 2. Ensure all dependencies are installed:
 
 ```bash
-npm install bootstrap react react-bootstrap react-scripts react-dom react-datepicker cors sqlite3 webvitals react-time-picker react-icons
+npm install bootstrap react react-bootstrap react-scripts react-dom react-datepicker cors sqlite3 web-vitals react-time-picker react-icons
 ```
 | Dependency         |Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
