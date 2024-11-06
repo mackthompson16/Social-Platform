@@ -3,7 +3,7 @@ import CommitmentMenu from "./commitmentMenu";
 import {useState} from 'react';
 import CommitmentForm from './commitmentForm';
 import Preferences from './preferences';
-import Friends from './friends';
+import Friends from './friends/friends';
 import { useUser } from './UserContext';
 
 export default function Header() {
@@ -33,6 +33,12 @@ export default function Header() {
     justifyContent: 'left',
     padding:'10px'
 };
+const iconAdjustment= {
+    transform: 'translateY(2px)',
+    fontSize: '0.85em', 
+    color: '#333', 
+}
+
 const title ={
 
     flex: 1, 
@@ -42,43 +48,53 @@ const title ={
     color:'#FFFFFF'
 
 }
- const renderMenu = () => {
-     return (
-            <div className="menu-container">
-                <button className="btn btn-primary"
-                    onClick={()=>setShowFriendsMenu(!showCommitmentMenu) }
-                >
-                    {showFriendsMenu? 'Hide':'Friends'}
-                </button>
-                    {showFriendsMenu && (<Friends/>)}
-                <button 
-                className="btn btn-primary"
-                 onClick={() => setShowPreferences(!showPreferences)}
-                >
-                    {showPreferences? 'Hide':'Preferences'}
-                </button>
-                    {showPreferences && (<Preferences/>)}
-                <button className="btn btn-primary"
-                onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
-                >
-                   {showCommitmentMenu? 'Hide':'Manage'}
-                </button>
-                {showCommitmentMenu && ( <CommitmentMenu/>)}
-                
-                   
-                {showCommitmentMenu&& (
-                    <button
-                    className="btn btn-primary"
-                    onClick={() => setShowForm(true)}
-                        >
-                    Add Commitment
-                    </button>
-                )}
-               
-            </div>
-        );
+const renderMenu = () => {
+    return (
+       <div className="menu-container">
+           <button className="btn btn-primary"
+               onClick={() => setShowFriendsMenu(!showFriendsMenu)}
+           >
+                  <h3>Friends  {showFriendsMenu? ( <TfiAngleDown style={iconAdjustment}/>) : (<TfiAngleRight style={iconAdjustment}/>)}</h3>
+           </button>
+           {showFriendsMenu && (
+               <div className="spaced friends-open">
+                   <Friends />
+               </div>
+           )}
+           
+           <button 
+               className={`btn btn-primary ${showFriendsMenu ? 'friends-open' : ''}`}
+               onClick={() => setShowPreferences(!showPreferences)}
+           >
+               <h3>Preferences  {showPreferences ? ( <TfiAngleDown style={iconAdjustment}/>) : (<TfiAngleRight style={iconAdjustment}/>)}</h3>
+           </button>
+           {showPreferences && (
+               <div className="spaced preferences-open">
+                   <Preferences />
+               </div>
+           )}
+           
+           <button 
+               className={`btn btn-primary ${showPreferences ? 'preferences-open' : ''}`}
+               onClick={() => setShowCommitmentMenu(!showCommitmentMenu)}
+           >
+              <h3>Manage  {showCommitmentMenu ? ( <TfiAngleDown style={iconAdjustment}/>) : (<TfiAngleRight style={iconAdjustment}/>)}</h3>
+      
+           </button>
+           {showCommitmentMenu && <div><CommitmentMenu /></div>}
+           
+           {showCommitmentMenu && (
+               <button
+                   className="btn btn-primary"
+                   onClick={() => setShowForm(true)}
+               >
+                   Add Commitment
+               </button>
+           )}
+       </div>
+   );
+};
 
-    };
    return (
     <div>
         
@@ -93,11 +109,7 @@ const title ={
         >
 
         
-            {showMenu ? (
-                <TfiAngleDown style={{color:'#FFFFFF'}}/>
-            ) : (
-                <TfiAngleRight style={{color:'#FFFFFF'}}/>
-            )}
+            {showMenu ? ( <TfiAngleDown style={{color:'#FFFFFF'}}/>) : (<TfiAngleRight style={{color:'#FFFFFF'}}/>)}
         </button>
         <div style={title}>
             <h3>WeCal</h3>

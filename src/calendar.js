@@ -133,6 +133,7 @@ export default function Calendar() {
 };
 
     return (
+    
         <div className="calendar-container">
             <FullCalendar
                 key={events.length} // Use `events.length` or a unique identifier to force re-render
@@ -141,6 +142,7 @@ export default function Calendar() {
                 events={events}
                 eventContent={renderEventContent}
             />
-        </div>
+     
+    </div>
     );
 }

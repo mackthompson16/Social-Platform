@@ -24,7 +24,7 @@ export default function Login() {
     const handleSubmit = async (event) => {
       event.preventDefault();
       
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export default function Login() {
   
   
     return (
-      <div className="menu-container">
+      <div className="form">
     
         {showCreateAccount && <CreateAccount />}
     

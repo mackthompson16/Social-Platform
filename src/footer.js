@@ -1,11 +1,13 @@
 
 export default function Footer() {
   const footerStyle = {
+   
     backgroundColor: '#333',
     color: '#fff',
     padding: '20px',
     textAlign: 'center',
     width: '100%',
+    height:'20',
   };
 
   const linkStyle = {

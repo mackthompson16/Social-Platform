@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+
 import { useUser } from './UserContext';
 
 import './styles.css';

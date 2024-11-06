@@ -11,7 +11,7 @@ npm install
 2. Ensure all dependencies are installed:
 
 ```bash
-npm install bootstrap react react-bootstrap react-scripts react-dom react-datepicker cors sqlite3 webvitals react-time-picker react-icons
+npm install bootstrap react react-bootstrap react-scripts react-dom react-datepicker cors sqlite3 web-vitals react-time-picker react-icons
 ```
 | Dependency         |Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
@@ -21,7 +21,7 @@ npm install bootstrap react react-bootstrap react-scripts react-dom react-datepi
 | **react-scripts**  | Scripts and configuration for Create React App, including build and test tools. |
 | **react-dom**      | Provides DOM-specific methods for rendering React components to the DOM.    |
 |**react-datepicker**| UI packagage for date selection in the schedule form. |
-|**react-time-picker**| UI package for time input and selection in the schedule form. | 
+|**@fullcalendar/react @fullcalendar/daygrid**| UI package for rendering calendar. | 
 |**react-icons**| React icons |
 | **cors**           | Middleware to enable cross-origin requests between server and app.          |
 | **sqlite3**        | Lightweight SQL database engine used for storing user data locally.         |

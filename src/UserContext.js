@@ -20,7 +20,7 @@ const userReducer = (state, action) => {
       };
     case 'LOGOUT_USER':
       return { ...initialState }; // Reset to initial state on logout
-    case 'UPDATE_USERNAME':
+    case 'UPDATE_DATA':
       return { ...state, data: { ...state.data, username: action.payload } };
     case 'ADD_COMMITMENT':
       return {

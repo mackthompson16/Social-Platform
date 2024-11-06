@@ -31,14 +31,13 @@ export default function Preferences(){
         event.preventDefault();
     
         const updatedAccInfo = {
-            id: state.id,
             username: accInfo.username || state.username,
             password: accInfo.password || state.password,
             email: accInfo.email || state.email,
         };
     
         try {
-            const response = await fetch('http://localhost:5000/api/update-account', {
+            const response = await fetch('http://localhost:5000/api/users/${state.id}/update-account', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -61,6 +60,7 @@ export default function Preferences(){
             console.error('Request failed:', error);
             // Handle fetch error
         }
+        setShowEditMenu(false);
     };
     
     

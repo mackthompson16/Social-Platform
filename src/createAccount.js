@@ -24,7 +24,7 @@ export default function CreateAccount() {
     event.preventDefault();
 
     // Send a POST request to the backend to create the account
-    const response = await fetch('http://localhost:5000/api/create-account', {
+    const response = await fetch('http://localhost:5000/api/auth/create-account', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -46,12 +46,7 @@ export default function CreateAccount() {
       alert('Account creation failed');
     }
 
-    // Reset the form
-    setAccInfo({
-      username: '',
-      password: '',
-      email: ''
-    });
+  
 
   };
 

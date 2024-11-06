@@ -18,6 +18,17 @@
     justify-content: center;
     width: 300px;
 }
+.form button {
+    padding: 12px 15px;
+    border: none;
+    background-color: #ffffff;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
 
 .form .form-control {
 
@@ -50,6 +61,7 @@
     margin-right: 8px; /* Space between checkbox and label */
 }
 .container {
+    position:fixed;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -57,11 +69,20 @@
     margin: 0 auto;
 }
 
+
+
+
 .calendar-container {
-    margin: 0 auto;
-    justify-content: center;
-    width: 80%; /* Set width to 2/3 of the screen */
-  }
+    position: absolute;
+    top: 15vh; /* 15% of viewport height from the top */
+    bottom: 20vh; /* 15% of viewport height from the bottom */
+    left: 10vw; /* 10% of viewport width from the left */
+    right: 10vw; /* 10% of viewport width from the right */
+    overflow: auto; /* Allows scrolling if content exceeds container size */
+    z-index: 1;
+    background-color: white; /* Optional: set background to see the container */
+    padding: 10px; /* Optional: add padding inside the container */
+}
 .commitment:hover {
     border-color: #007bff;
 }
@@ -86,9 +107,9 @@ h1 {
 
 /* General container styling */
 .menu-container {
-    z-index: 5;
+    z-index: 10;
     opacity:1;
-    position: absolute;
+    position: relative;
     width: 200px;
     display: flex;
     flex-direction: column;
@@ -110,12 +131,21 @@ h1 {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Hover styling */
-.menu-container button:hover,
-.menu-container button:focus {
+.menu-container > div {
+    display: block; /* Ensure content divs take up space in the flow */
+    width: 100%;
+    margin-top: 8px; /* Adds spacing between sections */
+    position: relative; /* Positions sections relative to their space */
+}
+
+
+.menu-container button:focus,
+.menu-container button:hover{
     background-color: #ddd;
     color: #000;
 }
+
+
 
 /* Dropdown menu styling */
 .commitment-menu {
@@ -167,7 +197,7 @@ h1 {
     /* Slight lift on hover */
 }
 
-/* Optional focus styling for better accessibility */
+/* Optional focus styling  better accessibility */
 .button:focus {
     outline: 3px solid rgba(0, 123, 255, 0.5); /* Light blue outline */
 }
@@ -181,3 +211,5 @@ h1 {
     border: 1px solid #ccc;
     /* Add any specific styles */
 }
+
+
