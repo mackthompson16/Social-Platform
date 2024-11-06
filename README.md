@@ -48,7 +48,7 @@ Note: The server and the React app run on separate hosts (frontend and backend c
 
 
 # To-do list:
-1. Implement Edit Schedule and Schedule Display UI
-2. Implement Preferences and Email Reset/Changes
-3. Add social Features to view profiles and Schedules
+1. Implement Add Friend, Schedule Meeting, View Friends Frontend
+2. Fix CSS and variable viewport (mobile?)
+3. Implement Email (password change, notifications)
 4. Set up the instance and find a domain name.
