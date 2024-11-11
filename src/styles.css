@@ -71,7 +71,15 @@
 
 
 
-
+.message-item {
+    padding: 0.5em;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .message-item:last-child {
+    border-bottom: none;
+  }
+  
 .calendar-container {
     position: absolute;
     top: 15vh; /* 15% of viewport height from the top */

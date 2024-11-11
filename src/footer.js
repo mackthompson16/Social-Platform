@@ -7,7 +7,7 @@ export default function Footer() {
     padding: '20px',
     textAlign: 'center',
     width: '100%',
-    height:'20',
+    
   };
 
   const linkStyle = {

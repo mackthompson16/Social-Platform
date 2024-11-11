@@ -1,48 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../UserContext';
 
-export default function addFriend ()  {
+export default function AddFriend ()  {
     const { state, dispatch } = useUser();
     const [searchTerm, setSearchTerm] = useState('');
-    const [users, setUsers] = useState([]);
+   
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [showForm, setShowForm] = useState(true);
-
+    const [pendingRequests] = useState([]);
+    
     // Fetch all users from the backend when the component mounts
+   
+    const [users, setUsers] = useState([]);
+
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetch('/api/social/get-users'); // Adjust URL as needed
+                const response = await fetch('http://localhost:5000/api/social/get-users');
                 const data = await response.json();
-                setUsers(data.users); // Assuming the API returns an array of users in 'data.users'
+                
+                const fetchedUsers = Array.isArray(data.users) ? data.users : [];
+                setUsers(fetchedUsers);
+
             } catch (error) {
                 console.error('Error fetching users:', error);
+                return [];
             }
-        };
+     };
+
         fetchUsers();
     }, []);
+    
+        
+       
+   
+   
 
-    // Filter users based on the search term
+
     useEffect(() => {
-        const matches = users.filter(user =>
-            user.username.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredUsers(matches);
-    }, [searchTerm, users]);
+        if (searchTerm.length > 1) {
+            const matches = users.filter(user =>
+                user.username.toLowerCase().includes(searchTerm.toLowerCase()) &&
+                user.id !== state.id 
+            );
+            const isDifferent = matches.length !== filteredUsers.length ||
+                                matches.some((user, index) => user.id !== filteredUsers[index].id);
+            if (isDifferent) {
+                setFilteredUsers(matches);
+            }
+        } else {  
+            if (filteredUsers.length > 0) {
+                setFilteredUsers([]);
+            }
+        }
+    }, [searchTerm, users, state.id, filteredUsers]);
+    
+    
 
-    // Handle input changes
+  
     const handleInputChange = (event) => {
         setSearchTerm(event.target.value);
     };
 
-    // Toggle form visibility
+  
     const handleDone = () => {
         setShowForm(false);
     };
 
-    const handleRequest = async (recipientId) => {
+    const handleRequest = async (recipient_id) => {
         try {
-            const response = await fetch(`/api/users/${state.id}/${recipientId}/send-message`, {
+            const response = await fetch(`http://localhost:5000/api/social/${state.id}/${recipient_id}/send-message`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -53,11 +80,13 @@ export default function addFriend ()  {
 
             const result = await response.json();
             if (result.success) {
-                // Update pending state for this user to disable the button
-                setPendingRequests((prev) => ({
-                    ...prev,
-                    [recipientId]: true
-                }));
+                const payload = { type: 'Friend Request', recipient_id };
+                    dispatch({
+                        type: 'ADD_SENT',
+                        payload  // Only pass the new item to be added
+                    });
+
+                console.log(state.id,' requested ', recipient_id);
             } else {
                 console.error('Failed to send friend request:', result.message);
             }
@@ -100,3 +129,4 @@ export default function addFriend ()  {
         )
     );
 };
+

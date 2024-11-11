@@ -4,11 +4,11 @@ const db= require('../db');
 
 
 
-router.get('/:user_Id/getCommitments', async (req, res) => {
-  const user_Id = Number(req.params.user_Id);
+router.get('/:id/getCommitments', async (req, res) => {
+  const user_id = Number(req.params.id);
 
  
-    db.all(`SELECT * FROM commitments WHERE user_Id = ?`, [user_Id], (err, rows) => {
+    db.all(`SELECT * FROM commitments WHERE user_id = ?`, [user_id], (err, rows) => {
       if (err) {
         console.error('Error fetching commitments:', err);
         res.status(500).json({ message: 'Internal server error' });
@@ -21,8 +21,8 @@ router.get('/:user_Id/getCommitments', async (req, res) => {
   
 });
 
-router.post('/:user_Id/addCommitment', async (req, res) => {
-  const user_Id = Number(req.params.userId);
+router.post('/:id/addCommitment', async (req, res) => {
+  const id = Number(req.params.id);
   const { name, startTime, endTime, days, dates } = req.body;
   
   
@@ -30,9 +30,9 @@ router.post('/:user_Id/addCommitment', async (req, res) => {
 
     const result = await new Promise((resolve, reject) => {
       db.run(
-        `INSERT INTO commitments (user_Id, name, startTime, endTime, days, dates) 
+        `INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [user_Id, name, startTime, endTime, JSON.stringify(days), JSON.stringify(dates)],
+        [id, name, startTime, endTime, JSON.stringify(days), JSON.stringify(dates)],
         function (err) {
           if (err) {
             reject(err);
@@ -64,11 +64,11 @@ router.post('/:user_Id/addCommitment', async (req, res) => {
 
 });
 
-router.delete('/:user_Id/:commitment_Id/removeCommitment', async (req, res) => {
-  const { user_Id, commitment_Id } = req.params;
-  console.log(user_Id, 'removed, ', commitment_Id);
+router.delete('/:user_id/:commitment_id/removeCommitment', async (req, res) => {
+  const { user_id, commitment_id } = req.params;
+  console.log(user_id, 'removed, ', commitment_id);
   try {
-      const result = await db.run('DELETE FROM commitments WHERE commitment_Id = ? AND user_Id = ?', [commitment_Id, user_Id]);
+      const result = await db.run('DELETE FROM commitments WHERE commitment_id = ? AND user_id = ?', [commitment_id, user_id]);
       if (result.changes === 0) {
           return res.status(404).json({ error: 'Commitment not found' });
       }
@@ -79,8 +79,8 @@ router.delete('/:user_Id/:commitment_Id/removeCommitment', async (req, res) => {
   }
 });
 
-router.post('/:user_Id/update-account', async (req, res) => {
-  const user_Id = req.params;
+router.post('/:id/update-account', async (req, res) => {
+  const id = req.params;
   const { username, password, email } = req.body;
 
   if (!id || !username || !password || !email) {
@@ -88,8 +88,8 @@ router.post('/:user_Id/update-account', async (req, res) => {
   }
 
   try {
-      db.run(`UPDATE users SET username = ?, password = ?, email = ? WHERE user_Id = ?`, 
-      [username, password, email, user_Id], function (err) {
+      db.run(`UPDATE users SET username = ?, password = ?, email = ? WHERE id = ?`, 
+      [username, password, email, id], function (err) {
           if (err) {
               return res.status(500).json({ success: false, message: 'Error updating account' });
           }

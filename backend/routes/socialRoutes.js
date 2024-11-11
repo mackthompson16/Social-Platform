@@ -3,29 +3,24 @@ const router = express.Router();
 const db= require('../db');
 
 
-router.get('/get-users', async (res) => {
-    try {
-        db.all(`SELECT user_Id, username FROM users`, [], (err, rows) => {
-            if (err) {
-                console.error('Error retrieving users:', err);
-                return res.status(500).json({ success: false, message: 'Database query failed' });
-            }
-            // Respond with the list of users
-            res.json({ success: true, users: rows });
-        });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-  });
+router.get('/get-users', (req, res) => {
+    db.all(`SELECT id, username FROM users`, [], (err, rows) => {
+        if (err) {
+            console.error('Error retrieving users:', err);
+            return res.status(500).json({ success: false, message: 'Database query failed' });
+        }
+        res.json({ success: true, users: rows });
+    });
+});
+
 
 router.post('/accept-friend-request', async (req, res) => {
-    const { user_Id, friend_Id } = req.body;
+    const { user_id, friend_id } = req.body;
 
     try {
         db.run(
-            `INSERT INTO friends (user_Id, friend_Id) VALUES (?, ?), (?, ?)`,
-            [user_Id, friend_Id, friend_Id, user_Id],
+            `INSERT INTO friends (user_id, friend_id) VALUES (?, ?), (?, ?)`,
+            [user_id, friend_id, friend_id, user_id],
             (err) => {
                 if (err) {
                     console.error('Error adding friends:', err);
@@ -40,10 +35,10 @@ router.post('/accept-friend-request', async (req, res) => {
     }
 });
 
-  router.get('/:user_Id/get-friends', async (req, res) => {
-    const user_Id = req.params.user_Id
+  router.get('/:id/get-friends', async (req, res) => {
+    const user_id = req.params.id
     try {
-        db.all(`SELECT friend_Id FROM friends where user_Id = ?`, [user_Id], (err, friends) => {
+        db.all(`SELECT friend_id FROM friends where user_id = ?`, [user_id], (err, friends) => {
             if (err) {
                 console.error('Error retrieving friends:', err);
                 return res.status(500).json({ success: false, message: 'Database query failed' });
@@ -57,10 +52,10 @@ router.post('/accept-friend-request', async (req, res) => {
     }
   });
 
-  router.get('/:user_Id/get-messages', async (req, res) => {
-    const user_Id = req.params.user_Id
+  router.get('/:id/get-messages', async (req, res) => {
+    const user_Id = req.params.id
     try {
-        db.all(`SELECT * FROM inbox where recipient_Id = ?`, [user_Id], (err, inbox) => {
+        db.all(`SELECT * FROM inbox where recipient_id = ?`, [user_id], (err, inbox) => {
             if (err) {
                 console.error('Error retrieving inbox:', err);
                 return res.status(500).json({ success: false, message: 'Database query failed' });
@@ -75,8 +70,8 @@ router.post('/accept-friend-request', async (req, res) => {
   });
 
 // POST endpoint to send a message
-router.post('/:sender_Id/:recipient_Id/send-message', (req, res) => {
-    const { sender_Id, recipient_Id } = req.params;
+router.post('/:sender_id/:recipient_id/send-message', (req, res) => {
+    const { sender_id, recipient_id } = req.params;
     const { type, content } = req.body;
 
     // Validate the message type
@@ -87,10 +82,10 @@ router.post('/:sender_Id/:recipient_Id/send-message', (req, res) => {
 
     // Insert the new message into the inbox table
     const query = `
-        INSERT INTO inbox (recipient_Id, sender_Id, read, type, content)
+        INSERT INTO inbox (recipient_id, sender_id, read, type, content)
         VALUES (?, ?, 0, ?, ?)
     `;
-    const params = [recipient_Id, sender_Id, type, content];
+    const params = [recipient_id, sender_id, type, content];
 
     db.run(query, params, function (err) {
         if (err) {
@@ -101,7 +96,7 @@ router.post('/:sender_Id/:recipient_Id/send-message', (req, res) => {
         res.json({
             success: true,
             message: 'Message sent successfully',
-            message_Id: this.lastID 
+            message_id: this.lastID 
         });
     });
 });

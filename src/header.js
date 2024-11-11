@@ -1,14 +1,17 @@
 import { TfiAngleRight,TfiAngleDown } from "react-icons/tfi";
+import { VscBell, VscBellDot } from "react-icons/vsc";
 import CommitmentMenu from "./commitmentMenu";
 import {useState} from 'react';
 import CommitmentForm from './commitmentForm';
 import Preferences from './preferences';
 import Friends from './friends/friends';
+import Messages from "./friends/messages";
 import { useUser } from './UserContext';
 
 export default function Header() {
     const { state } = useUser();
-   
+    const newNotifications = useState(false);
+    const [showMessages, setShowMessages] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [showCommitmentMenu, setShowCommitmentMenu] = useState(false);
@@ -114,6 +117,15 @@ const renderMenu = () => {
         <div style={title}>
             <h3>WeCal</h3>
         </div>
+
+        <button
+                style={iconStyle}
+                onClick={() => setShowMessages(!showMessages)}
+                aria-label="Toggle messages" 
+            >
+        {newNotifications? (<VscBellDot style={{color:'#FFFFFF'}}/>) : <VscBell style={{color:'#FFFFFF'}}/>}
+
+        </button>
        
     
             
@@ -122,6 +134,13 @@ const renderMenu = () => {
     {(showMenu && state.isLoggedIn) && (
          <div className="side-menu">
                 {renderMenu()}
+        </div>
+        
+    )}
+
+    {(showMessages && state.isLoggedIn) && (
+         <div className="side-menu">
+                {Messages()}
         </div>
         
     )}
