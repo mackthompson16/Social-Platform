@@ -153,6 +153,19 @@ h1 {
     color: #000;
 }
 
+.Messages-Menu {
+    position: absolute;
+    align-items: right;
+    right: 0;
+    top: 100; 
+    z-index: 10;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+    border-right: 2px solid #ccc;
+}
+
 
 
 /* Dropdown menu styling */

@@ -5,7 +5,7 @@ import {useState} from 'react';
 import CommitmentForm from './commitmentForm';
 import Preferences from './preferences';
 import Friends from './friends/friends';
-import Messages from "./friends/messages";
+import Inbox from "./friends/inbox";
 import { useUser } from './UserContext';
 
 export default function Header() {
@@ -139,9 +139,9 @@ const renderMenu = () => {
     )}
 
     {(showMessages && state.isLoggedIn) && (
-         <div className="side-menu">
-                {Messages()}
-        </div>
+       
+                <Inbox/>
+     
         
     )}
     </div>

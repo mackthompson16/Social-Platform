@@ -11,7 +11,7 @@ npm install
 2. Ensure all dependencies are installed:
 
 ```bash
-npm install bootstrap react react-bootstrap react-scripts react-dom react-datepicker cors sqlite3 web-vitals react-time-picker react-icons
+npm install bootstrap react react-bootstrap react-scripts react-dom react-datepicker cors sqlite3 web-vitals react-time-picker react-icons ws
 ```
 | Dependency         |Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
@@ -26,6 +26,7 @@ npm install bootstrap react react-bootstrap react-scripts react-dom react-datepi
 | **cors**           | Middleware to enable cross-origin requests between server and app.          |
 | **sqlite3**        | Lightweight SQL database engine used for storing user data locally.         |
 | **web-vitals**     | Reports essential web performance metrics like loading time, interactivity, and stability. |
+| **web-socket**| Used for live updates on the inbox. Listens on a 3rd port and updates user context |
 
 
 

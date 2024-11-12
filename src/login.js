@@ -38,19 +38,26 @@ export default function Login() {
       if (data.success) {
         console.log('Login Success: ', data);
         
-        // Fetch commitments after successful login
-        const commitmentsResponse = await fetch(`http://localhost:5000/api/users/${data.id}/getCommitments`);
-        const commitmentsData = await commitmentsResponse.json();
-        console.log('Commitments: ', commitmentsData)
-        // Dispatch both user data and commitments to the context
        
+        const commitmentsResponse = await fetch(`http://localhost:5000/api/users/${data.id}/get-commitments`);
+        const inboxResponse = await fetch(`http://localhost:5000/api/social/${data.id}/get-messages`)
+        const friendsResponse = await fetch(`http://localhost:5000/api/social/${data.id}/get-friends`)
+
+        const commitmentsData = await commitmentsResponse.json();
+        const inboxData = await inboxResponse.json();
+        const friendsData = await friendsResponse.json();
+       
+        console.log(inboxData)
         dispatch({
           type: 'SET_USER',
-          payload: { ...data, commitments: commitmentsData.rows } // Spread data directly
+          payload: { ...data, commitments: commitmentsData.rows, inbox: inboxData, friends: friendsData} 
         });
+
+       
       } else {
         alert('Login failed');
       }
+
     
       // Reset the form
       setAccInfo({

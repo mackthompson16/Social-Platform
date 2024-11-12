@@ -4,7 +4,7 @@ const db= require('../db');
 
 
 
-router.get('/:id/getCommitments', async (req, res) => {
+router.get('/:id/get-commitments', async (req, res) => {
   const user_id = Number(req.params.id);
 
  

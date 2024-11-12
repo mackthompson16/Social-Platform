@@ -7,39 +7,12 @@ export default function AddFriend ()  {
    
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [showForm, setShowForm] = useState(true);
-    const [pendingRequests] = useState([]);
+    const [pendingRequests,setPendingRequests] = useState({});
     
-    // Fetch all users from the backend when the component mounts
-   
-    const [users, setUsers] = useState([]);
-
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/social/get-users');
-                const data = await response.json();
-                
-                const fetchedUsers = Array.isArray(data.users) ? data.users : [];
-                setUsers(fetchedUsers);
-
-            } catch (error) {
-                console.error('Error fetching users:', error);
-                return [];
-            }
-     };
-
-        fetchUsers();
-    }, []);
-    
+     useEffect(() => {
         
-       
-   
-   
-
-
-    useEffect(() => {
-        if (searchTerm.length > 1) {
-            const matches = users.filter(user =>
+        if (searchTerm.length > 1 && state.users) {
+            const matches = state.users.filter(user =>
                 user.username.toLowerCase().includes(searchTerm.toLowerCase()) &&
                 user.id !== state.id 
             );
@@ -53,7 +26,7 @@ export default function AddFriend ()  {
                 setFilteredUsers([]);
             }
         }
-    }, [searchTerm, users, state.id, filteredUsers]);
+    }, [searchTerm, state.users, state.id, filteredUsers]);
     
     
 
@@ -67,6 +40,40 @@ export default function AddFriend ()  {
         setShowForm(false);
     };
 
+    useEffect(() => {
+        // Fetch pending requests
+        const fetchPendingRequests = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/api/social/${state.id}/pending-requests`);
+                const result = await response.json();
+
+                if (result.success) {
+                    // Initialize a boolean map for pending requests
+                    const pendingMap = {};
+                    result.pendingRequests.forEach(recipient_id => {
+                        pendingMap[recipient_id] = true;
+                    });
+                    setPendingRequests(pendingMap);
+                }
+            } catch (error) {
+                console.error('Error fetching pending requests:', error);
+            }
+        };
+
+        fetchPendingRequests();
+    }, []);
+
+    const checkPendingOrAccepted = (userId) => {
+       
+        if (state.friends.some(friend => friend.id === userId)) {
+            return 'Accepted';
+        }
+        
+        return pendingRequests[userId] ? 'Pending' : 'Request';
+    };
+
+
+
     const handleRequest = async (recipient_id) => {
         try {
             const response = await fetch(`http://localhost:5000/api/social/${state.id}/${recipient_id}/send-message`, {
@@ -74,7 +81,8 @@ export default function AddFriend ()  {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     type: 'friend_request',
-                    content: 'Friend request sent'
+                    sender_username: state.username,
+                    content: 'Friend Request'
                 })
             });
 
@@ -83,8 +91,13 @@ export default function AddFriend ()  {
                 const payload = { type: 'Friend Request', recipient_id };
                     dispatch({
                         type: 'ADD_SENT',
-                        payload  // Only pass the new item to be added
+                        payload 
                     });
+
+                    setPendingRequests(prevState => ({
+                        ...prevState,
+                        [recipient_id]: true
+                    }));
 
                 console.log(state.id,' requested ', recipient_id);
             } else {
@@ -93,6 +106,8 @@ export default function AddFriend ()  {
         } catch (error) {
             console.error('Error sending friend request:', error);
         }
+
+       
     };
 
 
@@ -116,7 +131,7 @@ export default function AddFriend ()  {
                                     onClick={() => handleRequest(user.id)}
                                     disabled={pendingRequests[user.id]}
                                 >
-                                    {pendingRequests[user.id] ? 'Pending' : 'Request'}
+                                    {checkPendingOrAccepted(user.id)}
                                 </button>
                             </li>
                         ))}
@@ -129,4 +144,3 @@ export default function AddFriend ()  {
         )
     );
 };
-
