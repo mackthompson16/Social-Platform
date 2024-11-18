@@ -1,22 +1,32 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { useUser } from '../UserContext'; 
 
 export default function Inbox() {
     const { state, dispatch } = useUser(); 
+    const [inbox, setInbox] = useState([]);
+  
+    // useEffect hook to watch for changes in state.inbox
+    useEffect(() => {
+      if (state.inbox ) {
+        setInbox(state.inbox);
+      }
+    }, [state.inbox]);
   
    
     
     const handleFriendRequest = async (message) => {
             try {
-              const response = await fetch(`http://localhost:5000/api/social/accept-friend-request`, {
+              const response = await fetch('http://localhost:5000/api/social/accept-friend-request', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  sender_id: message.sender_id,
-                  recipient_id: message.recipient_id,
-                  recipient_username: state.username
+                  recipient_id: message.sender_id,
+                  recipient_username: message.username, 
+                  sender_id: state.id,
+                  sender_username: state.username,
+                  message_id: message.message_id
               })
               });
         
@@ -25,8 +35,9 @@ export default function Inbox() {
                
                 dispatch({
                   type: 'ADD_FRIEND',
-                  payload: friendId,
-                });
+                  payload: { id: message.sender_id, username: message.username }
+              });
+              
               } else {
                 console.error('Failed to accept friend request:', data.message);
               }
@@ -67,9 +78,9 @@ export default function Inbox() {
     return (
       <div className="Messages-Menu">
         <h2>Inbox Messages</h2>
-        {state.inbox && state.inbox.length > 0 ? (
+        {inbox && inbox.length > 0 ? (
            <ul>
-           {state.inbox.map((message, index) => (
+           {inbox.map((message, index) => (
             
              <li key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                <div>

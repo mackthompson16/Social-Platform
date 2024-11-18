@@ -3,7 +3,7 @@ import AddFriend from './addFriend';
 import React, {useState, useEffect} from 'react';
 import { useUser } from '../UserContext';
 export default function Friends() {
-    const {state,dispatch} = useUser();
+    const {dispatch} = useUser();
 
     const [showAddFriend, setShowAddFriend] = useState(false);
     
@@ -20,8 +20,7 @@ export default function Friends() {
                     payload: fetchedUsers 
                   });
 
-                console.log(fetchedUsers)
-                console.log(state.users)
+
 
             } catch (error) {
                 console.error('Error fetching users:', error);

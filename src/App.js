@@ -9,37 +9,40 @@ import './styles.css';
 export default function App() {
   const { state, dispatch } = useUser(); 
 
-  
-// get the inbox working for friend requests and messages
-// make the logic work for accepting pending requests
-// schedule meeting logic
-// display multiple schedules on top of each other
-// unique id for event blocks to prevent constant re-rendering
-// play with UI, latency, and CSS
-// rigorous testing
-// done!
+  useEffect(() => {
+    const socket = new WebSocket('ws://localhost:5000'); 
+    
+    socket.onopen = () => {
+      console.log('WebSocket connection opened');
+    };
 
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+      
+        if (data.type === 'inbox_update') {
+            console.log('Updating inbox state with new data:', data);
+            dispatch({ type: 'UPDATE_INBOX', payload: data.data });
+        }
 
-    useEffect(() => {
-        const socket = new WebSocket('ws://localhost:4000'); 
+        if (data.type === 'friend_update' && state.id == data.data.recipient_username) {
+          console.log('adding new friend ,', sender_username);
 
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
+          dispatch({
+            type: 'ADD_FRIEND',
+            payload: { id: data.data.sender_id, username:data.data.sender_username}
+        });
+      }
 
-            if (data.type === 'inbox_update') {
-                // Dispatch the inbox update action with the payload from the server
-                dispatch({ type: 'UPDATE_INBOX', payload: data.inbox });
-            }
-        };
+    };
 
-        socket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
+    socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
 
-        return () => {
-            socket.close();
-        };
-    }, [dispatch]);
+    return () => {
+        socket.close();
+    };
+}, []);
 
 
   return (

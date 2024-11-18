@@ -80,7 +80,7 @@ router.delete('/:user_id/:commitment_id/removeCommitment', async (req, res) => {
 });
 
 router.post('/:id/update-account', async (req, res) => {
-  const id = req.params;
+  const id = req.params.id;
   const { username, password, email } = req.body;
 
   if (!id || !username || !password || !email) {
@@ -92,6 +92,9 @@ router.post('/:id/update-account', async (req, res) => {
       [username, password, email, id], function (err) {
           if (err) {
               return res.status(500).json({ success: false, message: 'Error updating account' });
+          }
+          if (this.changes === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' });
           }
           res.json({ success: true });
       });

@@ -1,27 +1,41 @@
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 4000 });
-const db = require('./db');
+let wss = null;
 
-db.on('inbox_update', (updatedInbox) => {
-  const message = JSON.stringify({ type: 'inbox_update', inbox: updatedInbox });
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(message);
+function initializeWebSocket(server) {
+    
+    wss = new WebSocket.Server({ server });
+    console.log('WebSocket server initialized.');
+
+
+   
+    wss.on('connection', (ws) => {
+        console.log('Client connected to WebSocket server.');
+
+        ws.on('message', (data) => {
+        
+            wss.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(data);
+                }
+            });
+        });
+
+        ws.on('close', () => {
+            console.log('Client disconnected from WebSocket server.');
+        });
+
+        ws.on('error', (error) => {
+            console.error('WebSocket error:', error);
+        });
+    });
+}
+
+function getWebSocketServer() {
+    if (!wss) {
+        throw new Error("WebSocket server is not initialized!");
     }
-  });
-});
+    return wss;
+}
 
-wss.on('connection', (ws) => {
-  console.log('New WebSocket connection established');
 
-  ws.on('close', () => {
-    console.log('WebSocket connection closed');
-  });
-
-  ws.on('error', (error) => {
-    console.error('WebSocket error:', error);
-  });
-});
-
-console.log('WebSocket server is running on ws://localhost:4000');
-
+module.exports = { initializeWebSocket, getWebSocketServer };

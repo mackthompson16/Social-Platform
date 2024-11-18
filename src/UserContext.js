@@ -74,7 +74,7 @@ const userReducer = (state, action) => {
     case 'UPDATE_INBOX':
       return { 
         ...state, 
-        inbox: action.payload 
+        inbox: [...state.inbox, action.payload]
       };
 
     case 'LOAD_USERS':

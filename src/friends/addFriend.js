@@ -76,38 +76,27 @@ export default function AddFriend ()  {
 
     const handleRequest = async (recipient_id) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/social/${state.id}/${recipient_id}/send-message`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'friend_request',
-                    sender_username: state.username,
-                    content: 'Friend Request'
-                })
-            });
+            
+        await fetch(`http://localhost:5000/api/social/${state.id}/${recipient_id}/send-message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'friend_request',
+                content: `${state.username} requested to follow you`
+            })
+        });
 
-            const result = await response.json();
-            if (result.success) {
-                const payload = { type: 'Friend Request', recipient_id };
-                    dispatch({
-                        type: 'ADD_SENT',
-                        payload 
-                    });
 
-                    setPendingRequests(prevState => ({
-                        ...prevState,
-                        [recipient_id]: true
-                    }));
+        setPendingRequests(prevState => ({
+            ...prevState,
+            [recipient_id]: true
+        }));
 
-                console.log(state.id,' requested ', recipient_id);
-            } else {
-                console.error('Failed to send friend request:', result.message);
-            }
+    
         } catch (error) {
             console.error('Error sending friend request:', error);
         }
 
-       
     };
 
 

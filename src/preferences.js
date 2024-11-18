@@ -37,7 +37,7 @@ export default function Preferences(){
         };
     
         try {
-            const response = await fetch('http://localhost:5000/api/users/${state.id}/update-account', {
+            const response = await fetch(`http://localhost:5000/api/users/${state.id}/update-account`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

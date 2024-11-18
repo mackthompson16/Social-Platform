@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db= require('../db');
+const { getWebSocketServer } = require('../websocket');
 
 
 router.get('/get-users', (req, res) => {
@@ -34,146 +35,119 @@ router.get('/:user_id/pending-requests', (req, res) => {
 });
 
 
-router.post('/accept-meeting-request', async (req, res) => {
-    const { message_id, user_id } = req.body;
+router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
+    const { recipient_id, sender_id } = req.params; // Extract from URL parameters
+    const { request, action } = req.body; // Extract from request body
 
-    try {
-        // Step 1: Fetch the inbox message with commitment details
-        db.get(
-            `SELECT sender_id, content, sender_username FROM inbox WHERE message_id = ? AND recipient_id = ? AND type = 'meeting_request'`,
-            [message_id, user_id, username],
-            (err, row) => {
-                if (err) {
-                    console.error('Error fetching meeting request:', err);
-                    return res.status(500).json({ success: false, message: 'Failed to retrieve meeting request' });
-                }
-                
-                if (!row) {
-                    return res.status(404).json({ success: false, message: 'Meeting request not found' });
-                }
+    const wss = getWebSocketServer();
+    let sender_username = null;
+    let recipient_username = null;
 
-                // Step 2: Parse the commitment details from the content
-                const commitment = JSON.parse(row.content); // Assuming content is stored as JSON string
-                const { name, startTime, endTime, days, dates } = commitment;
-                const friend_id = row.sender_id;
+    //retrieve usernames
+   
+    db.all(
+        `SELECT id, username FROM users WHERE id IN (?, ?)`,
+        [sender_id, recipient_id],
+        (err, rows) => {
+          if (err) {
+            console.error('Error retrieving usernames:', err.message);
+            return;
+          }
+    
+        sender_username = rows.find(row => row.id === sender_id)?.username;
+        recipient_username = rows.find(row => row.id === recipient_id)?.username;
 
-                // Step 3: Insert the commitment for both the recipient (user_id) and the sender (friend_id)
-                const insertCommitment = (userId, callback) => {
-                    db.run(
-                        `INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) VALUES (?, ?, ?, ?, ?, ?)`,
-                        [userId, name, startTime, endTime, days, dates],
-                        callback
-                    );
-                };
+    });
 
-                // Insert commitment for the first user
-                insertCommitment(user_id, (err) => {
-                    if (err) {
-                        console.error('Error adding commitment for user:', err);
-                        return res.status(500).json({ success: false, message: 'Failed to add commitment' });
-                    }
-
-                    // Insert commitment for the second user (friend)
-                    insertCommitment(friend_id, (err) => {
-                        if (err) {
-                            console.error('Error adding commitment for friend:', err);
-                            return res.status(500).json({ success: false, message: 'Failed to add commitment for friend' });
-                        }
-
-                        // Step 4: Update inbox message status to 'accepted'
-                        db.run(
-                            `UPDATE inbox SET status = 'accepted' WHERE message_id = ?`,
-                            [messageId],
-                            (err) => {
-                                if (err) {
-                                    console.error('Error updating inbox message status:', err);
-                                    return res.status(500).json({ success: false, message: 'Failed to update inbox message' });
-                                }
-
-                                // Respond with success and commitment data
-                                res.json({ success: true, commitment });
-                            }
-                        );
-
-
-
-                    });
-
-                });
-                
-                db.run(
-                    `INSERT INTO inbox (recipient_id, sender_id, sender_username, status, type, content)
-                     VALUES (?, ?, ?, 'unread', 'message', ?)`,
-                    [friend_id, user_id, username,'unread', 'message', 'accepted your meeting request'],
-                    (err) => {
-                        if (err) {
-                            console.error('Error inserting notification message:', err);
-                            return res.status(500).json({ success: false, message: 'Failed to send notification' });
-                        }
-                        res.json({ success: true });
-                    }
-                );
-
-            }
-        );
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
-
-router.post('/accept-friend-request', async (req, res) => {
-    const { sender_id, recipient_id, recipient_username } = req.body;
-    console.log(sender_id, recipient_id)
-    try {
-        // Insert the friend relationship
+    if(action ==='accept'){
+    if (request.type === 'friend_request'){
+        
+    //insert into table
         db.run(
             `INSERT INTO friends (user_id, friend_id) VALUES (?, ?), (?, ?)`,
-            [sender_id, recipient_id, recipient_id, sender_id],
-            (err) => {
-                if (err) {
-                    console.error('Error adding friends:', err);
-                    return res.status(500).json({ success: false, message: 'Failed to add friends' });
+            [sender_id, recipient_id]
+        );
+            
+    // send updated friends to clients 
+
+                    const friend_update = {
+                        type: 'friend_update',
+                        sender_id, recipient_id,
+                        sender_username,
+                        recipient_username
+                    }
+
+                    wss.clients.forEach((client) => {
+                        if (client.readyState === wss.OPEN) {
+                            client.send(JSON.stringify(friend_update)); 
+                        }
+                    });
+
+              
+            }
+
+    if(request.type === 'meeting_request'){
+    //add commitment into both users tables
+        db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
+                VALUES (?, ?, ?, ?, ?, ?)`, [recipient_id,...message.content])
+        db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
+            VALUES (?, ?, ?, ?, ?, ?)`, [sender_id,...message.content])
+        
+            //send this commitment update to client
+
+                const commitment_update = {
+                    type: 'commitment_update',
+                    sender_id, recipient_id,
+                    commitment
                 }
 
-                // After adding friends, insert the notification message into the inbox
-                
-
-                db.run(
-                    `INSERT INTO inbox (recipient_id, sender_id, sender_username,status, type, content)
-                     VALUES (?, ?, ?, ? ,?,?)`,
-                    [sender_id, recipient_id, recipient_username, 'unread' ,'message','accepted your friend request'],
-                        (err) => {
-                        if (err) {
-                            console.error('Error inserting inbox message:', err);
-                            return res.status(500).json({ success: false, message: 'Failed to send notification' });
-                        }
-
-
+                wss.clients.forEach((client) => {
+                    if (client.readyState === wss.OPEN) {
+                        client.send(JSON.stringify(commitment_update)); 
                     }
-                );
+                });
+    }}
+    
 
-                db.run(
-                    `UPDATE inbox SET status = ? WHERE sender_id = ? and recipient_id = ? and type = ?`,
-                    ['accepted', sender_id, recipient_id, 'friend_request'],
-                    (err) => {
-                        if (err) {
-                            console.error('Error updating inbox message:', err);
-                            return res.status(500).json({ success: false, message: 'Failed to update notification' });
-                        }
-                       
-                    }
-                );
-            
-                console.log(sender_id, ' and ', recipient_id, ' are friends.')
-                
-            }
+        //update the original request in the table
+
+        db.run(`UPDATE inbox SET status = ${action}ed WHERE message_id = ?`,[message_id]);
+
+        
+        const content =  `${recipient} ${action}ed your ${messageType === 'meeting_request' ? 'meeting request' : 'friend request'}`
+        const message = {
+            sender_id,
+            recipient_id,
+            status: 'unread',
+            type: 'message',
+            content
+        }
+        //add accept message to inbox table
+        db.run(
+            `INSERT INTO inbox (recipient_id, sender_id, status, type, content)
+             VALUES (?, ?, ?, ?, ?)`,
+            [message]
         );
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
+
+        //send this message to client
+
+        const notification = {
+            type: 'updated_request',
+            message
+        }
+
+        wss.clients.forEach((client) => {
+            if (client.readyState === wss.OPEN) {
+                client.send(JSON.stringify(notification)); 
+            }
+        });
+
+    res.json({success:true})
+
+    });
+        
+
+
 
 
   router.get('/:id/get-friends', async (req, res) => {
@@ -210,53 +184,36 @@ router.post('/accept-friend-request', async (req, res) => {
     }
   });
 
-// POST endpoint to send a message
+
 router.post('/:sender_id/:recipient_id/send-message', (req, res) => {
     const { sender_id, recipient_id } = req.params;
-    const { type, sender_username, content } = req.body;
-
-    // Validate the message type
-    const validTypes = ['friend_request', 'message', 'meeting_request'];
-    if (!validTypes.includes(type)) {
-        return res.status(400).json({ success: false, message: 'Invalid message type' });
+    const { type, content } = req.body;
+    const message = {
+        recipient_id, sender_id, status:'unread', type, content
     }
-
-    // Insert the new message into the inbox table
-    const query = `
-        INSERT INTO inbox (recipient_id, sender_id, status, type, content, sender_username)
-        VALUES (?, ?, ?, ?, ?, ?)
-    `;
-    const params = [recipient_id, sender_id,'unread',type, content,sender_username];
-
-    db.run(query, params, function (err) {
-        if (err) {
-            console.error('Error inserting message:', err);
-            return res.status(500).json({ success: false, message: 'Failed to send message' });
-        }
-
-
-        const updatedInbox = { 
-            message_id: this.lastID, 
-            sender_id, 
-            recipient_id, 
-            type, 
-            content,
-            sender_username, 
-            status:'unread' 
-        };
-        db.emit('inbox_update', updatedInbox);
-
-        
-        res.json({
-            success: true,
-            message: 'Message sent successfully',
-            message_id: this.lastID 
-        });
+    //update inbox database
+    db.run(` INSERT INTO inbox (recipient_id, sender_id, status, type, content)
+        VALUES (?, ?, ?, ?, ?, ?)`,  message);
+    
+   //send notification to websocket
+    const notification = 
+    { 
+        type: 'inbox_update', 
+        message
+    };
+    console.log('sending,', message.content,'to clients')
+    const wss = getWebSocketServer();
+    
+    wss.clients.forEach((client) => {
+        if (client.readyState === client.OPEN) {
+            client.send(JSON.stringify(notification));
+                    
+                }
     });
 
-    
-
+        res.json({ success: true, });
 
 });
+
 
 module.exports = router;
