@@ -21,7 +21,7 @@ export default function Preferences(){
     const Logout = () =>{
 
         dispatch({
-            type: 'LOGOUT_USER',
+            type: 'CLEAR_CONTEXT',
           });
 
         return (<Login/>)
@@ -51,7 +51,7 @@ export default function Preferences(){
                 console.log('Account updated successfully');
     
                 // Dispatch the context update with the new account info
-                dispatch({ type: 'UPDATE_DATA', payload: updatedAccInfo });
+                dispatch({ type: 'REPLACE_CONTEXT', payload: updatedAccInfo });
             } else {
                 console.error('Error updating account:', result.message);
                 // Handle error (e.g., show an error message)

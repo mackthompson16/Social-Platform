@@ -12,52 +12,32 @@ const initialState = {
   sent: [],           
   inbox: [],          
   friends: [],    
-  users: []           
+  users: [],
+
 };
 
 const userReducer = (state, action) => {
   switch (action.type) {
-    case 'SET_USER':
-      return {
-        ...state,
-        id: action.payload.id,
-        username: action.payload.username,
-        email: action.payload.email,
-        password: action.payload.password,
-        commitments: action.payload.commitments || [],
-        isLoggedIn: true,
-        inbox: action.payload.inbox || [],
-        friends: action.payload.friends || [],
-        users: action.payload.users || []
-      };
 
-    case 'LOAD_SOCIAL':
-      return {
-        ...state, 
-        friends: action.payload.friends || [], 
-        users: action.payload.users || []
-      };
+      case 'REPLACE_CONTEXT': // Use this for setting or replacing data
+        return {
+          ...state,
+          ...action.payload, // Replace matching keys in state with payload values
+        };
+  
+      case 'APPEND_CONTEXT': // Use for appending new data to arrays
+        return {
+          ...state,
+          ...Object.keys(action.payload).reduce((updated, key) => {
+            updated[key] = Array.isArray(state[key])
+              ? [...state[key], ...action.payload[key]] // Append to array
+              : state[key]; // Ignore non-array keys
+            return updated;
+          }, {}),
+        }
 
-    case 'LOGOUT_USER':
-      return { ...initialState }; // Reset to initial state on logout
-    
-    case 'UPDATE_DATA':
-      return { 
-        ...state, 
-        data: { ...state.data, username: action.payload } 
-      };
-    
-    case 'ADD_COMMITMENT':
-      return {
-        ...state,
-        commitments: [...state.commitments, action.payload]
-      };
-    
-    case 'SET_COMMITMENTS':
-      return { 
-        ...state, 
-        commitments: action.payload 
-      };
+    case 'CLEAR_CONTEXT':
+      return { ...initialState }; 
     
     case 'REMOVE_COMMITMENT':
       return {
@@ -65,28 +45,12 @@ const userReducer = (state, action) => {
         commitments: state.commitments.filter(c => c.id !== action.payload)
       };
 
-      case 'ADD_SENT':
+    case 'UPDATE_INBOX':
       return {
         ...state,
-        sent: [...state.sent, action.payload]
-      };
-
-    case 'UPDATE_INBOX':
-      return { 
-        ...state, 
-        inbox: [...state.inbox, action.payload]
-      };
-
-    case 'LOAD_USERS':
-      return { 
-        ...state, 
-        users: action.payload 
-      };
-
-    case 'ADD_FRIEND':
-      return {
-        ...state, 
-        friends: [...state.friends, action.payload]
+        inbox: state.inbox.map((message) =>
+          message.message_id === action.payload.message_id ? action.payload : message
+        ),
       };
 
     default:

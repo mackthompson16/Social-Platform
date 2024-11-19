@@ -37,7 +37,7 @@ router.post('/:id/addCommitment', async (req, res) => {
           if (err) {
             reject(err);
           } else {
-            resolve(this.lastID); // Retrieve the last inserted ID
+            resolve(String(this.lastID)); // Retrieve the last inserted ID
           }
         }
       );

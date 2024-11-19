@@ -14,7 +14,41 @@ router.get('/get-users', (req, res) => {
     });
 });
 
-// Route to get pending friend requests sent by a user
+
+router.get('/:id/get-friends', async (req, res) => {
+    const user_id = req.params
+    try {
+        db.all(`SELECT friend_id FROM friends where user_id = ?`, [user_id], (err, friends) => {
+            if (err) {
+                console.error('Error retrieving friends:', err);
+                return res.status(500).json({ success: false, message: 'Database query failed' });
+            }
+           
+            res.json(friends);
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+  });
+
+  router.get('/:id/get-messages', async (req, res) => {
+    const user_id = req.params.id
+    try {
+        db.all(`SELECT * FROM inbox where recipient_id = ?`, [user_id], (err, inbox) => {
+            if (err) {
+                console.error('Error retrieving inbox:', err);
+                return res.status(500).json({ success: false, message: 'Database query failed' });
+            }
+           
+            res.json(inbox);
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+  });
+
 router.get('/:user_id/pending-requests', (req, res) => {
     const { user_id } = req.params;
 
@@ -60,7 +94,7 @@ router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
     });
 
     if(action ==='accept'){
-    if (request.type === 'friend_request'){
+        if (request.type === 'friend_request'){
         
     //insert into table
         db.run(
@@ -70,30 +104,30 @@ router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
             
     // send updated friends to clients 
 
-                    const friend_update = {
-                        type: 'friend_update',
-                        sender_id, recipient_id,
-                        sender_username,
-                        recipient_username
-                    }
+        const friend_update = {
+            type: 'friend_update',
+            sender_id, recipient_id,
+            sender_username,
+            recipient_username
+        }
 
-                    wss.clients.forEach((client) => {
-                        if (client.readyState === wss.OPEN) {
-                            client.send(JSON.stringify(friend_update)); 
-                        }
-                    });
+        wss.clients.forEach((client) => {
+            if (client.readyState === wss.OPEN) {
+                client.send(JSON.stringify(friend_update)); 
+            }
+        });
 
               
             }
 
-    if(request.type === 'meeting_request'){
-    //add commitment into both users tables
-        db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
-                VALUES (?, ?, ?, ?, ?, ?)`, [recipient_id,...message.content])
-        db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
-            VALUES (?, ?, ?, ?, ?, ?)`, [sender_id,...message.content])
-        
-            //send this commitment update to client
+        if(request.type === 'meeting_request'){
+        //add commitment into both users tables
+            db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
+                    VALUES (?, ?, ?, ?, ?, ?)`, [recipient_id,...message.content])
+            db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
+                VALUES (?, ?, ?, ?, ?, ?)`, [sender_id,...message.content])
+            
+                    //send this commitment update to client
 
                 const commitment_update = {
                     type: 'commitment_update',
@@ -111,79 +145,13 @@ router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
 
         //update the original request in the table
 
-        db.run(`UPDATE inbox SET status = ${action}ed WHERE message_id = ?`,[message_id]);
+        db.run(`UPDATE inbox SET status = ? WHERE message_id = ?`,[`${action}ed`,request.message_id]);
 
         
-        const content =  `${recipient} ${action}ed your ${messageType === 'meeting_request' ? 'meeting request' : 'friend request'}`
-        const message = {
-            sender_id,
-            recipient_id,
-            status: 'unread',
-            type: 'message',
-            content
-        }
-        //add accept message to inbox table
-        db.run(
-            `INSERT INTO inbox (recipient_id, sender_id, status, type, content)
-             VALUES (?, ?, ?, ?, ?)`,
-            [message]
-        );
-
-        //send this message to client
-
-        const notification = {
-            type: 'updated_request',
-            message
-        }
-
-        wss.clients.forEach((client) => {
-            if (client.readyState === wss.OPEN) {
-                client.send(JSON.stringify(notification)); 
-            }
-        });
-
     res.json({success:true})
 
     });
         
-
-
-
-
-  router.get('/:id/get-friends', async (req, res) => {
-    const user_id = req.params
-    try {
-        db.all(`SELECT friend_id FROM friends where user_id = ?`, [user_id], (err, friends) => {
-            if (err) {
-                console.error('Error retrieving friends:', err);
-                return res.status(500).json({ success: false, message: 'Database query failed' });
-            }
-           
-            res.json(friends);
-        });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-  });
-
-  router.get('/:id/get-messages', async (req, res) => {
-    const user_id = req.params.id
-    try {
-        db.all(`SELECT * FROM inbox where recipient_id = ?`, [user_id], (err, inbox) => {
-            if (err) {
-                console.error('Error retrieving inbox:', err);
-                return res.status(500).json({ success: false, message: 'Database query failed' });
-            }
-           
-            res.json(inbox);
-        });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-  });
-
 
 router.post('/:sender_id/:recipient_id/send-message', (req, res) => {
     const { sender_id, recipient_id } = req.params;
@@ -192,13 +160,21 @@ router.post('/:sender_id/:recipient_id/send-message', (req, res) => {
         recipient_id, sender_id, status:'unread', type, content
     }
     //update inbox database
-    db.run(` INSERT INTO inbox (recipient_id, sender_id, status, type, content)
-        VALUES (?, ?, ?, ?, ?, ?)`,  message);
+    db.run(
+        `INSERT INTO inbox (recipient_id, sender_id, status, type, content) VALUES (?, ?, ?, ?, ?)`,
+        Object.values(message),
+        (err) => {
+            if (err) {
+                console.error('Error inserting into inbox:', err.message);
+            } else {
+                console.log('Message successfully inserted into inbox.');
+            }
+        });
     
    //send notification to websocket
     const notification = 
     { 
-        type: 'inbox_update', 
+        type: 'inbox_update',
         message
     };
     console.log('sending,', message.content,'to clients')

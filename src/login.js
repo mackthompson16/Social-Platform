@@ -4,7 +4,7 @@ import { useUser } from './UserContext';
 import CreateAccount from './createAccount';
 
 export default function Login() {
-    const { dispatch } = useUser();
+    const {state, dispatch } = useUser();
     const [AccInfo, setAccInfo] = useState({
       username: '',
       password: '',
@@ -34,30 +34,30 @@ export default function Login() {
     
       const data = await response.json();
      
+      try {
       
-      if (data.success) {
-        console.log('Login Success: ', data);
-        
-       
-        const commitmentsResponse = await fetch(`http://localhost:5000/api/users/${data.id}/get-commitments`);
-        const inboxResponse = await fetch(`http://localhost:5000/api/social/${data.id}/get-messages`)
-        const friendsResponse = await fetch(`http://localhost:5000/api/social/${data.id}/get-friends`)
-
-        const commitmentsData = await commitmentsResponse.json();
-        const inboxData = await inboxResponse.json();
-        const friendsData = await friendsResponse.json();
-       
-        console.log(inboxData)
-        dispatch({
-          type: 'SET_USER',
-          payload: { ...data, commitments: commitmentsData.rows, inbox: inboxData, friends: friendsData} 
-        });
-
-       
-      } else {
-        alert('Login failed');
+        if (data.success) {
+    
+          const commitmentsResponse = await fetch(`http://localhost:5000/api/users/${data.id}/get-commitments`);
+          const inboxResponse = await fetch(`http://localhost:5000/api/social/${data.id}/get-messages`);
+          const friendsResponse = await fetch(`http://localhost:5000/api/social/${data.id}/get-friends`);
+      
+          if (!commitmentsResponse.ok || !inboxResponse.ok || !friendsResponse.ok) {
+            throw new Error('Failed to fetch user data');
+          }
+      
+          const commitmentsData = await commitmentsResponse.json();
+          const inboxData = await inboxResponse.json();
+          const friendsData = await friendsResponse.json();
+          
+          dispatch({
+            type: 'SET_USER',
+            payload: { ...data, commitments: commitmentsData.rows, inbox: inboxData, friends: friendsData },
+          });
+        }
+      } catch (error) {
+        console.error('Error loading user context:', error);
       }
-
     
       // Reset the form
       setAccInfo({
