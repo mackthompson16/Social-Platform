@@ -4,7 +4,7 @@ import { useUser } from './UserContext';
 import CreateAccount from './createAccount';
 
 export default function Login() {
-    const {state, dispatch } = useUser();
+    const { dispatch } = useUser();
     const [AccInfo, setAccInfo] = useState({
       username: '',
       password: '',
@@ -51,7 +51,7 @@ export default function Login() {
           const friendsData = await friendsResponse.json();
           
           dispatch({
-            type: 'SET_USER',
+            type: 'REPLACE_CONTEXT',
             payload: { ...data, commitments: commitmentsData.rows, inbox: inboxData, friends: friendsData },
           });
         }

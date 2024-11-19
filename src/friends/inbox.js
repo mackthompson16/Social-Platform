@@ -22,7 +22,8 @@ export default function Inbox() {
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ request: message, action }), 
+                //recipient is the sender to keep consistent (they're the original request recipient)
+                body: JSON.stringify({ request: message, action, recipient_username: state.username }), 
               });
 
               const req = (message.type === 'friend_request' ? 'friend' : 'meeting')
@@ -41,18 +42,18 @@ export default function Inbox() {
                
                 if(message.type === 'friend_request'){
                 dispatch({
-                  type: 'ADD_FRIEND',
-                  payload: { id: message.sender_id, username: message.username }
+                  type: 'APPEND_CONTEXT',
+                  payload: { friends: {id: message.sender_id, username: message.content.split(' ')[0]} }
 
                 })
                 if(message.type === 'meeting_request'){
                   dispatch({
-                    type: 'ADD_COMMITMENT',
+                    type: 'APPEND_CONTEXT',
 
                     //parse message content as commitment
                     //this will not work as intended currently 
 
-                    payload: message.content
+                    payload: {commitments: message.content}
                   })
                   
                 }
@@ -76,8 +77,7 @@ export default function Inbox() {
              <li key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                <div>
                 
-                 <p>
-                    {message.content}
+                 <p>{message.content}</p>
 
                     {message.type === 'friend_request' || message.type === 'meeting_request' ? (
                       message.status === 'unread' || loading ? (
@@ -90,7 +90,7 @@ export default function Inbox() {
                       ) : `...rejected`
                     ) :   ''}
 
-                  </p>
+                  
 
                </div>
              </li>

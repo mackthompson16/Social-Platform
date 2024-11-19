@@ -39,7 +39,7 @@ export default function CreateAccount() {
 
       // Dispatch action to update context with accInfo (already available in the frontend)
       dispatch({
-        type: 'SET_USER',
+        type: 'REPLACE_CONTEXT',
         payload: { id: data.id, ...accInfo }  // Use accInfo to set data in the context
       });
     } else {

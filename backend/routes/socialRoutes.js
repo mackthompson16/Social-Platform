@@ -1,8 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const db= require('../db');
-const { getWebSocketServer } = require('../websocket');
-
+const { clientMap } = require('../websocket');
+const WebSocket = require('ws')
+const sendNotificationToClient = (recipient_id, notification) => {
+    const client = clientMap.get(Number(recipient_id)); // Get the client by ID
+    if (client && client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(notification)); // Send the notification
+        console.log(`Notification sent to client ${recipient_id}:`, notification);
+    } else {
+        console.warn(`Client with ID ${recipient_id} is not connected or unavailable.`);
+    }
+};
 
 router.get('/get-users', (req, res) => {
     db.all(`SELECT id, username FROM users`, [], (err, rows) => {
@@ -71,27 +80,7 @@ router.get('/:user_id/pending-requests', (req, res) => {
 
 router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
     const { recipient_id, sender_id } = req.params; // Extract from URL parameters
-    const { request, action } = req.body; // Extract from request body
-
-    const wss = getWebSocketServer();
-    let sender_username = null;
-    let recipient_username = null;
-
-    //retrieve usernames
-   
-    db.all(
-        `SELECT id, username FROM users WHERE id IN (?, ?)`,
-        [sender_id, recipient_id],
-        (err, rows) => {
-          if (err) {
-            console.error('Error retrieving usernames:', err.message);
-            return;
-          }
-    
-        sender_username = rows.find(row => row.id === sender_id)?.username;
-        recipient_username = rows.find(row => row.id === recipient_id)?.username;
-
-    });
+    const { request, action, recipient_username } = req.body; // Extract from request body
 
     if(action ==='accept'){
         if (request.type === 'friend_request'){
@@ -106,16 +95,11 @@ router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
 
         const friend_update = {
             type: 'friend_update',
-            sender_id, recipient_id,
-            sender_username,
+            recipient_id,
             recipient_username
         }
 
-        wss.clients.forEach((client) => {
-            if (client.readyState === wss.OPEN) {
-                client.send(JSON.stringify(friend_update)); 
-            }
-        });
+        sendNotificationToClient(sender_id,friend_update);
 
               
             }
@@ -123,29 +107,47 @@ router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
         if(request.type === 'meeting_request'){
         //add commitment into both users tables
             db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
-                    VALUES (?, ?, ?, ?, ?, ?)`, [recipient_id,...message.content])
+                    VALUES (?, ?, ?, ?, ?, ?)`, [recipient_id,...request.content])
             db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
-                VALUES (?, ?, ?, ?, ?, ?)`, [sender_id,...message.content])
+                VALUES (?, ?, ?, ?, ?, ?)`, [sender_id,...request.content])
             
                     //send this commitment update to client
-
+                    
                 const commitment_update = {
                     type: 'commitment_update',
-                    sender_id, recipient_id,
                     commitment
                 }
 
-                wss.clients.forEach((client) => {
-                    if (client.readyState === wss.OPEN) {
-                        client.send(JSON.stringify(commitment_update)); 
-                    }
-                });
+               sendNotificationToClient(sender_id,commitment_update);
     }}
     
 
         //update the original request in the table
+      
+        db.get(`UPDATE inbox SET status = ?  WHERE message_id = ? RETURNING *`,
+            [`${action}ed`, request.message_id],
+            (err, row) => {
+              if (err) {
+                console.error('Error updating inbox:', err);
+                return;
+              }
+          
+              if (row) {
+                const inbox_update = {
+                  type: 'inbox_update',
+                  message: row,
+                };
+           
+                //send inbox update to change status
+                
+                sendNotificationToClient(recipient_id,inbox_update);
 
-        db.run(`UPDATE inbox SET status = ? WHERE message_id = ?`,[`${action}ed`,request.message_id]);
+              } else {
+                console.warn('No row found with message_id:', request.message_id);
+              }
+            }
+          );
+          
 
         
     res.json({success:true})
@@ -163,29 +165,32 @@ router.post('/:sender_id/:recipient_id/send-message', (req, res) => {
     db.run(
         `INSERT INTO inbox (recipient_id, sender_id, status, type, content) VALUES (?, ?, ?, ?, ?)`,
         Object.values(message),
-        (err) => {
+        function (err) { // Use a regular function to access `this`
             if (err) {
                 console.error('Error inserting into inbox:', err.message);
             } else {
-                console.log('Message successfully inserted into inbox.');
+               
+    
+                // Access the lastID from this context
+                const message_id = String(this.lastID);
+    
+                // Prepare the notification object
+                const notification = {
+                    type: 'message',
+                    message: { ...message, message_id },
+                };
+    
+                // Send notification to WebSocket clients
+
+                sendNotificationToClient(recipient_id,notification);
+    
+               
             }
-        });
+        }
+    );
     
-   //send notification to websocket
-    const notification = 
-    { 
-        type: 'inbox_update',
-        message
-    };
-    console.log('sending,', message.content,'to clients')
-    const wss = getWebSocketServer();
+
     
-    wss.clients.forEach((client) => {
-        if (client.readyState === client.OPEN) {
-            client.send(JSON.stringify(notification));
-                    
-                }
-    });
 
         res.json({ success: true, });
 

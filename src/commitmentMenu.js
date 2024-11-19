@@ -60,13 +60,10 @@ export default function CommitmentMenu(){
                 method: 'DELETE'
             });
             if (response.ok) {
-                // Successfully deleted from the backend, now update the context
-                const updatedCommitments = state.commitments.filter(commitment => commitment.id !== commitmentId);
                 
-                // Dispatch the updated commitments to the context
-                dispatch({ type: 'SET_COMMITMENTS', payload: updatedCommitments });
+            
+                dispatch({ type: 'REMOVE_COMMITMENT', payload: commitmentId });
           
-                console.log("Commitment removed. Updated commitments: ", updatedCommitments);
               } else {
                 console.error("Failed to delete commitment");
               }

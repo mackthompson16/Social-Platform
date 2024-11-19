@@ -111,8 +111,8 @@ export default function CommitmentForm({setShowForm}){
                 
             
                   dispatch({
-                  type: 'SET_COMMITMENTS',
-                  payload: [...state.commitments, update], // Add the new commitment to the existing ones
+                  type: 'APPEND_CONTEXT',
+                  payload: {commitments: update} 
                 });
             
                 console.log("Commitment added. Updated commitments: ",[...state.commitments, update]);

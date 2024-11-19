@@ -19,22 +19,21 @@ const initialState = {
 const userReducer = (state, action) => {
   switch (action.type) {
 
-      case 'REPLACE_CONTEXT': // Use this for setting or replacing data
-        return {
-          ...state,
-          ...action.payload, // Replace matching keys in state with payload values
-        };
+    case 'REPLACE_CONTEXT':
+      return {
+        ...state,
+        ...action.payload, 
+      };
+    
   
-      case 'APPEND_CONTEXT': // Use for appending new data to arrays
+      case 'APPEND_CONTEXT':
+        const [key] = Object.keys(action.payload); 
         return {
           ...state,
-          ...Object.keys(action.payload).reduce((updated, key) => {
-            updated[key] = Array.isArray(state[key])
-              ? [...state[key], ...action.payload[key]] // Append to array
-              : state[key]; // Ignore non-array keys
-            return updated;
-          }, {}),
-        }
+          [key]: [...state[key], action.payload[key]], 
+        };
+      
+      
 
     case 'CLEAR_CONTEXT':
       return { ...initialState }; 
@@ -42,14 +41,14 @@ const userReducer = (state, action) => {
     case 'REMOVE_COMMITMENT':
       return {
         ...state,
-        commitments: state.commitments.filter(c => c.id !== action.payload)
+        commitments: state.commitments.filter(c => Number(c.id) !== Number(action.payload))
       };
 
     case 'UPDATE_INBOX':
       return {
         ...state,
         inbox: state.inbox.map((message) =>
-          message.message_id === action.payload.message_id ? action.payload : message
+          Number(message.message_id) === Number(action.payload.message_id) ? action.payload : message
         ),
       };
 

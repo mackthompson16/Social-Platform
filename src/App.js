@@ -9,60 +9,56 @@ import './styles.css';
 export default function App() {
   const { state, dispatch } = useUser(); 
 
-
+// websocket communication (might move this out of app.js eventually)
   useEffect(() => {
+
     if (state.id !== null) {
       
       dispatch({
-        type: 'SET_USER',
+        type: 'REPLACE_CONTEXT',
         payload: { isLoggedIn: true },
       });
      
       console.log('current state: ' , state)
-    }
-  }, [state.id]);
-  
 
-  useEffect(() => {
     const socket = new WebSocket('ws://localhost:5000'); 
-    
+   
     socket.onopen = () => {
       console.log('WebSocket connection opened');
+      socket.send(JSON.stringify({type:'login', id: state.id}));
     };
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('Client received:', data.message,'. I am ', state.id);
-        if (data.type === 'inbox_update' && state.id === data.message.recipient_id) {
-          console.log('updating inbox')
-            
-            dispatch({ type: 'UPDATE_INBOX', payload: data.message });
-        }
+        console.log('Client received:', data);
+        
+       
 
-        if (data.type === 'friend_update'){
-
-           if (state.id === data.sender_id) {
-         
-                dispatch({
-                  type: 'ADD_FRIEND',
-                  payload: { id: data.recipient_id, username:data.recipient_username}
-              });
+            if (data.type === 'message' ) {
+              console.log('adding message to inbox')
+                
+                dispatch({ type: 'APPEND_CONTEXT', payload: {inbox:data.message} });
             }
-            if (state.id === data.recipient_id) {
-        
-              dispatch({
-                type: 'ADD_FRIEND',
-                payload: { id: data.sender_id, username:data.sender_username}
-            });
-          }
-        }
-        
-        if (data.type === 'commitment_update' && (state.id === data.recipient_id || currentId === recipient_id)){
-          dispatch ({
-          type: 'SET_COMMITMENTS',
-          payload: [...state.commitments, data.commitment]
-          })
-        }
+            if (data.type === 'inbox_update') {
+              console.log('updating inbox')
+              dispatch({type:'UPDATE_INBOX', payload: data.message})
+            }
+
+            if (data.type === 'friend_update'){
+            
+                  dispatch({
+                    type: 'APPEND_CONTEXT',
+                    payload: {friends: { id: data.sender_id, username:data.sender_username}}
+                });
+              }
+            
+            
+            if (data.type === 'commitment_update'){
+              dispatch ({
+              type: 'APPEND_CONTEXT',
+              payload: {commitments: data.commitment}
+              })
+            }
     };
 
     socket.onerror = (error) => {
@@ -72,7 +68,7 @@ export default function App() {
     return () => {
         socket.close();
     };
-}, [state.id]);
+}}, [state.id]);
 
 
 if (state.loading) {

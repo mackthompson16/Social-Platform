@@ -16,8 +16,8 @@ export default function Friends() {
                 const fetchedUsers = Array.isArray(data.users) ? data.users : [];
                 
                 dispatch({
-                    type: 'LOAD_USERS',
-                    payload: fetchedUsers 
+                    type: 'REPLACE_CONTEXT',
+                    payload: {users: fetchedUsers }
                   });
 
 

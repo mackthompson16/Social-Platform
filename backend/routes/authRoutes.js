@@ -22,12 +22,12 @@ router.post('/create-account', async (req, res) => {
               return reject({ success: false, message: 'Error creating account' });
             }
   
-            const newUserId = String(this.lastID);  
+            
             
             try {
              
              
-              resolve({ success: true, id: newUserId });
+              resolve({ success: true, id: this.lastID});
             } catch (error) {
               reject({ success: false, message: 'Failed to retrieve user information' });
             }
