@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useUser } from './UserContext';
 import CreateAccount from './createAccount';
+import generateEvents from './events';
 
 export default function Login() {
     const { dispatch } = useUser();
@@ -49,10 +50,17 @@ export default function Login() {
           const commitmentsData = await commitmentsResponse.json();
           const inboxData = await inboxResponse.json();
           const friendsData = await friendsResponse.json();
-          
+          const events = generateEvents(commitmentsData.rows)
           dispatch({
             type: 'REPLACE_CONTEXT',
-            payload: { ...data, commitments: commitmentsData.rows, inbox: inboxData, friends: friendsData },
+            payload: { ...data, 
+              commitments: commitmentsData.rows, 
+              inbox: inboxData, 
+              friends: [...friendsData, {id:data.id, username:data.username}],
+              visibleEventKeys: {[data.id]:true}, 
+              cachedEventArrays:{[data.id]:events},
+
+            },
           });
         }
       } catch (error) {

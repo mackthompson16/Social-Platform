@@ -1,86 +1,21 @@
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import React, { useState, useEffect } from 'react';
 import { useUser } from './UserContext';
-
+import React, {useEffect, useState} from 'react';
 export default function Calendar() {
     const { state } = useUser();
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
-        const events = [];
-    
-        state.commitments.forEach(commitment => {
-            const parsedDates = JSON.parse(commitment.dates);
-            const parsedDays = JSON.parse(commitment.days);
-            
-            // Extract common fields
-            const title = commitment.name;
-            const id = commitment.id;
-    
-            if (Array.isArray(parsedDates) && parsedDates.length > 1) {
-                // Recurring commitment: Use generateRecurringEvents
-                const recurringEvents = generateRecurringEvents({ ...commitment, dates: parsedDates, days: parsedDays });
-                recurringEvents.forEach(event => events.push(event));
-            } else if (typeof parsedDates === 'string' || (Array.isArray(parsedDates) && parsedDates.length === 1)) {
-                // Non-recurring commitment: Handle single date
-                const singleDate = Array.isArray(parsedDates) ? parsedDates[0] : parsedDates;
-                const startDate = new Date(singleDate);
-    
-                if (isNaN(startDate.getTime())) {
-                    console.error(`Invalid date for non-recurring commitment ID: ${commitment.id}`);
-                    return; // Skip invalid dates
-                }
-    
-                // Set start and end times
-                const [startHour, startMinute] = commitment.startTime.split(':').map(Number);
-                const [endHour, endMinute] = commitment.endTime.split(':').map(Number);
-    
-                const start = new Date(startDate);
-                start.setHours(startHour, startMinute);
-    
-                const end = new Date(startDate);
-                end.setHours(endHour, endMinute);
-    
-                // Add non-recurring event directly to events array
-                events.push({
-                    id,
-                    title,
-                    start,
-                    end
-                });
-            }
-        });
-    
-        setEvents(events);
-    }, [state.commitments]);
-    
+        
+        const newEvents = Object.entries(state.visibleEventKeys)
+                .filter(([, value]) => value) 
+                .flatMap(([key]) => state.cachedEventArrays[key] || []);
+            setEvents(newEvents); 
+    }, [state.visibleEventKeys]);
 
-    const generateRecurringEvents = (commitment) => {
-        const events = [];
-        const [startDate, endDate] = commitment.dates;
-        const daysOfWeek = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-
-       
-        for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-            const dayName = Object.keys(daysOfWeek)[date.getDay()];
-
-            if (commitment.days.includes(dayName)) {
-                events.push({
-                    id: commitment.id,
-                    title: commitment.name,
-                    start: new Date(`${date.toISOString().split('T')[0]}T${commitment.startTime}`),
-                    end: new Date(`${date.toISOString().split('T')[0]}T${commitment.endTime}`)
-                });
-            }
-        }
-        return events;
-    };
-
-    
-
+   
+   
   const colorPalette = [
     '#B0E0E6', // Pale blue
     '#D5E8D4', // Light green

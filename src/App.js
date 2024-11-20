@@ -5,7 +5,6 @@ import Footer from './footer';
 import Login from './login';
 import Calendar from './calendar';
 import './styles.css';
-
 export default function App() {
   const { state, dispatch } = useUser(); 
 
@@ -13,11 +12,11 @@ export default function App() {
   useEffect(() => {
 
     if (state.id !== null) {
-      
       dispatch({
         type: 'REPLACE_CONTEXT',
-        payload: { isLoggedIn: true },
+        payload: { isLoggedIn: true},
       });
+
      
       console.log('current state: ' , state)
 
@@ -48,7 +47,7 @@ export default function App() {
             
                   dispatch({
                     type: 'APPEND_CONTEXT',
-                    payload: {friends: { id: data.sender_id, username:data.sender_username}}
+                    payload: {friends: { id: data.recipient_id, username:data.recipient_username}}
                 });
               }
             

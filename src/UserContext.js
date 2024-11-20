@@ -13,6 +13,8 @@ const initialState = {
   inbox: [],          
   friends: [],    
   users: [],
+  visibleEventKeys: {}, 
+  cachedEventArrays: {}
 
 };
 
@@ -26,12 +28,26 @@ const userReducer = (state, action) => {
       };
     
   
-      case 'APPEND_CONTEXT':
-        const [key] = Object.keys(action.payload); 
+      case 'APPEND_CONTEXT': {
+        const [key] = Object.keys(action.payload);
+    
+        if (key === 'visibleEventKeys' || key === 'cachedEventArrays') {
+          //for set objects
+            return {
+                ...state,
+                [key]: {
+                    ...state[key],
+                    ...action.payload[key],
+                },
+            };
+        }
+        //for array objects
         return {
-          ...state,
-          [key]: [...state[key], action.payload[key]], 
+            ...state,
+            [key]: [...state[key], action.payload[key]], 
         };
+    }
+    
       
       
 
@@ -41,7 +57,8 @@ const userReducer = (state, action) => {
     case 'REMOVE_COMMITMENT':
       return {
         ...state,
-        commitments: state.commitments.filter(c => Number(c.id) !== Number(action.payload))
+        commitments: state.commitments.filter(c => Number(c.id) !== Number(action.payload)),
+        events: state.events.filter(c => Number(c.commitment_id) !== Number(action.payload))
       };
 
     case 'UPDATE_INBOX':
