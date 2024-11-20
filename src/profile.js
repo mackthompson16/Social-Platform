@@ -1,7 +1,7 @@
 import React, {useState} from "react"
-import { useUser } from './UserContext';
-import Login from "./login";
-export default function Preferences(){
+import { useUser } from './usercontext';
+import Login from "./auth";
+export default function Profile(){
     const [showEditMenu, setShowEditMenu] = useState(false);
     const { state, dispatch } = useUser();
     const [accInfo, setAccInfo] = useState({
@@ -50,27 +50,21 @@ export default function Preferences(){
             if (result.success) {
                 console.log('Account updated successfully');
     
-                // Dispatch the context update with the new account info
+                
                 dispatch({ type: 'REPLACE_CONTEXT', payload: updatedAccInfo });
             } else {
                 console.error('Error updating account:', result.message);
-                // Handle error (e.g., show an error message)
+             
             }
         } catch (error) {
             console.error('Request failed:', error);
-            // Handle fetch error
+           
         }
         setShowEditMenu(false);
     };
     
-    
-
-
-    const editAccount= () =>{
         return(
-        <form onSubmit={handleSubmit}>
-        <div className="form">
-          
+            <div>
             <input
                 type="text"
                 id="username"
@@ -80,7 +74,7 @@ export default function Preferences(){
                 placeholder={state.username}
                 className="form-control"
             />
-     
+
             <input
                 type="password"
                 id="password"
@@ -90,7 +84,7 @@ export default function Preferences(){
                 placeholder={state.password}
                 className="form-control"
             />
-        
+
             <input
                 type="email"
                 id="email"
@@ -100,39 +94,18 @@ export default function Preferences(){
                 placeholder={state.email}
                 className="form-control"
             />
-            
 
             <div className="button-container">
-          <button type="submit" className="btn btn-primary">Submit</button>
-          <button onClick={() => setShowEditMenu(false)} className="btn btn-secondary">Cancel</button>
-          </div>
-          </div>
-
-
-        </form>
-        )
-
-    }
-    
-    
-    return(
-        <div>
-        <div className="menu-container">
-                <button className="btn btn-primary"
-                    onClick={()=>setShowEditMenu(true) }
+                <button
+                    className="btn btn-primary"
+                    onClick={() => handleSubmit()} 
                 >
-                  Edit Account
-
+                    Save Changes
                 </button>
-                <button className="btn btn-primary"
-                    onClick={()=>Logout() }
-                >
-                  Logout
-                </button>
+               
+            </div>
         </div>
 
-        {showEditMenu && editAccount()}
+        ) 
 
-        </div>
-    )
 }

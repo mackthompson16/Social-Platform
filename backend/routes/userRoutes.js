@@ -21,50 +21,36 @@ router.get('/:id/get-commitments', async (req, res) => {
   
 });
 
-router.post('/:id/addCommitment', async (req, res) => {
+router.post('/:id/add-commitment', async (req, res) => {
   const id = Number(req.params.id);
   const { name, startTime, endTime, days, dates } = req.body;
-  
-  
-    await db.run('BEGIN TRANSACTION');
-
-    const result = await new Promise((resolve, reject) => {
+  const result = await new Promise(async (resolve, reject) => {
       db.run(
         `INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [id, name, startTime, endTime, JSON.stringify(days), JSON.stringify(dates)],
-        function (err) {
+        [id, name, startTime, endTime, JSON.stringify(days), JSON.stringify(dates)], async function (err) {
           if (err) {
-            reject(err);
-          } else {
-            resolve(String(this.lastID)); // Retrieve the last inserted ID
+            return reject({ success: false, message: 'Error Adding Commitment' });
+          }
+    
+          try {
+           
+           
+            resolve({ success: true, id: this.lastID});
+          } catch (error) {
+            reject({ success: false, message: 'Failed to retrieve ID' });
           }
         }
       );
     });
     
-    // Commit the transaction if necessary (though `db.run` operates independently)
-    await db.run('COMMIT');
-    
-    // Now retrieve the newly inserted row
-    db.get(
-      `SELECT * FROM commitments WHERE user_id = ?`,
-      [result],
-      (err, row) => {
-        if (err) {
-          console.error('Error retrieving the newly created commitment:', err);
-          res.status(500).json({ message: 'Internal server error' });
-        } else {
-          // Send the full row as a response
-          res.json(row);
-        }
-      }
-    );
+    res.json(result);
+  });
+
+  
 
 
-});
-
-router.delete('/:user_id/:commitment_id/removeCommitment', async (req, res) => {
+router.delete('/:user_id/:commitment_id/remove-commitment', async (req, res) => {
   const { user_id, commitment_id } = req.params;
   console.log(user_id, 'removed, ', commitment_id);
   try {

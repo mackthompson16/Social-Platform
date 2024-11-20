@@ -1,8 +1,8 @@
 
-import { useUser } from './UserContext';
+import { useUser } from './usercontext';
 
 import './styles.css';
-export default function CommitmentMenu(){
+export default function EventMenu(){
 
     const { state, dispatch } = useUser();
    
@@ -56,7 +56,7 @@ export default function CommitmentMenu(){
     const handleRemoveCommitment = async (commitmentId) =>{
 
         try {
-            const response = await fetch(`http://localhost:5000/api/removeCommitment/${state.id}/${commitmentId}`, {
+            const response = await fetch(`http://localhost:5000/api/users/${state.id}/${commitmentId}/remove-commitment`, {
                 method: 'DELETE'
             });
             if (response.ok) {

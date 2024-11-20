@@ -1,18 +1,18 @@
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import { useUser } from './UserContext';
+import { useUser } from './usercontext';
 import React, {useEffect, useState} from 'react';
 export default function Calendar() {
     const { state } = useUser();
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
-        
+        console.log(state.cachedEventArrays)
         const newEvents = Object.entries(state.visibleEventKeys)
                 .filter(([, value]) => value) 
                 .flatMap(([key]) => state.cachedEventArrays[key] || []);
             setEvents(newEvents); 
-    }, [state.visibleEventKeys]);
+    }, [state.visibleEventKeys, state.cachedEventArrays]);
 
    
    
@@ -67,9 +67,7 @@ export default function Calendar() {
     );
 };
 
-    return (
-    
-        <div className="calendar-container">
+    return (  
             <FullCalendar
                 key={events.length} // Use `events.length` or a unique identifier to force re-render
                 plugins={[dayGridPlugin]}
@@ -77,7 +75,5 @@ export default function Calendar() {
                 events={events}
                 eventContent={renderEventContent}
             />
-     
-    </div>
     );
 }

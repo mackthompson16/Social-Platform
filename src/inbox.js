@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { useUser } from '../UserContext'; 
+import { useUser } from './usercontext'; 
 
 export default function Inbox() {
     const { state, dispatch } = useUser(); 
@@ -68,8 +68,8 @@ export default function Inbox() {
       };
   
     return (
-      <div className="Messages-Menu">
-        <h2>Inbox Messages</h2>
+      <div className="inbox">
+        <h2>Inbox</h2>
         {inbox && inbox.length > 0 ? (
            <ul>
            {inbox.map((message, index) => (

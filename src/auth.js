@@ -1,19 +1,18 @@
 
 import React, { useState } from 'react';
-import { useUser } from './UserContext';
-import CreateAccount from './createAccount';
+import { useUser } from './usercontext';
 import generateEvents from './events';
 
-export default function Login() {
+export default function Auth() {
     const { dispatch } = useUser();
     const [AccInfo, setAccInfo] = useState({
       username: '',
       password: '',
+      email: ''
     });
 
-    const [showCreateAccount, setShowCreateAccount] = useState(false);
-    const [showLoginForm, setShowLoginForm] = useState(false); 
-  
+    const [createAccount, setCreateAccount] = useState(false);
+   
     const handleChange = (event) => {
       const { name, value } = event.target;
       setAccInfo({
@@ -24,6 +23,9 @@ export default function Login() {
   
     const handleSubmit = async (event) => {
       event.preventDefault();
+      if(createAccount){handleCreateAccount()} 
+      else{
+     
       
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
@@ -66,45 +68,51 @@ export default function Login() {
       } catch (error) {
         console.error('Error loading user context:', error);
       }
-    
+    }
       // Reset the form
       setAccInfo({
         username: '',
         password: '',
+        email: '',
       });
     };
     
+    async function handleCreateAccount(){
 
+      const response = await fetch('http://localhost:5000/api/auth/create-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(AccInfo),  
+      });
+      const data = await response.json(); 
+      if (data.success) {
+       
+        console.log('Account created successfully:', data.id);
+  
+        dispatch({
+          type: 'REPLACE_CONTEXT',
+          payload: { id: data.id, ...AccInfo }
+        });
+      } else {
+        alert('Account creation failed');
+      }
+ 
+    };
    
   
   
     return (
-      <div className="form">
+      <div>
     
-        {showCreateAccount && <CreateAccount />}
     
-        {!showLoginForm && !showCreateAccount && (
-          <div className="form">
+       
+    <div className="auth-form">
             <h1>Welcome</h1>
     
-            <div className="button-container">
-              <button 
-                className="btn btn-primary" 
-                onClick={() => setShowLoginForm(true)}>  
-                Login
-              </button>
-              <button 
-                className="btn btn-secondary" 
-                onClick={() => setShowCreateAccount(true)}>  
-                Create Account
-              </button>
-            </div>
-          </div>
-        )}
-    
-        {showLoginForm && (
           <form onSubmit={handleSubmit}>
-            <div className="form">
+            <div className="auth-form">
               <input
                 type="text"
                 name="username"
@@ -122,23 +130,44 @@ export default function Login() {
                 required
                 className="form-control"
               />
+      {createAccount && (
+         <input
+         type="email"
+         id="email"
+         name="email"
+         value={AccInfo.email}
+         onChange={handleChange}
+         placeholder="Email"
+         className="form-control"
+     />
+      )}
     
-              <div className="button-container">
-                <button 
-                  className="btn btn-primary" 
-                  onClick={handleSubmit}>
-                  Login
-                </button>
-    
-                <button 
-                  className="btn btn-secondary" 
-                  onClick={() => setShowLoginForm(false)}> 
-                  Cancel
-                </button>
-              </div>
+          
+          <button 
+            onClick={handleSubmit}>
+            
+            {createAccount ?'Create Account' : 'Login'}
+
+          </button>
+  
+           
             </div>
           </form>
-        )}
+
+          {!createAccount && (
+      <i>Don't have an account yet?
+      <button 
+                onClick={() => setCreateAccount(true)}>  
+                Create Account
+      </button>
+      </i>
+      )}
+      
       </div>
+      
+
+      
+
+    </div>
     );
   }    

@@ -1,4 +1,5 @@
 import React, { createContext, useReducer, useContext } from 'react';
+import generateEvents from './events';
 const UserContext = createContext();
 export const useUser = () => useContext(UserContext);
 
@@ -7,14 +8,15 @@ const initialState = {
   username: null,
   email: null,
   password: null,
+  current_page: 'AUTH',
   commitments: [],   
-  isLoggedIn: false,
   sent: [],           
   inbox: [],          
   friends: [],    
   users: [],
   visibleEventKeys: {}, 
-  cachedEventArrays: {}
+  cachedEventArrays: {},
+  showMessages: false
 
 };
 
@@ -30,7 +32,6 @@ const userReducer = (state, action) => {
   
       case 'APPEND_CONTEXT': {
         const [key] = Object.keys(action.payload);
-    
         if (key === 'visibleEventKeys' || key === 'cachedEventArrays') {
           //for set objects
             return {
@@ -41,25 +42,58 @@ const userReducer = (state, action) => {
                 },
             };
         }
+       
+        
+
         //for array objects
-        return {
+
+          return {
             ...state,
             [key]: [...state[key], action.payload[key]], 
         };
-    }
+      }
+      
+      
     
-      
-      
-
     case 'CLEAR_CONTEXT':
       return { ...initialState }; 
     
+    case 'ADD_COMMITMENT':
+      
+        const newCommitment = action.payload;     
+        const newEvents = generateEvents([newCommitment]);
+
+        return {
+            ...state,
+           
+            cachedEventArrays: {
+                ...state.cachedEventArrays, 
+                [state.id]: [
+                    ...(state.cachedEventArrays[state.id] || []), 
+                    ...newEvents 
+                ]
+            },
+    
+            commitments: [...state.commitments, newCommitment],
+        
+          
+        };
+    
     case 'REMOVE_COMMITMENT':
-      return {
-        ...state,
-        commitments: state.commitments.filter(c => Number(c.id) !== Number(action.payload)),
-        events: state.events.filter(c => Number(c.commitment_id) !== Number(action.payload))
-      };
+      const commitment_id = Number(action.payload);
+        return {
+            ...state,
+            cachedEventArrays: {
+                ...state.cachedEventArrays, 
+                [state.id]: state.cachedEventArrays[state.id].filter(
+                    event => Number(event.commitment_id) !== commitment_id
+                )
+            },
+            commitments: state.commitments.filter(
+                commitment => Number(commitment.commitment_id) !== commitment_id
+            )
+          };
+
 
     case 'UPDATE_INBOX':
       return {

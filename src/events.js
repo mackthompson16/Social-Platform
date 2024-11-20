@@ -2,15 +2,25 @@
 
 export default function generateEvents(commitments) {
     const events = [];
-
-
-commitments.forEach(commitment => {
-    const parsedDates = JSON.parse(commitment.dates);
-    const parsedDays = JSON.parse(commitment.days);
-    
-    // Extract common fields
+    commitments.forEach(commitment => {
+        let parsedDates;
+        let parsedDays;
+        
+      
+          
+    if (typeof commitment.dates === 'string') {
+        parsedDates = JSON.parse(commitment.dates);
+    } else if (Array.isArray(commitment.dates)) {
+        parsedDates = commitment.dates; 
+    }
+   
+    if (typeof commitment.days === 'string') {
+        parsedDays = JSON.parse(commitment.days); 
+    } else if (Array.isArray(commitment.days)) {
+        parsedDays = commitment.days;
+    }
     const title = commitment.name;
-    const commitment_id = commitment.id;
+    const commitment_id = commitment.commitment_id;
 
     if (Array.isArray(parsedDates) && parsedDates.length > 1) {
         // Recurring commitment: Use generateRecurringEvents

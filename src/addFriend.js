@@ -1,17 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../UserContext';
+import { useUser } from './usercontext';
 
 export default function AddFriend ()  {
-    const { state, dispatch } = useUser();
+    const { state, dispatch} = useUser();
     const [searchTerm, setSearchTerm] = useState('');
    
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [showForm, setShowForm] = useState(true);
     const [pendingRequests,setPendingRequests] = useState({});
+    //fetch users
+    useEffect(() => {
+        const fetchUsers = async () => {
+            if (state.users.length === 0) {
+                try {
+                    const response = await fetch('http://localhost:5000/api/social/get-users');
+                    const data = await response.json();
+                    const fetchedUsers = Array.isArray(data.users) ? data.users : [];
     
+                    dispatch({
+                        type: 'REPLACE_CONTEXT',
+                        payload: { users: fetchedUsers }
+                    });
+    
+                    console.log('Users loaded:', fetchedUsers);
+                } catch (error) {
+                    console.error('Error fetching users:', error);
+                }
+            }
+        };
+    
+        fetchUsers();
+    }, [state.id]);
+    //get list of relevant users
      useEffect(() => {
         
-        if (searchTerm.length > 1 && state.users) {
+        if (searchTerm.length > 0 && state.users) {
             const matches = state.users.filter(user =>
                 user.username.toLowerCase().includes(searchTerm.toLowerCase()) &&
                 user.id !== state.id 
@@ -27,10 +50,10 @@ export default function AddFriend ()  {
             }
         }
     }, [searchTerm, state.users, state.id, filteredUsers]);
-    
-    
 
   
+    
+    
     const handleInputChange = (event) => {
         setSearchTerm(event.target.value);
     };
@@ -101,8 +124,8 @@ export default function AddFriend ()  {
 
 
     return (
-        showForm && (
-            <div className="form">
+        
+            <div>
                 <input
                     type="text"
                     placeholder="Search users..."
@@ -111,7 +134,7 @@ export default function AddFriend ()  {
                     className="search-bar"
                 />
 
-            <ul className="user-list">
+                <ul className="user-list">
                         {filteredUsers.map(user => (
                             <li key={user.id} className="user-item">
                                 {user.username}
@@ -124,12 +147,12 @@ export default function AddFriend ()  {
                                 </button>
                             </li>
                         ))}
-                    </ul>
+                </ul>
 
                 <button className="done-button" onClick={handleDone}>
                     Done
                 </button>
             </div>
-        )
+        
     );
 };

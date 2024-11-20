@@ -1,236 +1,160 @@
-/* Common container styles */
 
-
-/* Form specific styles */
-.form {
-   position: fixed; /* Overlay on top of calendar */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10; /* Higher z-index to stay on top of other content */
-    padding: 20px;
-    background-color: #f0f0f0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
+.auth-form{
+display: flex;
+flex-direction:column;
+gap:5px;
+}
+.form-button{
+display:flex
+}
+html, body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 300px;
-}
-.form button {
-    padding: 12px 15px;
-    border: none;
-    background-color: #ffffff;
-    color: #333;
-    font-size: 16px;
-    cursor: pointer;
-    text-align: center;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.form .form-control {
-
-    width: 100%; /* Ensure inputs take up the full width */
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc; /* Light gray border */
-    border-radius: 5px; /* Rounded input fields */
-    font-size: 16px;
-    box-sizing: border-box;
-
-
-}
-
-.form-check-container {
+  }
+  #root, .App {
     display: flex;
-    flex-wrap: wrap; /* Allow checkboxes to wrap onto multiple rows */
-    gap: 10px; /* Space between checkboxes */
-    justify-content: center; /* Center align items */
-    max-width: 300px; /* Optional: Adjust width as needed */
-}
-
-.form-check {
-    flex: 1 1 22%; /* Each checkbox takes 22% of the width, roughly four per row */
-    display: flex;
-    align-items: center;
-}
-
-.form-check-input {
-    margin-right: 8px; /* Space between checkbox and label */
-}
-.container {
-    position:fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
-    margin: 0 auto;
-}
-
-
-
-.message-item {
-    padding: 0.5em;
-    border-bottom: 1px solid #eee;
+    height: 100%; /* Ensures root container fills viewport */
   }
   
-  .message-item:last-child {
-    border-bottom: none;
+  
+  /* Ensure the main container fills the space between header and footer */
+  .main-page {
+    display: flex;
+    flex: 1; /* Take up all remaining vertical space */
+    flex-direction: row;
+    overflow: hidden; /* Prevent side menu overflow from affecting layout */
   }
   
-.calendar-container {
-    position: absolute;
-    top: 15vh; /* 15% of viewport height from the top */
-    bottom: 20vh; /* 15% of viewport height from the bottom */
-    left: 10vw; /* 10% of viewport width from the left */
-    right: 10vw; /* 10% of viewport width from the right */
-    overflow: auto; /* Allows scrolling if content exceeds container size */
-    z-index: 1;
-    background-color: white; /* Optional: set background to see the container */
-    padding: 10px; /* Optional: add padding inside the container */
-}
-.commitment:hover {
-    border-color: #007bff;
-}
-
-/* Schedule and commitment sections */
-.schedule-name {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #333;
-}
-
-
-h1 {
-    display:flex;
+  /* Main component should grow to fill available space */
+  .main-component {
+    flex: 1; /* Fills the remaining space */
+    display: flex;
     justify-content: center;
-    padding: 20px;
-    font-size: 48px;
-    font-weight: bold;
-    line-height: 1.2;
-  }
+    align-items: center;
+    padding: 1rem;
+    overflow-y: auto; /* Allow scrolling if content overflows */
 
-/* General container styling */
-.menu-container {
-    z-index: 10;
-    opacity:1;
-    position: relative;
-    width: 200px;
+    /* Ensure minimum size */
+    min-height: 85vh; /* Minimum height: 75% of the viewport height */
+    min-width: 75vw; /* Minimum width: 75% of the viewport width */
+
+    /* Optional for better visualization */
+    background-color: #f9f9f9; /* Light background */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border-radius: 8px; /* Rounded corners */
+}
+
+.fc {
+    flex: 1; /* Allow the calendar to grow inside the flex container */
+    width: 100%; /* Stretch to the full width */
+    height: 100%; /* Stretch to the full height */
+    min-height: 0; /* Prevent shrinking issues */
+  }
+  
+  
+  /* Side menu with fixed size */
+  .side-menu-container {
     display: flex;
     flex-direction: column;
-    background-color: #f0f0f0;
-   
-    border-right: 2px solid #ccc;
-}
-
-/* Button styling */
-.menu-container button {
-    padding: 12px 15px;
-    border: none;
-    background-color: #ffffff;
-    color: #333;
-    font-size: 16px;
-    cursor: pointer;
+    flex-shrink: 0; /* Prevent shrinking */
+    width: 20%; /* Fixed proportion */
+    min-width: 200px; /* Minimum width for usability */
+    background-color: #3F3F3F;
+    border-left: 1px solid #333;
+    overflow-y: auto; /* Allow scrolling for menu items */
+  }
+  .side-menu-button {
+    padding: 0.5rem;
+    background-color: #3F3F3F;
+    margin: 0.2rem 0;
     text-align: center;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.menu-container > div {
-    display: block; /* Ensure content divs take up space in the flow */
+    cursor: pointer;
+  }
+  .side-menu-button:hover, .side-menu-button.active {
+    background-color: #333;
+  }
+  
+  /* Header and footer banners */
+  .banner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #3F3F3F;
+    color: white;
     width: 100%;
-    margin-top: 8px; /* Adds spacing between sections */
-    position: relative; /* Positions sections relative to their space */
-}
-
-
-.menu-container button:focus,
-.menu-container button:hover{
-    background-color: #ddd;
-    color: #000;
-}
-
-.Messages-Menu {
+    height: 60px; /* Fixed height for header and footer */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Inbox dropdown (absolute positioning) */
+  .inbox {
     position: absolute;
-    align-items: right;
-    right: 0;
-    top: 100; 
-    z-index: 10;
-    width: 200px;
+    right:0;
+    z-index: 1000;
+    width: 16.67vw; /* 1/6 of the viewport width */
+    max-height: 50%; /* Prevent it from taking over the screen */
+    background-color: white;
+    border: 1px solid #CCC;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
     display: flex;
-    flex-direction: column;
-    background-color: #f0f0f0;
-    border-right: 2px solid #ccc;
+    flex-direction: column; /* Ensure content stacks vertically */
 }
 
+  
+  
+ 
+  
+  
+  
+.icon {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding:10px;
+};
 
+.weCal{
 
-/* Dropdown menu styling */
-.commitment-menu {
-    display: block;
-    margin-left: 20px; /* Offset for dropdown items */
-    padding: 5px 0;
-    border-left: 2px solid #ddd;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color:#FFFFFF;
+
 }
 
-.button-container {
-    display: flex;
-    justify-content: center; /* Center align buttons */
-    gap: 15px; /* Increase space between buttons */
-    margin-top: 30px; /* Additional space above the container */
+  
+code {
+font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
-.button {
-    padding: 15px 30px; /* Increase padding for larger buttons */
-    font-size: 16px; /* Slightly larger font size */
-    font-weight: 600; /* Bold font for better readability */
-    color: #555;
-    border: none;
-    border-radius: 6px; /* Slightly more rounded corners */
-    cursor: pointer;
-    transition: background-color 0.4s ease, color 0.4s ease, transform 0.2s ease;
+.pop-up {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* Ensure it appears above other elements */
+    animation: fadeOut 3s ease-in-out forwards;
 }
-
-/* Primary Button */
-.btn-primary {
-    background-color: #007bff; /* Blue color */
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    color: #fff;
-  /* Slight lift on hover */
-}
-
-/* Secondary Button */
-.btn-secondary {
-    background-color: #6c757d; /* Gray color */
-    color: #fff;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268; /* Darker gray on hover */
-    color: #fff;
-    /* Slight lift on hover */
-}
-
-/* Optional focus styling  better accessibility */
-.button:focus {
-    outline: 3px solid rgba(0, 123, 255, 0.5); /* Light blue outline */
-}
-
-
-.commitment-form {
-    position: center;
-    background-color: #ffffff;
-    padding: 20px;
-    margin: 10px;
-    border: 1px solid #ccc;
-    /* Add any specific styles */
-}
-
-

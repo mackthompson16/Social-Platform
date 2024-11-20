@@ -21,9 +21,7 @@ router.post('/create-account', async (req, res) => {
             if (err) {
               return reject({ success: false, message: 'Error creating account' });
             }
-  
-            
-            
+      
             try {
              
              
