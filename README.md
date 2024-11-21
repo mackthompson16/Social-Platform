@@ -1,9 +1,9 @@
 
 # Environment Guide
 
-1. Updated to Node.js v20.18.0 (make sure you reset your environment and reinstall Node.js).
+1. Initialize a git project and install node modules. You'll need to generate a package.json file as well
 ```bash
-https://nodejs.org/en/download/package-manager
+git init
 ```
 ```bash
 npm install
