@@ -2,70 +2,80 @@
     position: absolute;
     right: 0;
     z-index: 1000;
-    width: 16.67vw;
-    max-height: 50%;
-    background-color: white;
-    border: 1px solid #CCC;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 16.67vw; /* 1/6 of the viewport width */
+    max-height: 50%; /* Prevent it from taking over the screen */
+    background-color: #2e2e3f; /* Darker background for the inbox */
+    border: 1px solid #444; /* Subtle border for structure */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Deeper shadow for depth */
     overflow-y: auto;
     display: flex;
-    flex-direction: column;
-  }
-  
-  .inbox-title {
+    flex-direction: column; /* Ensure content stacks vertically */
+    border-radius: 8px; /* Rounded corners for a modern look */
+}
+
+/* Title styling */
+.inbox-title {
     font-size: 1.5rem;
     margin-bottom: 1rem;
     text-align: center;
-    color: #333;
-    border-bottom: 1px solid #ccc;
+    color: #e6e6e6; /* Light text for contrast */
+    border-bottom: 1px solid #555; /* Subtle border below the title */
     padding-bottom: 0.5rem;
-  }
-  
-  .inbox-list {
+}
+
+/* List container */
+.inbox-list {
     list-style: none;
     margin: 0;
     padding: 0;
-  }
-  
-  .inbox-item {
+}
+
+/* Individual item styling */
+.inbox-item {
     display: flex;
     flex-direction: column;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
+    background-color: #3e3e4e; /* Slightly lighter background for items */
+    border: 1px solid #555; /* Subtle border for separation */
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Subtle shadow */
     transition: transform 0.2s, box-shadow 0.2s;
-  }
-  
-  .inbox-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-  
-  .message-content {
+}
+
+.inbox-item:hover {
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7); /* Stronger shadow on hover */
+}
+
+/* Message content container */
+.message-content {
     display: flex;
     flex-direction: column;
-  }
-  
-  .message-text {
+}
+
+/* Message text */
+.message-text {
     font-size: 1rem;
-    color: #333;
+    color: #e6e6e6; /* Light text for readability */
     margin-bottom: 0.5rem;
-  }
-  
-  .message-actions {
+}
+
+/* Message actions (buttons) */
+.message-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-end; /* Align actions to the right */
     gap: 10px;
-  }
-  
-  .message-status.accepted {
-    color: #28a745;
-  }
-  
-  .message-status.rejected {
-    color: #dc3545;
-  }
-  
+}
+
+/* Accepted message status */
+.message-status.accepted {
+    color: #4caf50; /* Green for accepted status */
+    font-weight: bold;
+}
+
+/* Rejected message status */
+.message-status.rejected {
+    color: #dc3545; /* Red for rejected status */
+    font-weight: bold;
+}

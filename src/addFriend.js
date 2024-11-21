@@ -35,18 +35,11 @@ export default function AddFriend ()  {
         
         if (searchTerm.length > 0 && state.users) {
             const matches = state.users.filter(user =>
-                user.username.toLowerCase().includes(searchTerm.toLowerCase()) &&
-                user.id !== state.id 
+                user.username.toLowerCase().startsWith(searchTerm.toLowerCase()) &&
+                user.id !== state.id
             );
-            const isDifferent = matches.length !== filteredUsers.length ||
-                                matches.some((user, index) => user.id !== filteredUsers[index].id);
-            if (isDifferent) {
-                setFilteredUsers(matches);
-            }
-        } else {  
-            if (filteredUsers.length > 0) {
-                setFilteredUsers([]);
-            }
+                setFilteredUsers(matches);   
+            
         }
     }, [searchTerm, state.users, state.id, filteredUsers]);
 
@@ -119,33 +112,32 @@ export default function AddFriend ()  {
 
 
     return (
-        
-        <div className = 'input-buttons'>
+        <div className="add-users-page">
+            <div className="search-bar">
                 <input
                     type="text"
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={handleInputChange}
-                    className="form-control"
+                    className="form-control search-input"
                 />
-
-                <ul className="user-list">
-                        {filteredUsers.map(user => (
-                            <li key={user.id} className="user-item">
-                                {user.username}
-                                <button
-                                    className="request-button"
-                                    onClick={() => handleRequest(user.id)}
-                                    disabled={pendingRequests[user.id]}
-                                >
-                                    {checkPendingOrAccepted(user.id)}
-                                </button>
-                            </li>
-                        ))}
-                </ul>
-
-            
             </div>
-        
+            <ul className="user-list">
+                {filteredUsers.map(user => (
+                    <li key={user.id} className="user-item">
+                        <span className="username">{user.username}</span>
+                        <button
+                            className="request-button"
+                            onClick={() => handleRequest(user.id)}
+                            disabled={pendingRequests[user.id]}
+                        >
+                            {checkPendingOrAccepted(user.id)}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
+    
+    
 };

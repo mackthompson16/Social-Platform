@@ -1,0 +1,147 @@
+.input-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align items to the top */
+    align-items: flex-start; /* Align to the left */
+    gap: 15px; /* Consistent spacing between elements */
+    padding: 20px;
+    width: 50%; /* Takes up half of the container's width */
+    min-width: 300px; /* Minimum width for usability */
+    min-height: 400px; /* Minimum height to take up half the container */
+    color: #e6e6e6; /* Light text color for contrast */
+}
+
+.form-control {
+    width: 100%; /* Full width of the parent container */
+    height: 50px;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #444; /* Subtle border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #2e2e3f; /* Dark background for inputs */
+    color: #e6e6e6; /* Light text for contrast */
+    box-sizing: border-box; /* Include padding in width/height */
+    transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #4caf50; /* Green border for focus state */
+    outline: none;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-start; /* Align buttons to the left */
+    gap: 10px; /* Space between buttons */
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #4caf50;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #388e3c;
+}
+
+.btn-secondary {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #c82333;
+}
+
+/* Styling for checkboxes and toggled content */
+.form-check-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Organizes checkboxes into columns */
+    gap: 10px; /* Space between checkboxes */
+    margin-top: 15px; /* Consistent spacing from the above section */
+}
+
+.friend-option {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Space between the checkbox and label */
+}
+
+.checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #444;
+    border-radius: 3px;
+    background-color: #2e2e3f;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.checkbox:checked {
+    background-color: #4caf50; /* Green when checked */
+    border-color: #388e3c;
+}
+
+.form-check-label {
+    font-size: 0.9rem;
+    color: #e6e6e6;
+}
+
+/* Prevent unsettling resizing on toggle */
+.form-check {
+    margin: 10px 0;
+}
+
+.recurring-section {
+    margin-top: 15px; /* Spacing above recurring section */
+    width: 100%; /* Full width for alignment */
+    transition: opacity 0.2s ease-in-out; /* Smooth show/hide effect */
+    opacity: 1;
+}
+
+.recurring-section.hidden {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Popup banner for added events */
+.pop-up {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* Ensure it appears above other elements */
+    animation: fadeOut 3s ease-in-out forwards;
+}
+
+/* Calendar button styles */
+.btn-secondary {
+    background-color: #55556d;
+    color: #e6e6e6;
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #77778e;
+}

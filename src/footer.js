@@ -2,7 +2,7 @@
 export default function Footer() {
 
   return (
-    <div className='banner'>
+    <div className='footer'>
     
 
       <div className='icon'>

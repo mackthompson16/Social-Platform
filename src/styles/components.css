@@ -28,8 +28,8 @@
     flex-direction: column;
     width: 16%; /* Fixed width for a minimalistic design */
     min-width: 150px;
-    background-color: #3F3F3F;
-    border-right: 1px solid #333;
+    background-color: #2e2e3f;
+    border-right: 1px solid #444;
     height: 100vh; /* Full height of the viewport */
     box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
   }
@@ -57,14 +57,14 @@
   }
   
   .side-menu-button:hover {
-    background-color: #333;
+    background-color: #3e3e5e;
     color: #fff;
     transform: scale(1.02);
   }
   
   /* Active button */
   .side-menu-button.active {
-    background-color: #999999; /* Accent color */
+    background-color: #3e3e5e; /* Accent color */
     color: #20232a;
     font-weight: bold;
   }
@@ -73,7 +73,7 @@
   .view-friends-container {
     margin: 0.5rem 0;
     padding-left: 1rem;
-    border-left: 2px solid #333;
+    border-left: 2px solid #444;
   }
   
   .friend-option {

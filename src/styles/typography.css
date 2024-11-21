@@ -2,7 +2,7 @@ p {
     margin-top: 10px;
     font-size: 1rem;
     line-height: 1.5;
-    color: #333;
+    color: #e6e6e6;
   }
   
   p strong {
@@ -11,6 +11,9 @@ p {
   
   p em {
     font-style: italic;
-    color: #666;
+    color: #e6e6e6;
+  }
+  i {
+    color: #e6e6e6;
   }
   

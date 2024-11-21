@@ -19,6 +19,9 @@ import './styles/inbox.css';
 import './styles/typography.css';
 import './styles/utilities.css';
 import './styles/auth.css';
+import './styles/addFriend.css';
+import './styles/calendar.css'; 
+import './styles/form.css';
 
 export default function App() {
   const {state} = useUser(); 
@@ -39,10 +42,12 @@ const pageComponents = {
           
           
           {state.current_page==='AUTH'&&<Auth/>}
-
+          {state.id &&  (
           <div className = 'main-page'>
           
-          {state.id && <SideMenu/>}
+          
+          
+          <SideMenu/>
           
 
             <div className = 'main-component'>
@@ -50,7 +55,10 @@ const pageComponents = {
             </div>
 
           {state.showMessages && <Inbox/>}
+
+          
           </div>
+        )}
         
         
       <Footer />

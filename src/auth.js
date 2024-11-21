@@ -109,7 +109,7 @@ export default function Auth() {
           <h2 className="auth-title">Welcome to WeCal!</h2>
           
           <form onSubmit={handleSubmit} className="auth-form">
-            <div className="input-buttons">
+            <div className="auth-buttons">
               <input
                 type="text"
                 name="username"
@@ -141,9 +141,11 @@ export default function Auth() {
             </div>
     
             <div className="button-container">
+
               <button type="submit" className="btn btn-primary">
                 {createAccount ? 'Create Account' : 'Login'}
               </button>
+              
               {createAccount && (
                 <button
                   type="button"

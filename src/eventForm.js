@@ -145,10 +145,9 @@ export default function EventForm(){
         setIsRecurring(false);
     };
 
-    return(
-       
-   
-        <div className = 'input-buttons'>
+    return (
+        <div className="form-container">
+            <div className="input-buttons">
                 <input
                     type="text"
                     id="formCommitment"
@@ -180,7 +179,7 @@ export default function EventForm(){
                         onChange={(date) => setStartDate(date)}
                         placeholderText="Start date"
                         customInput={
-                            <button className="btn">
+                            <button className="btn btn-secondary">
                                 <FaCalendarAlt style={{ marginRight: '8px' }} />
                                 {startDate ? startDate.toLocaleDateString() : "Select date"}
                             </button>
@@ -210,7 +209,7 @@ export default function EventForm(){
                                 customInput={
                                     <button className="btn btn-secondary">
                                         <FaCalendarAlt style={{ marginRight: '8px' }} />
-                                        {endDate ? endDate.toLocaleDateString() : "Select end date"}
+                                        {endDate ? endDate.toLocaleDateString() : "End date"}
                                     </button>
                                 }
                             />
@@ -219,11 +218,11 @@ export default function EventForm(){
                         <h3>Active Days</h3>
                         <div className="form-check-container">
                             {daysOfWeek.map((day) => (
-                                <div key={day} className="form-check">
+                                <div key={day} className="friend-option">
                                     <input
                                         type="checkbox"
                                         id={`day-${day}`}
-                                        className="form-check-input"
+                                        className="checkbox"
                                         checked={
                                             day === "All"
                                                 ? selectedDays.length === daysOfWeek.length
@@ -246,7 +245,7 @@ export default function EventForm(){
                     <button
                         type="button"
                         className="btn btn-primary"
-                        onClick={handleSubmit} // Make sure this handles submission logic
+                        onClick={handleSubmit}
                     >
                         Add
                     </button>
@@ -254,7 +253,7 @@ export default function EventForm(){
                         type="button"
                         className="btn btn-secondary"
                         onClick={() => {
-                            resetForm(); // Reset to blank logic
+                            resetForm();
                         }}
                     >
                         Reset
@@ -262,10 +261,10 @@ export default function EventForm(){
                 </div>
     
                 {showBanner && <div className="pop-up">Added Event</div>}
+            </div>
         </div>
-       
+    );
     
-    )
 
 
 }

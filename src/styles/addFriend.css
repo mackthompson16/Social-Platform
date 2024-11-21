@@ -1,0 +1,94 @@
+/* Full-page container */
+.add-users-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    height: 100%; /* Take up the full height of the container */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    background-color: #1e1e2f; /* Dark background for the page */
+    color: #e6e6e6; /* Light text color for contrast */
+}
+
+/* Search bar at the top */
+.search-bar {
+    width: 100%;
+    max-width: 600px; /* Limit the width of the search bar */
+    margin-bottom: 20px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 1px solid #444; /* Subtle border to match theme */
+    border-radius: 8px;
+    background-color: #2e2e3f; /* Darker input background */
+    color: #e6e6e6; /* Light text */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Slight shadow for depth */
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-input:focus {
+    border-color: #4caf50; /* Highlight with green on focus */
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6); /* Subtle green glow */
+    outline: none;
+}
+
+/* User list styling */
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* User item container */
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2e2e3f; /* Dark background for each item */
+    border: 1px solid #444; /* Subtle border for structure */
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Shadow for depth */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.user-item:hover {
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7); /* Stronger shadow on hover */
+}
+
+/* Username text */
+.username {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #e6e6e6; /* Light text for usernames */
+}
+
+/* Request button styling */
+.request-button {
+    background-color: #4caf50; /* Green button for action */
+    color: white;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.request-button:disabled {
+    background-color: #55556d; /* Grayed-out button when disabled */
+    cursor: not-allowed;
+}
+
+.request-button:hover:not(:disabled) {
+    background-color: #388e3c; /* Darker green on hover */
+    transform: scale(1.05); /* Slight zoom on hover */
+}

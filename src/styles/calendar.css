@@ -1,0 +1,113 @@
+.fc {
+    flex: 1; /* Allow FullCalendar to grow inside the flex container */
+    width: 100%; /* Stretch to fill the container's width */
+    height: 100%; /* Stretch to fill the container's height */
+    min-height: 0; /* Prevent shrinking issues */
+    overflow: hidden; /* Prevent unwanted scrolling */
+    background-color: #1e1e2f; /* Dark background */
+    color: #e6e6e6; /* Light text for contrast */
+    border-radius: 10px; /* Rounded corners for a modern look */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Subtle shadow */
+    padding: 20px; /* Add padding for a clean, centered look */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Clean modern font */
+}
+
+/* Header styling for FullCalendar */
+.fc-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.fc-toolbar h2 {
+    font-size: 1.5rem;
+    color: #e6e6e6;
+    margin: 0;
+}
+
+.fc-toolbar .fc-button {
+    background-color: #3e3e4e;
+    color: #e6e6e6;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.fc-toolbar .fc-button:hover {
+    background-color: #55556d; /* Slightly brighter on hover */
+}
+
+/* Table styling */
+.fc-view-harness {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.fc-daygrid {
+    border: 1px solid #333; /* Borders between cells */
+    border-radius: 8px; /* Match the overall calendar style */
+}
+
+.fc-daygrid-day {
+    background-color: #2e2e3f; /* Darker cell background */
+    border-right: 1px solid #444;
+    border-bottom: 1px solid #444;
+    transition: background-color 0.2s;
+}
+
+.fc-daygrid-day:hover {
+    background-color: #3e3e5e; /* Highlight on hover */
+}
+
+/* Event styling */
+.fc-event {
+    background-color: #4caf50; /* Primary event color (green) */
+    color: white;
+    border: none;
+    padding: 5px;
+    font-size: 0.85rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+}
+
+.fc-event:hover {
+    background-color: #388e3c; /* Darker green on hover */
+    cursor: pointer;
+}
+
+/* Today highlight */
+.fc-day-today {
+    background-color: #383850; /* Slightly highlighted background */
+    border: 1px solid #666; /* Subtle border to mark today */
+}
+
+/* Day header styling */
+.fc-col-header-cell {
+    background-color: #3e3e4e;
+    color: #e6e6e6;
+    font-weight: bold;
+    border-bottom: 1px solid #444;
+}
+
+/* Scrollbar styling */
+.fc-scrollgrid {
+    scrollbar-color: #444 #1e1e2f; /* Dark scrollbar */
+    scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e2f;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 10px;
+}
