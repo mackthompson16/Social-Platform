@@ -50,5 +50,6 @@ Note: The server and the React app run on separate hosts (frontend and backend c
 
 # To-do list:
 1. Bug Fixes with Viewing friends (commitments passed incorrectly)
-2. Click on an event to edit or remove
-3. Invite Friend Option on Event Form
+2. Turn EventForm, AddFriend, Profile into pop-up forms
+3. Click on an event to edit or remove
+4. Invite Friend Option on Event Form
