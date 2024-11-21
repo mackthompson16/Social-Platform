@@ -1,7 +1,6 @@
 
 import { useUser } from './usercontext';
 
-import './styles.css';
 export default function EventMenu(){
 
     const { state, dispatch } = useUser();

@@ -1,9 +1,9 @@
 const WebSocket = require('ws');
-let wss = null;
 const clientMap = new Map();
+
 function initializeWebSocket(server) {
     
-    wss = new WebSocket.Server({ server });
+    const wss = new WebSocket.Server({ server });
     console.log('WebSocket server initialized.');
     
 
@@ -17,7 +17,7 @@ function initializeWebSocket(server) {
         ws.on('message', (rawData) => {
             try {
                 const data = JSON.parse(rawData);
-                if (data.type === 'login' && data.id) {
+                if (data.type === 'login'&& data.id) {
                     ws.id = data.id; 
                     clientMap.set(ws.id, ws); 
                     console.log(`Client logged in with ID: ${ws.id}`);

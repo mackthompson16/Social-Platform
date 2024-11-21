@@ -4,7 +4,6 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from 'react-icons/fa';
 import { useUser } from './usercontext';
-import './styles.css';
 class Commitment {
     constructor(commitment, startTime, endTime, days,dates) {
         this.name = commitment;
@@ -149,7 +148,7 @@ export default function EventForm(){
     return(
        
    
-        <div>
+        <div className = 'input-buttons'>
                 <input
                     type="text"
                     id="formCommitment"

@@ -8,11 +8,12 @@ export default function Header() {
     const newNotifications = useState(false);
    
     function toggleMessages(){
-       
+       if(state.id){
         dispatch({
             type:'REPLACE_CONTEXT',
             payload: {showMessages: !state.showMessages}
         })
+    }
     }
    return (
          

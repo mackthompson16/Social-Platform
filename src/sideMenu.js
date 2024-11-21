@@ -59,64 +59,63 @@ export default function SideMenu() {
 
 
     return (
-        
-            <div className = 'side-menu-container'>
-
-                <button
-                className={`side-menu-button ${state.current_page === 'HOME' ? 'active' : ''}`}
-                onClick={() => setCurrentPage('HOME')}
-                >
-                Home
-                </button>
-
-                <button
-                className={`side-menu-button ${state.current_page === 'PROFILE' ? 'active' : ''}`}
-                onClick={() => setCurrentPage('PROFILE')}
-                >
-                Profile
-                </button>
-
-                <button
-                className={`side-menu-button ${state.current_page === 'SCHEDULE_EVENT' ? 'active' : ''}`}
-                onClick={() => setCurrentPage('SCHEDULE_EVENT')}
-                >
-                Schedule Event
-                </button>
-
-                <button
-                className={`side-menu-button ${state.current_page === 'ADD_FRIEND' ? 'active' : ''}`}
-                onClick={() => setCurrentPage('ADD_FRIEND')}
-                >
-                Add Friends
-                </button>
-
-                <button
-                className={`side-menu-button ${showViewOptions? 'active' : ''}`}
-                onClick={() => setShowViewOptions(!showViewOptions)}
-                >
-                View Friends
-                </button>
-
-            {showViewOptions &&  (
-                <div>
-                    {state.friends.map((friend) => (
-                        <div key={friend.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={state.visibleEventKeys[friend.id] || false}
-                                    onChange={() => toggleVisibility(friend.id)} 
-                                />
-                                {friend.username} 
-                            </label>
-                        </div>
-                    ))}
-                </div>
+        <div className="side-menu-container">
+          <nav className="side-menu">
+            <button
+              className={`side-menu-button ${state.current_page === 'HOME' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('HOME')}
+            >
+              Home
+            </button>
+      
+            <button
+              className={`side-menu-button ${state.current_page === 'SCHEDULE_EVENT' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('SCHEDULE_EVENT')}
+            >
+              Schedule Event
+            </button>
+      
+            <button
+              className={`side-menu-button ${state.current_page === 'ADD_FRIEND' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('ADD_FRIEND')}
+            >
+              Add Friends
+            </button>
+      
+            <button
+              className={`side-menu-button ${showViewOptions ? 'active' : ''}`}
+              onClick={() => setShowViewOptions(!showViewOptions)}
+            >
+              View Friends
+            </button>
+      
+            {showViewOptions && (
+              <div className="view-friends-container">
+                {state.friends.map((friend) => (
+                  <label key={friend.id} className="friend-option">
+                    <input
+                      type="checkbox"
+                      checked={state.visibleEventKeys[friend.id] || false}
+                      onChange={() => toggleVisibility(friend.id)}
+                    />
+                    {friend.username}
+                  </label>
+                ))}
+              </div>
             )}
-
-            <button className = 'side-menu-button' onClick={() => logout()}>logout</button>
-       
-    </div>
-    )
-
+      
+            <button
+              className={`side-menu-button ${state.current_page === 'PROFILE' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('PROFILE')}
+            >
+              Profile
+            </button>
+      
+            <button className="side-menu-button logout" onClick={() => logout()}>
+              Logout
+            </button>
+          </nav>
+        </div>
+      );
+      
 }

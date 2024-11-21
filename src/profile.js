@@ -18,15 +18,6 @@ export default function Profile(){
         });
       };
 
-    const Logout = () =>{
-
-        dispatch({
-            type: 'CLEAR_CONTEXT',
-          });
-
-        return (<Login/>)
-    }
-
     const handleSubmit = async (event) => {
         event.preventDefault();
     
@@ -64,7 +55,7 @@ export default function Profile(){
     };
     
         return(
-            <div>
+            <div className = 'input-buttons'>
             <input
                 type="text"
                 id="username"

@@ -1,0 +1,16 @@
+p {
+    margin-top: 10px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #333;
+  }
+  
+  p strong {
+    font-weight: bold;
+  }
+  
+  p em {
+    font-style: italic;
+    color: #666;
+  }
+  

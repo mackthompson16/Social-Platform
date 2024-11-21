@@ -3,11 +3,7 @@ export default function Footer() {
 
   return (
     <div className='banner'>
-      
-      <p>
-        <a href="/about" >About</a>
-        <a href="/contact">Contact</a>
-      </p>
+    
 
       <div className='icon'>
         <a href="https://github.com/mackthompson16/myMedia" target="_blank">

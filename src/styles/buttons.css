@@ -1,0 +1,47 @@
+.btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-accept {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .btn-accept:hover {
+    background-color: #218838;
+  }
+  
+  .btn-reject {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .btn-reject:hover {
+    background-color: #c82333;
+  }
+  
+  .icon-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+  }
+  
+  .icon-btn .accept-icon {
+    font-size: 1.5rem;
+    color: #28a745;
+  }
+  
+  .icon-btn .reject-icon {
+    font-size: 1.5rem;
+    color: #dc3545;
+  }
+  

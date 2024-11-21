@@ -1,0 +1,101 @@
+.input-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  
+  .pop-up {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: fadeOut 3s ease-in-out forwards;
+  }
+  
+  /* Side menu container */
+.side-menu-container {
+    display: flex;
+    flex-direction: column;
+    width: 16%; /* Fixed width for a minimalistic design */
+    min-width: 150px;
+    background-color: #3F3F3F;
+    border-right: 1px solid #333;
+    height: 100vh; /* Full height of the viewport */
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Menu navigation */
+  .side-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 1rem;
+  }
+  
+  /* Buttons */
+  .side-menu-button {
+    padding: 10px 15px;
+    text-align: left;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #bbb; /* Subtle text color */
+    background: none;
+    border: none;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+  }
+  
+  .side-menu-button:hover {
+    background-color: #333;
+    color: #fff;
+    transform: scale(1.02);
+  }
+  
+  /* Active button */
+  .side-menu-button.active {
+    background-color: #999999; /* Accent color */
+    color: #20232a;
+    font-weight: bold;
+  }
+  
+  /* View friends container */
+  .view-friends-container {
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid #333;
+  }
+  
+  .friend-option {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    font-size: 0.9rem;
+    color: #ddd;
+  }
+  
+  .friend-option input {
+    margin-right: 8px;
+    accent-color: #61dafb;
+  }
+
+  .side-menu-button.logout {
+    margin-top: auto;
+  }
+  
+  /* General transition for hover and focus states */
+  .side-menu-button:focus {
+    outline: none;
+    box-shadow: 0 0 4px #808080;
+  }
+  

@@ -67,39 +67,50 @@ export default function Inbox() {
        
       };
   
-    return (
-      <div className="inbox">
-        <h2>Inbox</h2>
-        {inbox && inbox.length > 0 ? (
-           <ul>
-           {inbox.map((message, index) => (
-            
-             <li key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-               <div>
-                
-                 <p>{message.content}</p>
-
+      return (
+        <div className="inbox">
+          <h2 className="inbox-title">Inbox</h2>
+          {inbox && inbox.length > 0 ? (
+            <ul className="inbox-list">
+              {inbox.map((message, index) => (
+                <li key={index} className="inbox-item">
+                  <div className="message-content">
+                  <p>
+                  <b>{message.content.split(' ')[0]}</b>{' '}
+                  <em>{message.content.split(' ').slice(1).join(' ')}</em>
+                </p>
+      
                     {message.type === 'friend_request' || message.type === 'meeting_request' ? (
-                      message.status === 'unread' || loading ? (
-                        <div>
-                          <button onClick={() => handleActRequest('accept',message)}>Accept</button>
-                          <button onClick={() => handleActRequest('reject',message)}>Reject</button>
-                        </div>
-                      ) : message.status === 'accepted' ? (
-                          `...accepted`
-                      ) : `...rejected`
-                    ) :   ''}
+                      <div className="message-actions">
+                        {message.status === 'unread' || loading ? (
+                          <>
+                            <button className="icon-btn" onClick={() => handleActRequest('accept', message)}>
+                              <MdOutlineCheckBox className="icon accept-icon" title="Accept" />
+                            </button>
+                            <button className="icon-btn" onClick={() => handleActRequest('reject', message)}>
+                              <FiXSquare className="icon reject-icon" title="Reject" />
+                            </button>
+                          </>
+                        ) : message.status === 'accepted' ? (
+                          <span className="message-status accepted">...accepted</span>
+                        ) : (
+                          <span className="message-status rejected">...rejected</span>
+                        )}
+                      </div>
+                    ) : (
+                      ''
+                    )}
+                        
 
-                  
-
-               </div>
-             </li>
-           ))}
-         </ul>
-        ) : (
-          <p>No messages available.</p>
-        )}
-      </div>
-    );
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="no-messages">No messages available.</p>
+          )}
+        </div>
+      );
+      
   }
   

@@ -104,15 +104,12 @@ export default function Auth() {
   
   
     return (
-      <div>
-    
-    
-       
-    <div className="auth-form">
-            <h1>Welcome</h1>
-    
-          <form onSubmit={handleSubmit}>
-            <div className="auth-form">
+      <div className="auth">
+        <div className="auth-container">
+          <h2 className="auth-title">Welcome to WeCal!</h2>
+          
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="input-buttons">
               <input
                 type="text"
                 name="username"
@@ -130,44 +127,49 @@ export default function Auth() {
                 required
                 className="form-control"
               />
-      {createAccount && (
-         <input
-         type="email"
-         id="email"
-         name="email"
-         value={AccInfo.email}
-         onChange={handleChange}
-         placeholder="Email"
-         className="form-control"
-     />
-      )}
+              {createAccount && (
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={AccInfo.email}
+                  onChange={handleChange}
+                  placeholder="Email"
+                  className="form-control"
+                />
+              )}
+            </div>
     
-          
-          <button 
-            onClick={handleSubmit}>
-            
-            {createAccount ?'Create Account' : 'Login'}
-
-          </button>
-  
-           
+            <div className="button-container">
+              <button type="submit" className="btn btn-primary">
+                {createAccount ? 'Create Account' : 'Login'}
+              </button>
+              {createAccount && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setCreateAccount(false)}
+                >
+                  Cancel
+                </button>
+              )}
             </div>
           </form>
-
+    
           {!createAccount && (
-      <i>Don't have an account yet?
-      <button 
-                onClick={() => setCreateAccount(true)}>  
+            <div className="auth-footer">
+              <i>Don’t have an account yet?</i>
+              <button
+                type="button"
+                className="btn btn-link"
+                onClick={() => setCreateAccount(true)}
+              >
                 Create Account
-      </button>
-      </i>
-      )}
-      
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-      
-
-      
-
-    </div>
     );
+    
   }    

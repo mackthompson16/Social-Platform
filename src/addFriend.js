@@ -6,7 +6,6 @@ export default function AddFriend ()  {
     const [searchTerm, setSearchTerm] = useState('');
    
     const [filteredUsers, setFilteredUsers] = useState([]);
-    const [showForm, setShowForm] = useState(true);
     const [pendingRequests,setPendingRequests] = useState({});
     //fetch users
     useEffect(() => {
@@ -58,10 +57,6 @@ export default function AddFriend ()  {
         setSearchTerm(event.target.value);
     };
 
-  
-    const handleDone = () => {
-        setShowForm(false);
-    };
 
     useEffect(() => {
         // Fetch pending requests
@@ -125,13 +120,13 @@ export default function AddFriend ()  {
 
     return (
         
-            <div>
+        <div className = 'input-buttons'>
                 <input
                     type="text"
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={handleInputChange}
-                    className="search-bar"
+                    className="form-control"
                 />
 
                 <ul className="user-list">
@@ -149,9 +144,7 @@ export default function AddFriend ()  {
                         ))}
                 </ul>
 
-                <button className="done-button" onClick={handleDone}>
-                    Done
-                </button>
+            
             </div>
         
     );
