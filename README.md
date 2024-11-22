@@ -1,9 +1,9 @@
 
 # Environment Guide
 
-1. Updated to Node.js v20.18.0 (make sure you reset your environment and reinstall Node.js).
+1. Initialize a git project and install node modules. You'll need to generate a package.json file as well
 ```bash
-https://nodejs.org/en/download/package-manager
+git init
 ```
 ```bash
 npm install
@@ -49,8 +49,7 @@ Note: The server and the React app run on separate hosts (frontend and backend c
 
 
 # To-do list:
-1. Implement Add Friend, Schedule Meeting, View Friends Frontend
-2. Fix CSS and variable viewport (mobile?)
-3. Fix Re-rendering for better performance and store all fetched data
-4. Implement Email (password change, notifications)
-5. Set up the instance and find a domain name.
+1. Bug Fixes with Viewing friends (commitments passed incorrectly)
+2. Turn EventForm, AddFriend, Profile into pop-up forms
+3. Click on an event to edit or remove
+4. Invite Friend Option on Event Form
