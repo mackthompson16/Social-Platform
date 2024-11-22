@@ -25,21 +25,33 @@ router.get('/get-users', (req, res) => {
 
 
 router.get('/:id/get-friends', async (req, res) => {
-    const user_id = req.params
+    const user_id = parseInt(req.params.id, 10);
+
     try {
-        db.all(`SELECT friend_id FROM friends where user_id = ?`, [user_id], (err, friends) => {
-            if (err) {
-                console.error('Error retrieving friends:', err);
-                return res.status(500).json({ success: false, message: 'Database query failed' });
+        db.all(
+            `
+            SELECT u.id, u.username
+            FROM friends f
+            JOIN users u ON (u.id = f.user1_id AND f.user2_id = ?)
+                        OR (u.id = f.user2_id AND f.user1_id = ?)
+            `,
+            [user_id, user_id],
+            (err, rows) => {
+                if (err) {
+                    console.error('Error retrieving friends:', err);
+                    return res.status(500).json({ success: false, message: 'Database query failed' });
+                }
+
+                res.json(rows); // Returns an array of { id, username } objects
             }
-           
-            res.json(friends);
-        });
+        );
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
-  });
+});
+
+
 
   router.get('/:id/get-messages', async (req, res) => {
     const user_id = req.params.id
@@ -85,12 +97,26 @@ router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
     if(action ==='accept'){
         if (request.type === 'friend_request'){
         
-    //insert into table
-        db.run(
-            `INSERT INTO friends (user_id, friend_id) VALUES (?, ?), (?, ?)`,
-            [sender_id, recipient_id]
-        );
-            
+    //insert into table. ChatGPT said I need to put the higher ID first
+    
+        const [smallerId, largerId] = recipient_id < sender_id
+            ? [recipient_id, sender_id]
+            : [sender_id, recipient_id];
+    
+            db.run(
+                `INSERT INTO friends (user1_id, user2_id) VALUES (?, ?)`,
+                [smallerId, largerId],
+                (err) => {
+                    if (err) {
+                        console.error('Error inserting friendship:', err.message);
+                    } else {
+                        console.log('Friendship added successfully.');
+                    }
+                }
+            );
+    
+
+                    
     // send updated friends to clients 
 
         const friend_update = {

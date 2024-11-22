@@ -6,12 +6,12 @@ export default function SideMenu() {
     const {state, dispatch} = useUser();
     const [showViewOptions, setShowViewOptions] = useState(false);
    
-    function setCurrentPage(page) {
+    function setCurrentForm(form) {
     
     if(state.id){
         dispatch({
             type:'REPLACE_CONTEXT',
-            payload: {current_page: page}
+            payload: {current_form: form}
         })
     }
     }
@@ -25,22 +25,23 @@ export default function SideMenu() {
     async function processEvents(userId) {
 
         const commitmentsResponse = await fetch(`http://localhost:5000/api/users/${userId}/get-commitments`);
-        const commitments = await commitmentsResponse.json();
-        const userEvents = generateEvents(commitments)
+        const commitmentsData = await commitmentsResponse.json();
+        const events = generateEvents(commitmentsData.rows)
         
         dispatch({
             type: 'APPEND_CONTEXT',
             payload: {
                 visibleEventKeys: {[userId]: true},
-                cachedEventArrays: { [userId]: userEvents }
+                cachedEventArrays: {[userId]: events}
+                
+                
             },
         });
     }
 
     const toggleVisibility = (userId) => {
-        //very proud of this function. took me a long time to make simple as it is
-        //(thinking about how data should be stored and changed and stuff)
-        if (state.visibleEventKeys.hasOwnProperty(userId)) {
+      
+       if (state.visibleEventKeys.hasOwnProperty(userId)) {
           
             const updatedKeys = {
                 ...state.visibleEventKeys, 
@@ -61,23 +62,17 @@ export default function SideMenu() {
     return (
         <div className="side-menu-container">
           <nav className="side-menu">
-            <button
-              className={`side-menu-button ${state.current_page === 'HOME' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('HOME')}
-            >
-              Home
-            </button>
       
             <button
-              className={`side-menu-button ${state.current_page === 'SCHEDULE_EVENT' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('SCHEDULE_EVENT')}
+              className={`side-menu-button ${state.current_form === 'SCHEDULE_EVENT' ? 'active' : ''}`}
+              onClick={() => setCurrentForm('SCHEDULE_EVENT')}
             >
               Schedule Event
             </button>
       
             <button
-              className={`side-menu-button ${state.current_page === 'ADD_FRIEND' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('ADD_FRIEND')}
+              className={`side-menu-button ${state.current_form === 'ADD_FRIEND' ? 'active' : ''}`}
+              onClick={() => setCurrentForm('ADD_FRIEND')}
             >
               Add Friends
             </button>
@@ -105,8 +100,8 @@ export default function SideMenu() {
             )}
       
             <button
-              className={`side-menu-button ${state.current_page === 'PROFILE' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('PROFILE')}
+              className={`side-menu-button ${state.current_form === 'PROFILE' ? 'active' : ''}`}
+              onClick={() => setCurrentForm('PROFILE')}
             >
               Profile
             </button>

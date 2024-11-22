@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+
 import { useUser } from './usercontext'; 
 
 import Header from './header';
@@ -23,46 +24,82 @@ import './styles/addFriend.css';
 import './styles/calendar.css'; 
 import './styles/form.css';
 
+
 export default function App() {
-  const {state} = useUser(); 
+  const { state, dispatch } = useUser();
 
+  const current_form = {
+    PROFILE: <Profile />,
+    SCHEDULE_EVENT: <EventForm />,
+    ADD_FRIEND: <AddFriend />,
+  };
 
-const pageComponents = {
-  PROFILE: <Profile />,
-  SCHEDULE_EVENT: <EventForm />,
-  ADD_FRIEND: <AddFriend />,
-  HOME: <Calendar/>
-};
+  const formRef = useRef(null); // Create a reference for the form container
+
+  useEffect(() => {
+    if (state.current_form !== 'NONE') {
+      console.log(`[DEBUG] current_form is active: ${state.current_form}`);
+
+      // Function to handle outside clicks
+      const handleClickOutside = (event) => {
+        console.log(`[DEBUG] Click detected. Event target:`, event.target);
+
+        if (formRef.current) {
+          console.log(`[DEBUG] formRef.current:`, formRef.current);
+
+          if (!formRef.current.contains(event.target)) {
+            console.log(`[DEBUG] Clicked outside the form. Dispatching REPLACE_CONTEXT.`);
+            dispatch({
+              type: 'REPLACE_CONTEXT',
+              payload: { current_form: 'NONE' },
+            });
+          } else {
+            console.log(`[DEBUG] Clicked inside the form. No action taken.`);
+          }
+        } else {
+          console.log(`[DEBUG] formRef.current is null. Cannot determine click location.`);
+        }
+      };
+
+      // Add event listener
+      document.addEventListener('mousedown', handleClickOutside);
+      console.log(`[DEBUG] mousedown listener added.`);
+
+      // Cleanup listener when the form is hidden
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        console.log(`[DEBUG] mousedown listener removed.`);
+      };
+    } else {
+      console.log(`[DEBUG] current_form is NONE. No listener added.`);
+    }
+  }, [state.current_form, dispatch]); // Re-run whenever `state.current_form` changes
 
   return (
     <div>
+      <WebSocketListener />
+      <Header />
 
-          <WebSocketListener />
-          <Header />
-          
-          
-          {state.current_page==='AUTH'&&<Auth/>}
-          {state.id &&  (
-          <div className = 'main-page'>
-          
-          
-          
-          <SideMenu/>
-          
+      {!state.id && <Auth />}
 
-            <div className = 'main-component'>
-              {pageComponents[state.current_page]}
-            </div>
-
-          {state.showMessages && <Inbox/>}
-
-          
+      {/* Render the current form if it's not NONE */}
+      {state.current_form !== 'NONE' && (
+        <div className="form-container">
+          <div ref={formRef} className="form-content">
+          {current_form[state.current_form]}
           </div>
-        )}
-        
-        
+        </div>
+      )}
+
+      {state.id && (
+        <div className="main-page">
+          <SideMenu />
+          <Calendar />
+          {state.showMessages && <Inbox />}
+        </div>
+      )}
+
       <Footer />
-      
     </div>
   );
 }

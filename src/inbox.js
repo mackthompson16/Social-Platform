@@ -1,21 +1,16 @@
-import React, {useState, useEffect} from 'react';
 import { useUser } from './usercontext'; 
-
+import { MdOutlineCheckBox } from "react-icons/md";
+import { FiXSquare } from "react-icons/fi";
 export default function Inbox() {
     const { state, dispatch } = useUser(); 
-    const [inbox, setInbox] = useState([]);
-    const [loading, setLoading] = useState(false);
+  
     // useEffect hook to watch for changes in state.inbox
-    useEffect(() => {
-      if (state.inbox ) {
-        setInbox(state.inbox);
-      }
-    }, [state.inbox]);
+
   
    
     
     const handleActRequest = async (action, message) => {
-            setLoading(true)
+            
             try {
               const response = await fetch(`http://localhost:5000/api/social/${state.id}/${message.sender_id}/update-request`, {
                 method: 'POST',
@@ -43,9 +38,13 @@ export default function Inbox() {
                 if(message.type === 'friend_request'){
                 dispatch({
                   type: 'APPEND_CONTEXT',
-                  payload: { friends: {id: message.sender_id, username: message.content.split(' ')[0]} }
+                              
+                  payload: { friends: [{id: message.sender_id, username: message.content.split(' ')[0]}] }
 
                 })
+
+               
+
                 if(message.type === 'meeting_request'){
                   dispatch({
                     type: 'APPEND_CONTEXT',
@@ -53,7 +52,7 @@ export default function Inbox() {
                     //parse message content as commitment
                     //this will not work as intended currently 
 
-                    payload: {commitments: message.content}
+                    payload: {commitments: [message.content]}
                   })
                   
                 }
@@ -63,16 +62,16 @@ export default function Inbox() {
               console.error('Error with request:', error);
             }
 
-          setLoading(false)
+       
        
       };
   
       return (
         <div className="inbox">
-          <h2 className="inbox-title">Inbox</h2>
-          {inbox && inbox.length > 0 ? (
+          <h2 className="inbox-title">Messages</h2>
+          {state.inbox && state.inbox.length > 0 ? (
             <ul className="inbox-list">
-              {inbox.map((message, index) => (
+              {state.inbox.map((message, index) => (
                 <li key={index} className="inbox-item">
                   <div className="message-content">
                   <p>
@@ -82,7 +81,7 @@ export default function Inbox() {
       
                     {message.type === 'friend_request' || message.type === 'meeting_request' ? (
                       <div className="message-actions">
-                        {message.status === 'unread' || loading ? (
+                        {message.status === 'unread' ? (
                           <>
                             <button className="icon-btn" onClick={() => handleActRequest('accept', message)}>
                               <MdOutlineCheckBox className="icon accept-icon" title="Accept" />

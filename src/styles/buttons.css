@@ -44,4 +44,15 @@
     font-size: 1.5rem;
     color: #dc3545;
   }
+
+  .action-buttons {
+    display: flex; /* Flexbox layout */
+    justify-content: flex-end; /* Align buttons to the right */
+    align-items: flex-end; /* Align buttons to the bottom */
+    gap: 15px; /* Space between components */
+    padding: 10px; /* Optional padding inside the container */
+   
+}
+
+
   

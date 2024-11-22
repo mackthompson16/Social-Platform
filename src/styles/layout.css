@@ -23,25 +23,6 @@ html, body {
     background-color: #1e1e2f;
   }
   
-  .main-component {
-    flex: 1;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    overflow-y: auto;
-    min-height:75vh;
-    min-width: 75vw;
-    background-color: #1e1e2f;
-  }
-  .fc {
-    flex: 1; /* Allow FullCalendar to grow inside the flex container */
-    width: 100%; /* Stretch to fill the cosntainer's width */
-    height: 100%; /* Stretch to fill the container's height */
-    min-height: 0; /* Prevent shrinking issues */
-    overflow: hidden; /* Prevent unwanted scrolling */
-  }
-  
-  
  /* Header */
 .header {
     display: flex;

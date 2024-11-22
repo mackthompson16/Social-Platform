@@ -52,15 +52,13 @@ export default function Auth() {
           const commitmentsData = await commitmentsResponse.json();
           const inboxData = await inboxResponse.json();
           const friendsData = await friendsResponse.json();
-          const events = generateEvents(commitmentsData.rows)
+    
           dispatch({
             type: 'REPLACE_CONTEXT',
             payload: { ...data, 
               commitments: commitmentsData.rows, 
               inbox: inboxData, 
-              friends: [...friendsData, {id:data.id, username:data.username}],
-              visibleEventKeys: {[data.id]:true}, 
-              cachedEventArrays:{[data.id]:events},
+              friends:friendsData, 
 
             },
           });
@@ -93,7 +91,7 @@ export default function Auth() {
   
         dispatch({
           type: 'REPLACE_CONTEXT',
-          payload: { id: data.id, ...AccInfo }
+          payload: { id: data.id, ...AccInfo}
         });
       } else {
         alert('Account creation failed');

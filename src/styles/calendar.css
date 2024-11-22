@@ -1,14 +1,13 @@
 .fc {
-    flex: 1; /* Allow FullCalendar to grow inside the flex container */
-    width: 100%; /* Stretch to fill the container's width */
-    height: 100%; /* Stretch to fill the container's height */
+    flex: 1; /* Allow it to grow within a flex container */
+    width: 100%; /* Full width of the parent container */
+    height: 100%; /* Full height of the parent container */
     min-height: 0; /* Prevent shrinking issues */
     overflow: hidden; /* Prevent unwanted scrolling */
     background-color: #1e1e2f; /* Dark background */
     color: #e6e6e6; /* Light text for contrast */
     border-radius: 10px; /* Rounded corners for a modern look */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Subtle shadow */
-    padding: 20px; /* Add padding for a clean, centered look */
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Clean modern font */
 }
 

@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from 'react-icons/fa';
 import { useUser } from './usercontext';
+
 class Commitment {
     constructor(commitment, startTime, endTime, days,dates) {
         this.name = commitment;
@@ -28,6 +29,14 @@ export default function EventForm(){
     const [selectedDays, setSelectedDays] = useState([]);
     const [attemptedSubmit, setAttemptedSubmit] = useState(false)
     
+    function cancelForm() {
+        
+        dispatch({
+            type:'REPLACE_CONTEXT',
+            payload:{current_form: 'NONE'}
+        })
+    }
+
     const [showBanner, setShowBanner] = useState(false);
     useEffect(() => {
         if (state.commitments.length > 0 && attemptedSubmit) {
@@ -55,6 +64,8 @@ export default function EventForm(){
             );
         }
     };
+
+    
     
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -146,11 +157,16 @@ export default function EventForm(){
     };
 
     return (
-        <div className="form-container">
-            <div className="input-buttons">
+     
+            <div>
+              <div className="header-title">
+                <h3>New Event</h3>
+            </div>
+            <div className='form-body'>
                 <input
                     type="text"
                     id="formCommitment"
+                    class='form-control'
                     placeholder="Title"
                     value={name}
                     className="form-control"
@@ -159,6 +175,7 @@ export default function EventForm(){
     
                 <input
                     type="time"
+                    class='form-control'
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
                     step="300"
@@ -167,6 +184,7 @@ export default function EventForm(){
     
                 <input
                     type="time"
+                    class='form-control'
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
                     step="300"
@@ -178,6 +196,7 @@ export default function EventForm(){
                         selected={startDate}
                         onChange={(date) => setStartDate(date)}
                         placeholderText="Start date"
+                        class='form-control'
                         customInput={
                             <button className="btn btn-secondary">
                                 <FaCalendarAlt style={{ marginRight: '8px' }} />
@@ -191,9 +210,10 @@ export default function EventForm(){
                     <input
                         type="checkbox"
                         id="recurring"
+                        class='checkbox'
                         checked={isRecurring}
                         onChange={(e) => setIsRecurring(e.target.checked)}
-                        className="form-check-input"
+                        
                     />
                     <label htmlFor="recurring" className="form-check-label">Recurring</label>
                 </div>
@@ -206,6 +226,7 @@ export default function EventForm(){
                                 selected={endDate}
                                 onChange={(date) => setEndDate(date)}
                                 placeholderText="End date"
+                                class='form-control'
                                 customInput={
                                     <button className="btn btn-secondary">
                                         <FaCalendarAlt style={{ marginRight: '8px' }} />
@@ -215,7 +236,7 @@ export default function EventForm(){
                             />
                         </div>
     
-                        <h3>Active Days</h3>
+                    
                         <div className="form-check-container">
                             {daysOfWeek.map((day) => (
                                 <div key={day} className="friend-option">
@@ -223,6 +244,7 @@ export default function EventForm(){
                                         type="checkbox"
                                         id={`day-${day}`}
                                         className="checkbox"
+                                    
                                         checked={
                                             day === "All"
                                                 ? selectedDays.length === daysOfWeek.length
@@ -240,8 +262,9 @@ export default function EventForm(){
                 )}
     
                 {error && attemptedSubmit && <div className="alert alert-danger">{error}</div>}
-    
-                <div className="button-container">
+                </div>
+            <div className="action-buttons">
+            
                     <button
                         type="button"
                         className="btn btn-primary"
@@ -258,11 +281,21 @@ export default function EventForm(){
                     >
                         Reset
                     </button>
-                </div>
+                    <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => {
+                            cancelForm();
+                        }}
+                    >
+                        cancel
+                    </button>
+              
+            </div>
     
                 {showBanner && <div className="pop-up">Added Event</div>}
             </div>
-        </div>
+       
     );
     
 

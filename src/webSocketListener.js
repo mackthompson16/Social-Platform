@@ -1,16 +1,34 @@
 import React, { useEffect } from 'react';
 import { useUser } from './usercontext';
-
+import generateEvents from './events';
 const WebSocketListener = () => {
     const { state, dispatch } = useUser();
 
     useEffect(() => {
+      
+     
     if (state.id !== null) {
+      const events = generateEvents(state.commitments)
       dispatch({
         type: 'REPLACE_CONTEXT',
-        payload: { current_page: 'HOME'},
+        payload: { current_page: 'HOME',
+          
+                  
+        },
+      
       });
+      
+      dispatch({
+        type: 'APPEND_CONTEXT',
+        payload: {
 
+          friends: [{id:state.id, username:state.username}],
+          cachedEventArrays: {[state.id]:events},
+          visibleEventKeys: {[state.id]:true},
+        }
+
+      })
+      
      
       console.log('current state: ' , state)
 
@@ -30,7 +48,7 @@ const WebSocketListener = () => {
             if (data.type === 'message' ) {
               console.log('adding message to inbox')
                 
-                dispatch({ type: 'APPEND_CONTEXT', payload: {inbox:data.message} });
+                dispatch({ type: 'APPEND_CONTEXT', payload: {inbox:[data.message]} });
             }
             if (data.type === 'inbox_update') {
               console.log('updating inbox')
@@ -41,7 +59,7 @@ const WebSocketListener = () => {
             
                   dispatch({
                     type: 'APPEND_CONTEXT',
-                    payload: {friends: { id: data.recipient_id, username:data.recipient_username}}
+                    payload: {friends: [{ id: Number(data.recipient_id), username:data.recipient_username}]}
                 });
               }
             
@@ -49,7 +67,7 @@ const WebSocketListener = () => {
             if (data.type === 'commitment_update'){
               dispatch ({
               type: 'APPEND_CONTEXT',
-              payload: {commitments: data.commitment}
+              payload: {commitments: [data.commitment]}
               })
             }
     };

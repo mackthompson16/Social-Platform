@@ -54,12 +54,13 @@ const db = new sqlite3.Database(dbPath, (err) => {
             });
         
         db.run(`CREATE TABLE IF NOT EXISTS friends (
-                user_id INTEGER,
-                friend_id INTEGER,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                FOREIGN KEY (friend_id) REFERENCES users(id),
-                PRIMARY KEY (user_id, friend_id)
-            )`, (err) => {
+            user1_id INTEGER,
+            user2_id INTEGER,
+            FOREIGN KEY (user1_id) REFERENCES users(id),
+            FOREIGN KEY (user2_id) REFERENCES users(id),
+            PRIMARY KEY (user1_id, user2_id)
+        )
+            `, (err) => {
            
             if (err) {
                 console.error('Error creating friends table:', err.message);

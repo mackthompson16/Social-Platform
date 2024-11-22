@@ -8,7 +8,7 @@ const initialState = {
   username: null,
   email: null,
   password: null,
-  current_page: 'AUTH',
+  current_form: 'NONE',
   commitments: [],   
   sent: [],           
   inbox: [],          
@@ -24,36 +24,38 @@ const userReducer = (state, action) => {
   switch (action.type) {
 
     case 'REPLACE_CONTEXT':
+      console.log(action)
       return {
         ...state,
         ...action.payload, 
       };
     
-  
+      
       case 'APPEND_CONTEXT': {
-        const [key] = Object.keys(action.payload);
-        if (key === 'visibleEventKeys' || key === 'cachedEventArrays') {
-          //for set objects
-            return {
-                ...state,
-                [key]: {
+        const updatedState = { ...state };
+    
+        Object.keys(action.payload).forEach((key) => {
+            if (key === 'visibleEventKeys' || key === 'cachedEventArrays') {
+                // Merge objects
+                updatedState[key] = {
                     ...state[key],
                     ...action.payload[key],
-                },
-            };
-        }
-       
-        
-
-        //for array objects
-
-          return {
-            ...state,
-            [key]: [...state[key], action.payload[key]], 
-        };
-      }
-      
-      
+                };
+            } else if (Array.isArray(state[key])) {
+                // Append to arrays
+                updatedState[key] = [...state[key], ...action.payload[key]];
+            } else {
+                // Handle other cases by initializing a new array
+                updatedState[key] = [...(state[key] || []), ...action.payload[key]];
+            }
+        });
+    
+        return updatedState;
+    }
+    
+    
+    
+    
     
     case 'CLEAR_CONTEXT':
       return { ...initialState }; 

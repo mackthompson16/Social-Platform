@@ -2,7 +2,15 @@ import React, {useState} from "react"
 import { useUser } from './usercontext';
 import Login from "./auth";
 export default function Profile(){
-    const [showEditMenu, setShowEditMenu] = useState(false);
+
+    function cancelForm() {
+        
+        dispatch({
+            type:'REPLACE_CONTEXT',
+            payload:{current_form: 'NONE'}
+        })
+    }
+
     const { state, dispatch } = useUser();
     const [accInfo, setAccInfo] = useState({
         username: '',
@@ -51,11 +59,12 @@ export default function Profile(){
             console.error('Request failed:', error);
            
         }
-        setShowEditMenu(false);
+     
     };
     
         return(
-            <div className = 'input-buttons'>
+  
+            <div>
             <input
                 type="text"
                 id="username"
@@ -86,7 +95,7 @@ export default function Profile(){
                 className="form-control"
             />
 
-            <div className="button-container">
+            <div className='action-buttons'>
                 <button
                     className="btn btn-primary"
                     onClick={() => handleSubmit()} 
@@ -94,8 +103,19 @@ export default function Profile(){
                     Save Changes
                 </button>
                
+            
+            <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => {
+                            cancelForm();
+                        }}
+                    >
+                        cancel
+                    </button>
             </div>
         </div>
+       
 
         ) 
 

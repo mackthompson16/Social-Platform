@@ -4,10 +4,23 @@ import { useUser } from './usercontext';
 export default function AddFriend ()  {
     const { state, dispatch} = useUser();
     const [searchTerm, setSearchTerm] = useState('');
-   
+    const [friendStatuses, setFriendStatuses] = useState({});
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [pendingRequests,setPendingRequests] = useState({});
+
+    function cancelForm() {
+        
+        dispatch({
+            type:'REPLACE_CONTEXT',
+            payload:{current_form: 'NONE'}
+        })
+    }
+
+
+
     //fetch users
+
+
     useEffect(() => {
         const fetchUsers = async () => {
             if (state.users.length === 0) {
@@ -41,7 +54,7 @@ export default function AddFriend ()  {
                 setFilteredUsers(matches);   
             
         }
-    }, [searchTerm, state.users, state.id, filteredUsers]);
+    }, [searchTerm, state.id]);
 
   
     
@@ -74,16 +87,30 @@ export default function AddFriend ()  {
         fetchPendingRequests();
     }, []);
 
-    const checkPendingOrAccepted = (userId) => {
-       
-        if (state.friends.some(friend => friend.id === userId)) {
-            return 'Accepted';
-        }
+
         
-        return pendingRequests[userId] ? 'Pending' : 'Request';
-    };
+            
 
+        useEffect(() => {
+            const updatedStatuses = {};
+            console.log(state.friends)
+            console.log(state.users)
+            // Check each friend and pending request status
+            state.users.forEach(user => {
+                if (state.friends.some(friend => friend.id === user.id)) {
+                    updatedStatuses[user.id] = 'Accepted';
+                } else if (pendingRequests[user.id]) {
+                    updatedStatuses[user.id] = 'Pending';
+                } else {
+                    updatedStatuses[user.id] = 'Request';
+                }
+            });
 
+            setFriendStatuses(updatedStatuses);
+        }, [state.friends, state.users, pendingRequests]);
+
+     
+        
 
     const handleRequest = async (recipient_id) => {
         try {
@@ -112,32 +139,47 @@ export default function AddFriend ()  {
 
 
     return (
-        <div className="add-users-page">
-            <div className="search-bar">
-                <input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={handleInputChange}
-                    className="form-control search-input"
-                />
+    
+            <div>
+                <div className="search">
+                    <input
+                        type="text"
+                        placeholder="Search users..."
+                        value={searchTerm}
+                        onChange={handleInputChange}
+                        className="form-control search-input"
+                    />
+                </div>
+                <ul className="user-list">
+                    {filteredUsers.map((user) => (
+                        <li key={user.id} className="user-item">
+                            <span className="username">{user.username}</span>
+                            <button
+                                className="request-button"
+                                onClick={() => handleRequest(user.id)}
+                                disabled={pendingRequests[user.id]}
+                            >
+                                {friendStatuses[user.id]}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+               <div className='action-buttons'>
+            <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => {
+                            cancelForm();
+                        }}
+                    >
+                        cancel
+                    </button>
+                    </div>
             </div>
-            <ul className="user-list">
-                {filteredUsers.map(user => (
-                    <li key={user.id} className="user-item">
-                        <span className="username">{user.username}</span>
-                        <button
-                            className="request-button"
-                            onClick={() => handleRequest(user.id)}
-                            disabled={pendingRequests[user.id]}
-                        >
-                            {checkPendingOrAccepted(user.id)}
-                        </button>
-                    </li>
-                ))}
-            </ul>
-        </div>
+                
+     
     );
+    
     
     
 };
