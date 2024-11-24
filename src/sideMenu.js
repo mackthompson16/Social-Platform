@@ -5,7 +5,7 @@ export default function SideMenu() {
 
     const {state, dispatch} = useUser();
     const [showViewOptions, setShowViewOptions] = useState(false);
-   
+
     function setCurrentForm(form) {
     
     if(state.id){

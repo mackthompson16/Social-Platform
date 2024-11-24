@@ -24,7 +24,7 @@ const userReducer = (state, action) => {
   switch (action.type) {
 
     case 'REPLACE_CONTEXT':
-      console.log(action)
+
       return {
         ...state,
         ...action.payload, 

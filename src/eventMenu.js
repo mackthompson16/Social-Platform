@@ -1,137 +1,98 @@
-
+import React, { useState } from 'react';
 import { useUser } from './usercontext';
 
-export default function EventMenu(){
-
+export default function ViewEvent({ event }) {
     const { state, dispatch } = useUser();
-   
+    const [showPopup, setShowPopup] = useState(true);
 
-    const colorPalette = [
-        '#B0E0E6', // Pale blue
-        '#D5E8D4', // Light green
-        '#F8E6D2', // Soft peach
-        '#D3D3E7', // Lavender
-        '#FAE3E3', // Light blush
-        '#F2D7EE', // Pale pink
-        '#C2D9E7', // Light sky blue
-        '#F8EDD3', // Cream
-        '#D4E2D4', // Mint
-        '#E7D3C2'  // Beige
-    ];
-    const commitmentStyle = {
-        position: 'relative',
-        marginBottom: '15px',
-        padding: '15px',
-        backgroundColor: '#fff',
-        border: '1px solid #e0e0e0',
-        borderRadius: '6px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-      };
-      
-      const removeButtonStyle = {
-        zIndex: 10,
-        position: 'absolute',
-        top: '5px',
-        right: '5px',
-        background: 'transparent',
-        border: 'none',
-        fontSize: '18px',
-        cursor: 'pointer',
-        color: 'red',
-      };
-         
-    
-      
-
+    // Format time to AM/PM
     const formatTime = (time) => {
         const [hours, minutes] = time.split(':');
         const hour = parseInt(hours, 10);
         const period = hour >= 12 ? 'PM' : 'AM';
         const formattedHour = hour % 12 || 12; // Converts "0" to "12" for midnight
-    
         return `${formattedHour}:${minutes} ${period}`;
     };
-    
-    const handleRemoveCommitment = async (commitmentId) =>{
 
+    // Remove a single commitment
+    const handleRemoveCommitment = async (commitmentId) => {
         try {
             const response = await fetch(`http://localhost:5000/api/users/${state.id}/${commitmentId}/remove-commitment`, {
-                method: 'DELETE'
+                method: 'DELETE',
             });
+
             if (response.ok) {
-                
-            
                 dispatch({ type: 'REMOVE_COMMITMENT', payload: commitmentId });
-          
-              } else {
-                console.error("Failed to delete commitment");
-              }
-            } catch (error) {
-              console.error("Error deleting commitment:", error);
+                setShowPopup(false); // Close popup after deletion
+            } else {
+                console.error('Failed to delete commitment');
             }
-         
-
-    };
-
-    
-    const renderCommitments = () => {
-        
-        if (state.commitments && state.commitments.length > 0) {
-            return (
-                <div>
-                    {state.commitments.map((commitment, index) => {
-                        // Parse days if it is a JSON string or comma-separated string
-                        const parsedDays = Array.isArray(commitment.days)
-                            ? commitment.days
-                            : JSON.parse(commitment.days) || commitment.days.split(',');
-        
-                        // Parse dates if it's a JSON string
-                        const parsedDates = Array.isArray(commitment.dates)
-                            ? commitment.dates
-                            : JSON.parse(commitment.dates);
-                        const lastDigit = commitment.id % 10;
-                        const color = colorPalette[lastDigit];
-                        return (
-                            <div key={index} style={{...commitmentStyle,backgroundColor:color}}>
-                                <button style={removeButtonStyle}
-                                    onClick={() => handleRemoveCommitment(commitment.id)}
-                                   
-                                >
-                                    &times;
-                                </button>
-                                <h3>{commitment.name || 'N/A'}</h3>
-                                <p>{formatTime(commitment.startTime)} - {formatTime(commitment.endTime)}</p>
-                                <p>{(parsedDays.length > 0 && parsedDays.length < 7)? `${parsedDays.join(', ')}` : ''}</p>
-                                <p>
-                                    {parsedDates.length > 0 
-                                        ? `${new Date(parsedDates[0]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` 
-                                        : ''}
-                                    {parsedDates.length > 1 
-                                        ? ` - ${new Date(parsedDates[1]).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` 
-                                        : ''}
-                                </p>
-                            </div>
-                        );
-                    })}
-                </div>
-            );
+        } catch (error) {
+            console.error('Error deleting commitment:', error);
         }
-        
     };
 
-  
-
-    return(
-
-
-        <div>
-
-            {state.commitments.length > 0 && (renderCommitments())}
-
-        </div>
-
-
-    )
-
-
+    // Render the modal
+    return (
+        showPopup && (
+            <div style={popupOverlayStyle} onClick={() => setShowPopup(false)}>
+                <div style={popupStyle} onClick={(e) => e.stopPropagation()}>
+                    <h2>{event.name || 'Event Details'}</h2>
+                    <p>
+                        <b>Time:</b> {formatTime(event.startTime)} - {formatTime(event.endTime)}
+                    </p>
+                    <p>
+                        <b>Dates:</b> {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+                    </p>
+                    {event.owner && event.owner.id !== state.id && (
+                        <p>
+                            <b>Owner:</b> {event.owner.username}
+                        </p>
+                    )}
+                    {event.owner && event.owner.id === state.id && (
+                        <>
+                            <button
+                                style={actionButtonStyle}
+                                onClick={() => handleRemoveCommitment(event.id)}
+                            >
+                                Remove
+                            </button>
+                            <button
+                                style={actionButtonStyle}
+                                onClick={() => {
+                                    // Trigger edit form (logic not included here)
+                                    console.log('Edit event triggered');
+                                }}
+                            >
+                                Edit
+                            </button>
+                            {event.commitment_id && (
+                                <>
+                                    <button
+                                        style={actionButtonStyle}
+                                        onClick={() => console.log('Remove all related events triggered')}
+                                    >
+                                        Remove All Related
+                                    </button>
+                                    <button
+                                        style={actionButtonStyle}
+                                        onClick={() => console.log('Edit all related events triggered')}
+                                    >
+                                        Edit All Related
+                                    </button>
+                                </>
+                            )}
+                        </>
+                    )}
+                    <button
+                        style={{ ...actionButtonStyle, backgroundColor: 'red' }}
+                        onClick={() => setShowPopup(false)}
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        )
+    );
 }
+

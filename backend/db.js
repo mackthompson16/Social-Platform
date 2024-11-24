@@ -37,6 +37,17 @@ const db = new sqlite3.Database(dbPath, (err) => {
             } 
         });
 
+        db.run(`CREATE TABLE IF NOT EXISTS meeting_invites (
+                    member_id INTEGER NOT NULL,
+                    commitment_id INTEGER NOT NULL, 
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    PRIMARY KEY (member_id, commitment_id), 
+                    FOREIGN KEY (commitment_id) REFERENCES commitments(commitment_id) ON DELETE CASCADE,
+                    FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
+                );
+
+                `)
+
         db.run(`CREATE TABLE IF NOT EXISTS inbox (
                 message_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 recipient_id INTEGER,

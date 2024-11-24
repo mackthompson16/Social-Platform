@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { useUser } from './usercontext';
-import generateEvents from './events';
 
 export default function Auth() {
     const { dispatch } = useUser();
@@ -48,7 +47,6 @@ export default function Auth() {
           if (!commitmentsResponse.ok || !inboxResponse.ok || !friendsResponse.ok) {
             throw new Error('Failed to fetch user data');
           }
-      
           const commitmentsData = await commitmentsResponse.json();
           const inboxData = await inboxResponse.json();
           const friendsData = await friendsResponse.json();

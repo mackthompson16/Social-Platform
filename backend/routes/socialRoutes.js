@@ -132,10 +132,8 @@ router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
 
         if(request.type === 'meeting_request'){
         //add commitment into both users tables
-            db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
+            db.run(`INSERT INTO meeting_invites (user_id, name, startTime, endTime, days, dates) 
                     VALUES (?, ?, ?, ?, ?, ?)`, [recipient_id,...request.content])
-            db.run(`INSERT INTO commitments (user_id, name, startTime, endTime, days, dates) 
-                VALUES (?, ?, ?, ?, ?, ?)`, [sender_id,...request.content])
             
                     //send this commitment update to client
                     
@@ -183,7 +181,7 @@ router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
 
 router.post('/:sender_id/:recipient_id/send-message', (req, res) => {
     const { sender_id, recipient_id } = req.params;
-    const { type, content } = req.body;
+    const { type, content, commimtent } = req.body;
     const message = {
         recipient_id, sender_id, status:'unread', type, content
     }
@@ -214,6 +212,12 @@ router.post('/:sender_id/:recipient_id/send-message', (req, res) => {
             }
         }
     );
+
+    if (type === 'meeting_request'){
+        db.run(
+            `INSERT INTO meeting_invites (owner_id, member_id, commitment_id, status) VALUES (?, ?, ?, ?, ?)`,
+            [sender_id, recipient_id, commitment.id, 'pending'])
+    }
     
 
     

@@ -1,94 +1,68 @@
-/* Full-page container */
-.add-users-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 20px;
-    height: 100%; /* Take up the full height of the container */
-    overflow-y: auto; /* Allow scrolling if content overflows */
-    background-color: #1e1e2f; /* Dark background for the page */
-    color: #e6e6e6; /* Light text color for contrast */
+
+
+/* Search bar styling */
+.search {
+    margin-bottom: 15px; /* Space below the search bar */
 }
 
-/* Search bar at the top */
-.search-bar {
-    width: 100%;
-    max-width: 600px; /* Limit the width of the search bar */
-    margin-bottom: 20px;
-}
-
-.search-input {
-    width: 100%;
-    padding: 10px 15px;
-    font-size: 1rem;
-    border: 1px solid #444; /* Subtle border to match theme */
-    border-radius: 8px;
-    background-color: #2e2e3f; /* Darker input background */
+.form-control.search-input {
+    width: 100%; /* Full width inside the form */
+    padding: 10px;
+    border: 1px solid #444; /* Subtle border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #1e1e2f; /* Dark background for inputs */
     color: #e6e6e6; /* Light text */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Slight shadow for depth */
-    transition: border-color 0.3s, box-shadow 0.3s;
+    font-size: 1rem;
+    box-sizing: border-box; /* Include padding in width/height */
 }
 
-.search-input:focus {
-    border-color: #4caf50; /* Highlight with green on focus */
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6); /* Subtle green glow */
+.form-control.search-input:focus {
+    border-color: #4caf50; /* Green border for focus state */
     outline: none;
 }
 
-/* User list styling */
+/* User list container with scroll */
 .user-list {
-    list-style: none;
-    padding: 0;
+    flex: 1; /* Take remaining space */
+    overflow-y: auto; /* Enable vertical scrolling */
     margin: 0;
-    width: 100%;
-    max-width: 600px;
+    padding: 0;
+    list-style-type: none; /* Remove bullets */
 }
 
-/* User item container */
+/* User list item */
 .user-item {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Space between username and button */
     align-items: center;
-    background-color: #2e2e3f; /* Dark background for each item */
-    border: 1px solid #444; /* Subtle border for structure */
-    border-radius: 8px;
-    padding: 10px 15px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Shadow for depth */
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.user-item:hover {
-    transform: translateY(-2px); /* Slight lift on hover */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7); /* Stronger shadow on hover */
-}
-
-/* Username text */
-.username {
+    padding: 10px;
+    border-bottom: 1px solid #444; /* Subtle divider */
     font-size: 1rem;
-    font-weight: bold;
-    color: #e6e6e6; /* Light text for usernames */
+    color: #e6e6e6;
 }
 
-/* Request button styling */
+/* Username styling */
+.username {
+    flex: 1; /* Allow username to take up remaining space */
+}
+
+/* Button styling */
 .request-button {
-    background-color: #4caf50; /* Green button for action */
-    color: white;
-    padding: 8px 15px;
+    padding: 5px 10px;
     font-size: 0.9rem;
-    border: none;
     border-radius: 5px;
+    border: none;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: #4caf50; /* Green background */
+    color: white;
+    transition: background-color 0.2s ease;
 }
 
 .request-button:disabled {
-    background-color: #55556d; /* Grayed-out button when disabled */
+    background-color: #777; /* Grey background when disabled */
     cursor: not-allowed;
 }
 
 .request-button:hover:not(:disabled) {
     background-color: #388e3c; /* Darker green on hover */
-    transform: scale(1.05); /* Slight zoom on hover */
 }

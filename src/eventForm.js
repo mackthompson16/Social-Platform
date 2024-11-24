@@ -24,6 +24,8 @@ export default function EventForm(){
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [isRecurring, setIsRecurring] = useState(false);
+    const [viewFriends, setViewFriends] = useState(false);
+    const [invitedFriends, setInvitedFriends] = useState([]);
     const [error, setError] = useState(null);
     const daysOfWeek = ["All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const [selectedDays, setSelectedDays] = useState([]);
@@ -64,6 +66,17 @@ export default function EventForm(){
             );
         }
     };
+
+    const toggleFriendSelection = (friend) => {
+        if (invitedFriends.includes(friend)) {
+         
+            setInvitedFriends(invitedFriends.filter((f) => f !== friend));
+        } else {
+    
+            setInvitedFriends([...invitedFriends, friend]);
+        }
+    };
+    
 
     
     
@@ -139,12 +152,33 @@ export default function EventForm(){
                   type: 'ADD_COMMITMENT',
                   payload: {...newCommitment, commitment_id: data.id}
                 });
+        
+                if (viewFriends) {
+                    for (const friend of invitedFriends) {
+                        try {
+                            await fetch(`http://localhost:5000/api/social/${state.id}/${friend.id}/send-message`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    type: 'meeting_request',
+                                    content: `${state.username} invited you to an event`,
+                                    commitment: { ...newCommitment, commitment_id: data.id },
+                                    owner: { id: state.id, username: state.username },
+                                }),
+                            });
+                        } catch (error) {
+                            console.error('Error sending friend request:', error);
+                        }
+                    }
+                }
+                
+        }   
+            } catch (error) {
+                        console.error('Error adding commitment:', error);
+                        return null;
             }
-
-              } catch (error) {
-                console.error('Error adding commitment:', error);
-                return null;
-              }
+                
+        
         
         setName('');
         setStartTime('');
@@ -154,6 +188,8 @@ export default function EventForm(){
         setSelectedDays([]);
         setError('');
         setIsRecurring(false);
+        setInvitedFriends([]);
+        setViewFriends(false);
     };
 
     return (
@@ -205,6 +241,33 @@ export default function EventForm(){
                         }
                     />
                 </div>
+
+                <div className="form-check">
+                    <input
+                        type="checkbox"
+                        id="viewFriends"
+                        class='checkbox'
+                        checked={viewFriends}
+                        onChange={(e) => setViewFriends(e.target.checked)}
+                        
+                    />
+                    <label htmlFor="recurring" className="form-check-label">Invite Friends</label>
+                </div>
+
+                <div className="view-friends-container">
+                {state.friends.map((friend) => (
+                  <label key={friend.id} className="friend-option">
+                    <input
+                      type="checkbox"
+                      checked={toggleFriendSelection(friend)}
+                      onChange={() => toggleVisibility(friend.id)}
+                    />
+                    {friend.username}
+                  </label>
+                ))}
+              </div>
+
+
     
                 <div className="form-check">
                     <input
