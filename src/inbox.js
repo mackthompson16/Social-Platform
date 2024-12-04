@@ -43,19 +43,6 @@ export default function Inbox() {
 
                 })
 
-               
-
-                if(message.type === 'meeting_request'){
-                  dispatch({
-                    type: 'APPEND_CONTEXT',
-
-                    //parse message content as commitment
-                    //this will not work as intended currently 
-
-                    payload: {commitments: [message.content]}
-                  })
-                  
-                }
               }
    
             }} catch (error) {

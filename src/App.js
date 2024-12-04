@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 
 import { useUser } from './usercontext'; 
@@ -34,7 +35,11 @@ export default function App() {
     ADD_FRIEND: <AddFriend />,
   };
 
-  const formRef = useRef(null); // Create a reference for the form container
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    console.log(state)
+  },[state]);
 
   useEffect(() => {
     if (state.current_form !== 'NONE') {
@@ -82,7 +87,7 @@ export default function App() {
 
       {!state.id && <Auth />}
 
-      {/* Render the current form if it's not NONE */}
+  
       {state.current_form !== 'NONE' && (
         <div className="form-container">
           <div ref={formRef} className="form-content">

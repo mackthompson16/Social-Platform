@@ -22,7 +22,28 @@ router.get('/get-users', (req, res) => {
         res.json({ success: true, users: rows });
     });
 });
+router.get('/:id/get-meetings', (req, res) => {
+    
+const user_id = parseInt(req.params.id, 10);
 
+    let owned_meetings;
+    let invited_meetings;
+
+        db.all('SELECT * from meeting_invites where owner_id = ?',[user_id], (rows)=>{
+            if(rows){
+                owned_meetings = rows
+            }}
+        )
+
+        db.all('SELECT * from meeting_invites where member_id = ?',[user_id], (rows)=>{
+            if(rows){
+                invited_meetings = rows
+            }}
+        )
+            
+        res.json({success:true, owned_meetings,invited_meetings})
+
+});
 
 router.get('/:id/get-friends', async (req, res) => {
     const user_id = parseInt(req.params.id, 10);
@@ -73,12 +94,11 @@ router.get('/:id/get-friends', async (req, res) => {
 router.get('/:user_id/pending-requests', (req, res) => {
     const { user_id } = req.params;
 
-    const query = `
-        SELECT recipient_id FROM inbox 
-        WHERE sender_id = ? AND type = 'friend_request' AND status = 'unread'
-    `;
+   
 
-    db.all(query, [user_id], (err, rows) => {
+    db.all(`SELECT recipient_id FROM inbox 
+        WHERE sender_id = ? AND type = 'friend_request' AND status = 'unread'`
+        , [user_id], (err, rows) => {
         if (err) {
             console.error('Error fetching pending requests:', err);
             return res.status(500).json({ success: false, message: 'Failed to fetch pending requests' });
@@ -91,8 +111,8 @@ router.get('/:user_id/pending-requests', (req, res) => {
 
 
 router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
-    const { recipient_id, sender_id } = req.params; // Extract from URL parameters
-    const { request, action, recipient_username } = req.body; // Extract from request body
+    const { recipient_id, sender_id } = req.params; 
+    const { request, action, recipient_username } = req.body; 
 
     if(action ==='accept'){
         if (request.type === 'friend_request'){
@@ -132,21 +152,13 @@ router.post('/:recipient_id/:sender_id/update-request', async (req, res) => {
 
         if(request.type === 'meeting_request'){
         //add commitment into both users tables
-            db.run(`INSERT INTO meeting_invites (user_id, name, startTime, endTime, days, dates) 
-                    VALUES (?, ?, ?, ?, ?, ?)`, [recipient_id,...request.content])
+            db.run(`UPDATE meeting_invites SET status = ?  WHERE owner_id = ? and member_id =?
+                    VALUES (?, ?, ?)`, [`${action}ed`, sender_id, recipient_id])
             
-                    //send this commitment update to client
-                    
-                const commitment_update = {
-                    type: 'commitment_update',
-                    commitment
-                }
-
-               sendNotificationToClient(sender_id,commitment_update);
-    }}
+            }}
     
 
-        //update the original request in the table
+        //update the original message
       
         db.get(`UPDATE inbox SET status = ?  WHERE message_id = ? RETURNING *`,
             [`${action}ed`, request.message_id],

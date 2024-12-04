@@ -38,12 +38,13 @@ const db = new sqlite3.Database(dbPath, (err) => {
         });
 
         db.run(`CREATE TABLE IF NOT EXISTS meeting_invites (
+                    owner_id INTEGER NOT NULL,
                     member_id INTEGER NOT NULL,
                     commitment_id INTEGER NOT NULL, 
                     status TEXT NOT NULL DEFAULT 'pending',
-                    PRIMARY KEY (member_id, commitment_id), 
-                    FOREIGN KEY (commitment_id) REFERENCES commitments(commitment_id) ON DELETE CASCADE,
+                    PRIMARY KEY (member_id, owner_id), 
                     FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
+                    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
                 );
 
                 `)

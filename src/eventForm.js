@@ -242,31 +242,6 @@ export default function EventForm(){
                     />
                 </div>
 
-                <div className="form-check">
-                    <input
-                        type="checkbox"
-                        id="viewFriends"
-                        class='checkbox'
-                        checked={viewFriends}
-                        onChange={(e) => setViewFriends(e.target.checked)}
-                        
-                    />
-                    <label htmlFor="recurring" className="form-check-label">Invite Friends</label>
-                </div>
-
-                <div className="view-friends-container">
-                {state.friends.map((friend) => (
-                  <label key={friend.id} className="friend-option">
-                    <input
-                      type="checkbox"
-                      checked={toggleFriendSelection(friend)}
-                      onChange={() => toggleVisibility(friend.id)}
-                    />
-                    {friend.username}
-                  </label>
-                ))}
-              </div>
-
 
     
                 <div className="form-check">
@@ -280,27 +255,12 @@ export default function EventForm(){
                     />
                     <label htmlFor="recurring" className="form-check-label">Recurring</label>
                 </div>
+
     
                 {isRecurring && (
                     <>
-                        <div>
-                            <p />
-                            <DatePicker
-                                selected={endDate}
-                                onChange={(date) => setEndDate(date)}
-                                placeholderText="End date"
-                                class='form-control'
-                                customInput={
-                                    <button className="btn btn-secondary">
-                                        <FaCalendarAlt style={{ marginRight: '8px' }} />
-                                        {endDate ? endDate.toLocaleDateString() : "End date"}
-                                    </button>
-                                }
-                            />
-                        </div>
-    
-                    
-                        <div className="form-check-container">
+
+                    <div className="view-friends-container">
                             {daysOfWeek.map((day) => (
                                 <div key={day} className="friend-option">
                                     <input
@@ -321,8 +281,57 @@ export default function EventForm(){
                                 </div>
                             ))}
                         </div>
+                        <div>
+                            <p />
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}
+                                placeholderText="End date"
+                                class='form-control'
+                                customInput={
+                                    <button className="btn btn-secondary">
+                                        <FaCalendarAlt style={{ marginRight: '8px' }} />
+                                        {endDate ? endDate.toLocaleDateString() : "End date"}
+                                    </button>
+                                }
+                            />
+                        </div>
+    
+                    
+                    
                     </>
                 )}
+
+<div className="form-check">
+                    <input
+                        type="checkbox"
+                        id="viewFriends"
+                        class='checkbox'
+                        checked={viewFriends}
+                        onChange={(e) => setViewFriends(e.target.checked)}
+                        
+                    />
+                    <label htmlFor="recurring" className="form-check-label">Invite Friends</label>
+                </div>
+            {viewFriends && (
+
+                <div className="view-friends-container">
+                {state.friends.map((friend) => (
+                  <label key={friend.id} className="friend-option">
+                   <input
+                        type="checkbox"
+                        checked={invitedFriends.includes(friend)} // Check if this friend is in the invitedFriends list
+                        onChange={() => toggleFriendSelection(friend)} // Toggle the friend's selection
+                        />
+
+                    {friend.username}
+                  </label>
+                ))}
+
+    
+                
+              </div>
+            )}
     
                 {error && attemptedSubmit && <div className="alert alert-danger">{error}</div>}
                 </div>
