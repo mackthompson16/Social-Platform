@@ -1,5 +1,14 @@
+# 📅 Calendar Sharing & Messaging Platform
 
-# Environment Guide
+A full-stack project where I built a **calendar-sharing and messaging platform** to explore how **data is transferred and managed** across applications.  
+This project includes:
+- A lightweight **API library**  
+- A **Node.js server** for live messaging  
+- A **React application** for the frontend  
+
+---
+
+## 🚀 Getting Started
 
 1. Initialize a git project and install node modules. You'll need to generate a package.json file as well
 ```bash
