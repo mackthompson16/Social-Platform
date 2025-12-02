@@ -38,14 +38,10 @@ export default function App() {
   const formRef = useRef(null);
 
   useEffect(() => {
-    console.log(state)
-  },[state]);
-
-  useEffect(() => {
     if (state.current_form !== 'NONE') {
       console.log(`[DEBUG] current_form is active: ${state.current_form}`);
 
-      // Function to handle outside clicks
+    
       const handleClickOutside = (event) => {
         console.log(`[DEBUG] Click detected. Event target:`, event.target);
 
@@ -66,7 +62,6 @@ export default function App() {
         }
       };
 
-      // Add event listener
       document.addEventListener('mousedown', handleClickOutside);
       console.log(`[DEBUG] mousedown listener added.`);
 

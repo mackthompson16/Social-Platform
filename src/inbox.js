@@ -3,11 +3,6 @@ import { MdOutlineCheckBox } from "react-icons/md";
 import { FiXSquare } from "react-icons/fi";
 export default function Inbox() {
     const { state, dispatch } = useUser(); 
-  
-    // useEffect hook to watch for changes in state.inbox
-
-  
-   
     
     const handleActRequest = async (action, message) => {
             

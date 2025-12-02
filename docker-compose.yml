@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      PORT: 5000
+      WEBSOCKET_PORT: 5001
+      DB_PATH: ./users.db
+      CORS_ORIGINS: http://localhost:3000
+    volumes:
+      - ./backend:/app/backend
+      - ./backend/users.db:/app/backend/users.db
+    networks:
+      - wecal-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:5000
+      REACT_APP_WS_URL: ws://localhost:5001
+    depends_on:
+      - backend
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    networks:
+      - wecal-network
+
+networks:
+  wecal-network:
+    driver: bridge

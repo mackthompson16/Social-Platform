@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
-const dbPath = './users.db';
+const dbPath = process.env.DB_PATH || './users.db';
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {

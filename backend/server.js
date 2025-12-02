@@ -5,7 +5,10 @@ const { initializeWebSocket } = require('./websocket');
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+// Configure CORS with environment variables
+const corsOrigin = process.env.CORS_ORIGINS || 'http://localhost:3000';
+app.use(cors({ origin: corsOrigin }));
 
 const server = http.createServer(app);
 initializeWebSocket(server)
