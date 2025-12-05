@@ -32,11 +32,24 @@ export default function EventForm(){
     const [attemptedSubmit, setAttemptedSubmit] = useState(false)
     
     function cancelForm() {
-        
         dispatch({
             type:'REPLACE_CONTEXT',
             payload:{current_form: 'NONE'}
         })
+    }
+
+    function resetForm() {
+        setName('');
+        setStartTime('');
+        setEndTime('');
+        setStartDate('');
+        setEndDate('');
+        setSelectedDays([]);
+        setError('');
+        setIsRecurring(false);
+        setInvitedFriends([]);
+        setViewFriends(false);
+        setAttemptedSubmit(false);
     }
 
     const [showBanner, setShowBanner] = useState(false);
@@ -162,7 +175,7 @@ export default function EventForm(){
                                 body: JSON.stringify({
                                     type: 'meeting_request',
                                     content: `${state.username} invited you to an event`,
-                                    commitment: { ...newCommitment, commitment_id: data.id },
+                                    commitment_id: data.id,
                                     owner: { id: state.id, username: state.username },
                                 }),
                             });
@@ -180,16 +193,11 @@ export default function EventForm(){
                 
         
         
-        setName('');
-        setStartTime('');
-        setEndTime('');
-        setStartDate('');
-        setEndDate('');
-        setSelectedDays([]);
-        setError('');
-        setIsRecurring(false);
-        setInvitedFriends([]);
-        setViewFriends(false);
+        resetForm();
+        dispatch({
+            type:'REPLACE_CONTEXT',
+            payload:{current_form:'NONE'}
+        });
     };
 
     return (
@@ -316,7 +324,9 @@ export default function EventForm(){
             {viewFriends && (
 
                 <div className="view-friends-container">
-                {state.friends.map((friend) => (
+                {state.friends
+                  .filter((friend) => friend.id !== state.id)
+                  .map((friend) => (
                   <label key={friend.id} className="friend-option">
                    <input
                         type="checkbox"
@@ -328,7 +338,7 @@ export default function EventForm(){
                   </label>
                 ))}
 
-    
+
                 
               </div>
             )}

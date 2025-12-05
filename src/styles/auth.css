@@ -3,17 +3,18 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Full viewport height */
-    background-color: #1e1e2f; /* Dark background for the page */
-    color: #e6e6e6; /* Light text for contrast */
+    min-height: 80vh;
+    background-color: transparent;
+    color: var(--text-strong);
 }
 
 /* Centered auth box */
 .auth-container {
-    background-color: #2e2e3f; /* Darker background for the form */
+    background: linear-gradient(180deg, var(--surface-800), var(--surface-700));
     padding: 2rem 2.5rem; /* Padding for spacing */
     border-radius: 12px; /* Smooth corners */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Deeper shadow for depth */
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border);
     max-width: 400px; /* Limit the width of the form */
     width: 100%; /* Full width for responsiveness */
     text-align: center; /* Center align content inside */
@@ -59,6 +60,13 @@
     flex-direction: column; /* Stack buttons */
     gap: 15px; /* Space between buttons */
     margin-top: 1rem; /* Space above buttons */
+}
+
+.auth-error {
+    margin-top: 8px;
+    color: #f5746a;
+    font-size: 0.95rem;
+    text-align: left;
 }
 
 .auth-buttons button {

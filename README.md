@@ -132,35 +132,7 @@ REACT_APP_WS_URL=ws://localhost:5001
 - `GET /api/social/inbox/:id` – Get user's inbox
 
 ## Deployment on AWS
-
-### Option 1: EC2 with Docker Compose
-
-1. **Launch EC2 Instance:**
-   - AMI: Ubuntu 22.04 LTS
-   - Instance Type: t3.micro (or larger)
-   - Security Group: Allow ports 80, 443, 3000, 5000
-
-2. **SSH into instance and install Docker:**
-   ```bash
-   sudo apt update
-   sudo apt install -y docker.io docker-compose
-   sudo usermod -aG docker $USER
-   ```
-
-3. **Clone and deploy:**
-   ```bash
-   git clone <repo-url>
-   cd my-app
-   cp .env.example .env
-   # Edit .env with production values
-   docker-compose -f docker-compose.prod.yml up -d
-   ```
-
-4. **Configure reverse proxy (nginx) to forward traffic:**
-   - Map `yourdomain.com` → `localhost:3000` (frontend)
-   - Map `api.yourdomain.com` → `localhost:5000` (backend)
-
-### Option 2: ECS Fargate (Recommended)
+### ECS Fargate 
 
 1. **Create ECR repositories** for frontend and backend images
 2. **Push Docker images:**
@@ -236,11 +208,3 @@ my-app/
 - [ ] Implement "Invite Friend" option on Event Form
 - [ ] Add comprehensive error handling and logging
 - [ ] Migrate from SQLite to PostgreSQL for production
-
-## Contributing
-
-This is a personal portfolio project. Feel free to fork and build upon it!
-
-## License
-
-ISC

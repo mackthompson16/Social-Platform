@@ -1,20 +1,27 @@
 
-import { VscBell, VscBellDot } from "react-icons/vsc";
-import {useState} from 'react';
+import { VscBell } from "react-icons/vsc";
+import { useMemo } from 'react';
 import { useUser } from './usercontext';
 
 export default function Header() {
     const { state, dispatch } = useUser();
-    const [newNotifications] = useState(false);
 
     function toggleMessages() {
         if (state.id) {
+            const nextShow = !state.showMessages;
             dispatch({
                 type: 'REPLACE_CONTEXT',
-                payload: { showMessages: !state.showMessages }
+                payload: { showMessages: nextShow }
             });
+            if (nextShow && (state.inbox || []).length > 0) {
+                dispatch({ type: 'MARK_INBOX_READ' });
+            }
         }
     }
+
+    const unreadCount = useMemo(() => {
+        return (state.inbox || []).filter((m) => m.status === 'unread').length;
+    }, [state.inbox]);
 
     return (
         <header className="header">
@@ -27,10 +34,11 @@ export default function Header() {
                 onClick={() => toggleMessages()}
                 aria-label="Toggle messages"
             >
-                {newNotifications ? (
-                    <VscBellDot className="notification-active" />
-                ) : (
-                    <VscBell />
+                <VscBell />
+                {unreadCount > 0 && (
+                    <span className="badge">
+                        {unreadCount}
+                    </span>
                 )}
             </button>
         </header>

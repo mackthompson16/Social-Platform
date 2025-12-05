@@ -39,6 +39,13 @@ export default function Inbox() {
                 })
 
               }
+
+              if (message.type === 'meeting_request' && data.commitment) {
+                dispatch({
+                  type: 'ADD_COMMITMENT',
+                  payload: data.commitment,
+                });
+              }
    
             }} catch (error) {
               console.error('Error with request:', error);

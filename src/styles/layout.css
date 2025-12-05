@@ -1,85 +1,126 @@
 html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  
-  #root, .App {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
-  .main-page {
-    display: flex;
-    flex: 1;
-    flex-direction: row;
-    overflow: hidden;
-    background-color: #1e1e2f;
-  }
-  
- /* Header */
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: radial-gradient(circle at 20% 20%, rgba(79, 179, 255, 0.1), transparent 20%),
+              radial-gradient(circle at 80% 0%, rgba(248, 199, 125, 0.12), transparent 25%),
+              var(--bg-900);
+  color: var(--text);
+}
+
+#root, .App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-shell {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.main-page {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  width: 100%;
+  max-width: var(--content-width);
+  min-height: 70vh;
+}
+
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #2e2e3f;
-    color: white;
-    padding: 0 20px; /* Horizontal padding for spacing */
-    height: 60px; /* Fixed height */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--surface-800);
+  color: var(--text-strong);
+  padding: 0 20px;
+  height: 64px;
+  box-shadow: var(--shadow-soft);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .header-title h3 {
-    font-size: 1.5rem;
-    margin: 0;
-    color: #FFFFFF;
-    font-weight: bold;
+  font-size: 1.4rem;
+  margin: 0;
+  color: var(--text-strong);
+  letter-spacing: 0.02em;
 }
 
 .notification-icon {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.8rem; /* Adjust icon size */
-    color: #FFFFFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s, color 0.3s;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  position: relative;
 }
 
 .notification-icon:hover {
-    transform: scale(1.1); /* Slight zoom effect on hover */
-    color: #FFD700; /* Highlight color on hover */
+  transform: translateY(-1px);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .notification-active {
-    color: #FFD700; /* Golden color for active notifications */
+  color: var(--accent-warm);
 }
 
-/* Footer */
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
 .footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #2e2e3f;
-    color: white;
-    padding: 10px 20px; /* Add vertical and horizontal padding */
-    height: 60px; /* Fixed height */
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: auto; /* Push footer to the bottom */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--surface-800);
+  color: var(--text-muted);
+  padding: 16px 20px;
+  height: 64px;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.25);
+  margin-top: auto;
 }
 
 .footer p {
-    margin: 0;
-    font-size: 1rem;
-    color: #CCCCCC;
-    text-align: center;
+  margin: 0;
+  font-size: 0.95rem;
+  text-align: center;
 }

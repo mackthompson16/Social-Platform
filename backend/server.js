@@ -6,8 +6,9 @@ const { initializeWebSocket } = require('./websocket');
 const app = express();
 app.use(express.json());
 
-// Configure CORS with environment variables
-const corsOrigin = process.env.CORS_ORIGINS || 'http://localhost:3000';
+// Configure CORS with environment variables (supports comma-separated list)
+const corsOriginEnv = process.env.CORS_ORIGINS || 'http://localhost:3000';
+const corsOrigin = corsOriginEnv.split(',').map((o) => o.trim());
 app.use(cors({ origin: corsOrigin }));
 
 const server = http.createServer(app);

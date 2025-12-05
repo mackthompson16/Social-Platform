@@ -1,18 +1,10 @@
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { useUser } from './usercontext';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 
 export default function Calendar() {
     const { state } = useUser();
-    const [events, setEvents] = useState([]);
-
-    useEffect(() => {
-        const newEvents = Object.entries(state.visibleEventKeys)
-            .filter(([, value]) => value)
-            .flatMap(([key]) => state.cachedEventArrays[key] || []);
-        setEvents(newEvents);
-    }, [state.visibleEventKeys, state.cachedEventArrays]);
 
     const colorPalette = [
         '#B0E0E6', // Pale blue
@@ -27,41 +19,65 @@ export default function Calendar() {
         '#E7D3C2'  // Beige
     ];
 
+    const userColor = useMemo(() => {
+        const ids = Object.keys(state.visibleEventKeys).filter((k) => state.visibleEventKeys[k]);
+        const map = {};
+        ids.forEach((id, idx) => {
+            map[id] = colorPalette[idx % colorPalette.length];
+        });
+        return map;
+    }, [state.visibleEventKeys]);
+
+    const events = useMemo(() => {
+        const raw = Object.entries(state.visibleEventKeys)
+            .filter(([, value]) => value)
+            .flatMap(([key]) => state.cachedEventArrays[key] || []);
+
+        const seen = new Set();
+        const deduped = [];
+        raw.forEach((evt) => {
+            const startIso = evt.start instanceof Date ? evt.start.toISOString() : new Date(evt.start).toISOString();
+            const endIso = evt.end instanceof Date ? evt.end.toISOString() : new Date(evt.end).toISOString();
+            const key = `${evt.title}-${startIso}-${endIso}`;
+            if (seen.has(key)) return;
+            seen.add(key);
+            const ownerId = String(evt.userId || evt.user_id || '');
+            const displayColor = userColor[ownerId] || '#61dafb';
+            deduped.push({
+                ...evt,
+                backgroundColor: displayColor,
+                borderColor: displayColor,
+            });
+        });
+        return deduped;
+    }, [state.visibleEventKeys, state.cachedEventArrays, userColor]);
+
     const renderEventContent = (eventInfo) => {
         const title = eventInfo.event.title;
-        const id = eventInfo.event.id;
-        const start = new Date(eventInfo.event.start);
-        const end = new Date(eventInfo.event.end);
-        const duration = (end - start) / (1000 * 60); // Duration in minutes
-        const heightPercentage = (duration / 6) * 100;
-
-        const lastDigit = id % 10;
-        const color = colorPalette[lastDigit];
+        const color = eventInfo.event.backgroundColor || '#61dafb';
 
         return (
             <div
                 style={{
-                    height: `${heightPercentage}%`,
-                    minHeight: '24px',
                     width: '100%',
-                    backgroundColor: color || '#FF5733',
-                    color: 'white',
-                    padding: '4px',
-                    borderRadius: '4px',
+                    backgroundColor: color,
+                    color: '#0f1624',
+                    padding: '4px 6px',
+                    borderRadius: '6px',
                     boxSizing: 'border-box',
-                    border: '1px solid #ddd',
+                    border: '1px solid rgba(0,0,0,0.1)',
                     overflow: 'hidden',
-                    opacity: 0.7,
-                    alignItems: 'top',
-                    justifyContent: 'left'
+                    opacity: 0.9,
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
                 }}
             >
-                <b style={{ color: '#000' }}>{title} </b>
+                {title}
             </div>
         );
     };
 
-  
+ 
     const handleEventClick = (clickInfo) => {
        
         viewEvent(clickInfo.event);
@@ -75,6 +91,7 @@ export default function Calendar() {
             events={events}
             eventContent={renderEventContent}
             eventClick={handleEventClick} 
+            height="auto"
         />
     );
 }

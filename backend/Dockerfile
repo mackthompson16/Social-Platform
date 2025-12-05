@@ -18,7 +18,7 @@ EXPOSE 5000 5001
 # Set default environment variables
 ENV PORT=5000
 ENV WEBSOCKET_PORT=5001
-ENV DB_PATH=./users.db
+ENV DATABASE_URL=postgres://wecal:wecalpw@db:5432/wecal
 ENV CORS_ORIGINS=http://localhost:3000
 
 # Start backend

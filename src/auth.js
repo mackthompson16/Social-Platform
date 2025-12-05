@@ -11,6 +11,7 @@ export default function Auth() {
     });
 
     const [createAccount, setCreateAccount] = useState(false);
+    const [error, setError] = useState('');
    
     const handleChange = (event) => {
       const { name, value } = event.target;
@@ -22,6 +23,7 @@ export default function Auth() {
   
     const handleSubmit = async (event) => {
       event.preventDefault();
+      setError('');
       if(createAccount){handleCreateAccount()} 
       else{
      
@@ -60,9 +62,18 @@ export default function Auth() {
 
             },
           });
+        } else {
+          if (data.error === 'username') {
+            setError('User not found');
+          } else if (data.error === 'password') {
+            setError('Wrong password');
+          } else {
+            setError('Login failed');
+          }
         }
       } catch (error) {
         console.error('Error loading user context:', error);
+        setError('Login failed');
       }
     }
       // Reset the form
@@ -74,6 +85,7 @@ export default function Auth() {
     };
     
     async function handleCreateAccount(){
+      setError('');
 
       const response = await fetch('http://localhost:5000/api/auth/create-account', {
         method: 'POST',
@@ -92,12 +104,12 @@ export default function Auth() {
           payload: { id: data.id, ...AccInfo}
         });
       } else {
-        alert('Account creation failed');
+        setError(data.message || 'Account already exists');
       }
  
     };
    
-  
+   
   
     return (
       <div className="auth">
@@ -134,6 +146,7 @@ export default function Auth() {
                   className="form-control"
                 />
               )}
+              {error && <div className="auth-error">{error}</div>}
             </div>
     
             <div className="button-container">

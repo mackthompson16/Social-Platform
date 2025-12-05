@@ -60,10 +60,17 @@ const userReducer = (state, action) => {
     case 'CLEAR_CONTEXT':
       return { ...initialState }; 
     
+    case 'MARK_INBOX_READ':
+      return {
+        ...state,
+        inbox: state.inbox.map((m) => ({ ...m, status: 'read' })),
+      };
+    
     case 'ADD_COMMITMENT':
       
         const newCommitment = action.payload;     
-        const newEvents = generateEvents([newCommitment]);
+        const stampedCommitment = { ...newCommitment, user_id: newCommitment.user_id || state.id };
+        const newEvents = generateEvents([stampedCommitment]);
 
         return {
             ...state,
@@ -76,7 +83,7 @@ const userReducer = (state, action) => {
                 ]
             },
     
-            commitments: [...state.commitments, newCommitment],
+            commitments: [...state.commitments, stampedCommitment],
         
           
         };
