@@ -2,8 +2,8 @@
 
 WeCal lets friends share calendars, send invites, and chat in real time. It’s a React frontend talking to a Node/Express API with WebSocket notifications, containerized with Docker. Deployed on AWS EC2 micro.
 
-Frontend Port <-> Websocket server <-> PostgreSQL database
-{------------------------Docker--------------------------} -> AWS EC2
+### React Frontend <-> Websocket server <-> PostgreSQL database
+### {------------------------Docker--------------------------} -> AWS EC2
 # Demo
 [wecal.online](http://98.94.150.212:3000/)
 
