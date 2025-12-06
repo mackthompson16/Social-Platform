@@ -6,11 +6,12 @@ const { initializeWebSocket } = require('./websocket');
 const app = express();
 app.use(express.json());
 
-// ✅ Allow localhost and EC2 frontend origins
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://44.213.76.187:3000',
-];
+// Allow configurable CORS origins (comma-separated env) with a sane local default.
+const configuredOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
+  : [];
+
+const allowedOrigins = configuredOrigins.length ? configuredOrigins : ['http://localhost:3000'];
 
 app.use(
   cors({

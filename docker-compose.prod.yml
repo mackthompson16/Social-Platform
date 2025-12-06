@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:16-alpine
@@ -9,7 +7,6 @@ services:
       POSTGRES_PASSWORD: wecalpw
     volumes:
       - pgdata:/var/lib/postgresql/data
-    restart: always
     networks:
       - wecal-network
 
@@ -19,20 +16,13 @@ services:
       dockerfile: backend/Dockerfile
     ports:
       - "5000:5000"
-    environment:
-      PORT: 5000
-      WEBSOCKET_PORT: 5001
-      DATABASE_URL: postgres://wecal:wecalpw@db:5432/wecal
-      PGSSL: "false"
-      CORS_ORIGINS: https://yourdomain.com,https://alt.yourdomain.com
-    restart: always
+      - "5001:5001"
+    env_file:
+      - .env.prod
     networks:
       - wecal-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/auth/login"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    depends_on:
+      - db
 
   frontend:
     build:
@@ -40,14 +30,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    environment:
-      # NOTE: these only matter at React build-time, not runtime
-      REACT_APP_API_URL: https://api.yourdomain.com
-      REACT_APP_WS_URL: wss://api.yourdomain.com
+    env_file:
+      - .env.prod
     depends_on:
-      backend:
-        condition: service_healthy
-    restart: always
+      - backend
     networks:
       - wecal-network
 
@@ -57,4 +43,3 @@ networks:
 
 volumes:
   pgdata:
-
