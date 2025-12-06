@@ -71,7 +71,7 @@ export default function Inbox() {
       
                     {message.type === 'friend_request' || message.type === 'meeting_request' ? (
                       <div className="message-actions">
-                        {message.status === 'unread' ? (
+                        {['unread', 'pending', 'read', undefined, null].includes(message.status) ? (
                           <>
                             <button className="icon-btn" onClick={() => handleActRequest('accept', message)}>
                               <MdOutlineCheckBox className="icon accept-icon" title="Accept" />
@@ -82,8 +82,10 @@ export default function Inbox() {
                           </>
                         ) : message.status === 'accepted' ? (
                           <span className="message-status accepted">...accepted</span>
-                        ) : (
+                        ) : message.status === 'rejected' ? (
                           <span className="message-status rejected">...rejected</span>
+                        ) : (
+                          <span className="message-status rejected">...{message.status}</span>
                         )}
                       </div>
                     ) : (
