@@ -20,3 +20,10 @@ WeCal lets friends share calendars, send invites, and chat in real time. It’s 
 - Events via `/api/users/...`.
 - Friends and inbox via `/api/social/...`.
 - WebSocket pushes inbox updates and friend/meeting notifications live.
+
+
+# Future updates
+- fix domain @wecal.online
+- create mobile ui
+- add chat messages
+- https (Secure)
