@@ -31,3 +31,4 @@ ENV REACT_APP_API_URL=http://localhost:5000
 ENV REACT_APP_WS_URL=ws://localhost:5001
 
 CMD ["serve", "-s", "build", "-l", "3000"]
+

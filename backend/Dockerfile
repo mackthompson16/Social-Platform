@@ -1,25 +1,19 @@
-# Backend Dockerfile
 FROM node:20-alpine
+
+RUN apk add --no-cache curl
 
 WORKDIR /app/backend
 
-# Copy package files
+# 1) Copy only package.json + lockfile
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# 2) Install dependencies inside the image
+RUN npm install --production
 
-# Copy backend source
-COPY backend/ .
+# 3) Copy the rest of the backend source
+COPY . .
 
-# Expose ports
 EXPOSE 5000 5001
 
-# Set default environment variables
-ENV PORT=5000
-ENV WEBSOCKET_PORT=5001
-ENV DATABASE_URL=postgres://wecal:wecalpw@db:5432/wecal
-ENV CORS_ORIGINS=http://localhost:3000
-
-# Start backend
 CMD ["node", "server.js"]
+

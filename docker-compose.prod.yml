@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -41,22 +41,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      REACT_APP_API_URL: https://api.yourdomain.com
-      REACT_APP_WS_URL: wss://api.yourdomain.com
-    depends_on:
-      backend:
-        condition: service_healthy
-    restart: always
-    networks:
-      - wecal-network
-
-  frontend2:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3001:3000"
-    environment:
+      # NOTE: these only matter at React build-time, not runtime
       REACT_APP_API_URL: https://api.yourdomain.com
       REACT_APP_WS_URL: wss://api.yourdomain.com
     depends_on:
@@ -72,3 +57,4 @@ networks:
 
 volumes:
   pgdata:
+
