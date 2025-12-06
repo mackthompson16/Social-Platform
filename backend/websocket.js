@@ -18,7 +18,8 @@ function initializeWebSocket(server) {
             try {
                 const data = JSON.parse(rawData);
                 if (data.type === 'login'&& data.id) {
-                    ws.id = data.id; 
+                    // Normalize to number so lookups work consistently
+                    ws.id = Number(data.id); 
                     clientMap.set(ws.id, ws); 
                     console.log(`Client logged in with ID: ${ws.id}`);
                 } else {
