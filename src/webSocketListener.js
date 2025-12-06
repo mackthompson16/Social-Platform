@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useUser } from './usercontext';
 import generateEvents from './events';
+import { WS_BASE_URL } from './config';
 const WebSocketListener = () => {
     const { state, dispatch } = useUser();
 
@@ -32,7 +33,7 @@ const WebSocketListener = () => {
      
       console.log('current state: ' , state)
 
-    const socket = new WebSocket('ws://localhost:5000'); 
+    const socket = new WebSocket(WS_BASE_URL); 
    
     socket.onopen = () => {
       console.log('WebSocket connection opened');

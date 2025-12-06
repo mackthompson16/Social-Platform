@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from 'react-icons/fa';
 import { useUser } from './usercontext';
+import { API_BASE_URL } from './config';
 
 class Commitment {
     constructor(commitment, startTime, endTime, days,dates) {
@@ -146,7 +147,7 @@ export default function EventForm(){
               }
             
               try {
-                const response = await fetch(`http://localhost:5000/api/users/${state.id}/add-commitment`, {
+                const response = await fetch(`${API_BASE_URL}/api/users/${state.id}/add-commitment`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -169,7 +170,7 @@ export default function EventForm(){
                 if (viewFriends) {
                     for (const friend of invitedFriends) {
                         try {
-                            await fetch(`http://localhost:5000/api/social/${state.id}/${friend.id}/send-message`, {
+                            await fetch(`${API_BASE_URL}/api/social/${state.id}/${friend.id}/send-message`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({

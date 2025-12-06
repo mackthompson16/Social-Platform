@@ -1,6 +1,7 @@
 import React, {useState} from "react"
 import { useUser } from './usercontext';
 import Login from "./auth";
+import { API_BASE_URL } from './config';
 export default function Profile(){
 
     function cancelForm() {
@@ -36,7 +37,7 @@ export default function Profile(){
         };
     
         try {
-            const response = await fetch(`http://localhost:5000/api/users/${state.id}/update-account`, {
+            const response = await fetch(`${API_BASE_URL}/api/users/${state.id}/update-account`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

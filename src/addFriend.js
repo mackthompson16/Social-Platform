@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from './usercontext';
+import { API_BASE_URL } from './config';
 
 export default function AddFriend ()  {
     const { state, dispatch} = useUser();
@@ -25,7 +26,7 @@ export default function AddFriend ()  {
         const fetchUsers = async () => {
             if (state.users.length === 0) {
                 try {
-                    const response = await fetch('http://localhost:5000/api/social/get-users');
+                    const response = await fetch(`${API_BASE_URL}/api/social/get-users`);
                     const data = await response.json();
                     const fetchedUsers = Array.isArray(data.users) ? data.users : [];
     
@@ -68,7 +69,7 @@ export default function AddFriend ()  {
         // Fetch pending requests
         const fetchPendingRequests = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/social/${state.id}/pending-requests`);
+                const response = await fetch(`${API_BASE_URL}/api/social/${state.id}/pending-requests`);
                 const result = await response.json();
 
                 if (result.success) {
@@ -115,7 +116,7 @@ export default function AddFriend ()  {
     const handleRequest = async (recipient_id) => {
         try {
             
-        await fetch(`http://localhost:5000/api/social/${state.id}/${recipient_id}/send-message`, {
+        await fetch(`${API_BASE_URL}/api/social/${state.id}/${recipient_id}/send-message`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

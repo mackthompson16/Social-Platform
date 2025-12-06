@@ -1,13 +1,14 @@
 import { useUser } from './usercontext'; 
 import { MdOutlineCheckBox } from "react-icons/md";
 import { FiXSquare } from "react-icons/fi";
+import { API_BASE_URL } from './config';
 export default function Inbox() {
     const { state, dispatch } = useUser(); 
     
     const handleActRequest = async (action, message) => {
             
             try {
-              const response = await fetch(`http://localhost:5000/api/social/${state.id}/${message.sender_id}/update-request`, {
+              const response = await fetch(`${API_BASE_URL}/api/social/${state.id}/${message.sender_id}/update-request`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -17,7 +18,7 @@ export default function Inbox() {
               });
 
               const req = (message.type === 'friend_request' ? 'friend' : 'meeting')
-              await fetch(`http://localhost:5000/api/social/${state.id}/${message.sender_id}/send-message`, {
+              await fetch(`${API_BASE_URL}/api/social/${state.id}/${message.sender_id}/send-message`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',

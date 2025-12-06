@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useUser } from './usercontext';
+import { API_BASE_URL } from './config';
 
 export default function ViewEvent({ event }) {
     const { state, dispatch } = useUser();
@@ -17,7 +18,7 @@ export default function ViewEvent({ event }) {
     // Remove a single commitment
     const handleRemoveCommitment = async (commitmentId) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/users/${state.id}/${commitmentId}/remove-commitment`, {
+            const response = await fetch(`${API_BASE_URL}/api/users/${state.id}/${commitmentId}/remove-commitment`, {
                 method: 'DELETE',
             });
 

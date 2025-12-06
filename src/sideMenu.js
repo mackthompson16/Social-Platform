@@ -1,6 +1,7 @@
 import { useUser } from "./usercontext";
 import React, {useState} from 'react';
 import generateEvents from "./events";
+import { API_BASE_URL } from "./config";
 export default function SideMenu() {
 
     const {state, dispatch} = useUser();
@@ -24,7 +25,7 @@ export default function SideMenu() {
 
     async function processEvents(userId) {
 
-        const commitmentsResponse = await fetch(`http://localhost:5000/api/users/${userId}/get-commitments`);
+        const commitmentsResponse = await fetch(`${API_BASE_URL}/api/users/${userId}/get-commitments`);
         const commitmentsData = await commitmentsResponse.json();
         const events = generateEvents(commitmentsData.rows)
         

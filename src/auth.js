@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useUser } from './usercontext';
+import { API_BASE_URL } from './config';
 
 export default function Auth() {
     const { dispatch } = useUser();
@@ -28,7 +29,7 @@ export default function Auth() {
       else{
      
       
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,9 +43,9 @@ export default function Auth() {
       
         if (data.success) {
     
-          const commitmentsResponse = await fetch(`http://localhost:5000/api/users/${data.id}/get-commitments`);
-          const inboxResponse = await fetch(`http://localhost:5000/api/social/${data.id}/get-messages`);
-          const friendsResponse = await fetch(`http://localhost:5000/api/social/${data.id}/get-friends`);
+          const commitmentsResponse = await fetch(`${API_BASE_URL}/api/users/${data.id}/get-commitments`);
+          const inboxResponse = await fetch(`${API_BASE_URL}/api/social/${data.id}/get-messages`);
+          const friendsResponse = await fetch(`${API_BASE_URL}/api/social/${data.id}/get-friends`);
       
           if (!commitmentsResponse.ok || !inboxResponse.ok || !friendsResponse.ok) {
             throw new Error('Failed to fetch user data');
@@ -87,7 +88,7 @@ export default function Auth() {
     async function handleCreateAccount(){
       setError('');
 
-      const response = await fetch('http://localhost:5000/api/auth/create-account', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/create-account`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
