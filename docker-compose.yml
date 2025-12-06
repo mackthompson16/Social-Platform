@@ -25,9 +25,6 @@ services:
       DATABASE_URL: postgres://wecal:wecalpw@db:5432/wecal
       PGSSL: "false"
       CORS_ORIGINS: http://localhost:3000,http://localhost:3001
-    volumes:
-      - ./backend:/app/backend
-      - /app/backend/node_modules
     networks:
       - wecal-network
     depends_on:
