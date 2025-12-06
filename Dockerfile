@@ -13,9 +13,6 @@ RUN npm install
 COPY src/ ./src/
 COPY public/ ./public/
 
-# Build React app
-RUN npm run build
-
 # Production stage - serve with Node
 FROM node:20-alpine
 
@@ -23,7 +20,7 @@ WORKDIR /app
 
 RUN npm install -g serve
 
-COPY --from=build /app/build ./build
+COPY build ./build
 
 EXPOSE 3000
 

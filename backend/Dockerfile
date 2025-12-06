@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 RUN apk add --no-cache curl
 
-WORKDIR /app/backend
+WORKDIR /app
 
 # 1) Copy only package.json + lockfile
 COPY package*.json ./
