@@ -1,0 +1,8 @@
+wecal.online, www.wecal.online {
+  reverse_proxy frontend:3000
+}
+
+api.wecal.online {
+  # Backend serves both HTTP and WebSocket traffic on port 5000
+  reverse_proxy backend:5000
+}

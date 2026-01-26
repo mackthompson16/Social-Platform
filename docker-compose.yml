@@ -27,7 +27,7 @@ services:
       DATABASE_URL: postgres://wecal:wecalpw@db:5432/wecal
       PGSSL: "false"
       # for dev on EC2, your browser is hitting EC2, so origin is EC2:3000
-      CORS_ORIGINS: http://localhost:3000,http://localhost:3001
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3001,https://wecal.online,https://www.wecal.online
     networks:
       - wecal-network
     depends_on:
@@ -38,12 +38,28 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:3000"
+      - "3000:3000"
     environment:
       # These are only used at build-time by React
       REACT_APP_API_URL: http://localhost:5000
       REACT_APP_WS_URL: ws://localhost:5001
     depends_on:
+      - backend
+    networks:
+      - wecal-network
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
       - backend
     networks:
       - wecal-network
@@ -54,4 +70,5 @@ networks:
 
 volumes:
   pgdata:
-
+  caddy_data:
+  caddy_config:
