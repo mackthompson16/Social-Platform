@@ -1,31 +1,13 @@
-# Frontend Dockerfile for development and production
-FROM node:20-alpine AS build
+# Production-only frontend container:
+# serves the prebuilt React /build folder that you generate on your laptop
 
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy frontend source and public
-COPY src/ ./src/
-COPY public/ ./public/
-
-# Production stage - serve with Node
 FROM node:20-alpine
 
 WORKDIR /app
-
 RUN npm install -g serve
 
+# Copy the already-built static assets from your repo
 COPY build ./build
 
 EXPOSE 3000
-
-ENV REACT_APP_API_URL=http://localhost:5000
-ENV REACT_APP_WS_URL=ws://localhost:5001
-
 CMD ["serve", "-s", "build", "-l", "3000"]
-

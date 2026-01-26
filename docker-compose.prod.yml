@@ -9,30 +9,61 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - wecal-network
+    restart: unless-stopped
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
-      - "5001:5001"
-    env_file:
-      - .env.prod
+    environment:
+      PORT: "5000"
+      WEBSOCKET_PORT: "5001"
+      DATABASE_URL: "postgres://wecal:wecalpw@db:5432/wecal"
+      PGSSL: "false"
+      CORS_ORIGINS: "https://wecal.online,https://www.wecal.online"
     networks:
       - wecal-network
     depends_on:
       - db
+    restart: unless-stopped
+    # IMPORTANT: do not expose 5000/5001 publicly in prod
+    expose:
+      - "5000"
+      - "5001"
 
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env.prod
+      args:
+        # These are build-time for CRA if your Dockerfile uses ARG->ENV correctly
+        REACT_APP_API_URL: "https://api.wecal.online"
+        REACT_APP_WS_URL: "wss://api.wecal.online"
+    environment:
+      # If your app reads runtime env from window.__ENV, you can use these too.
+      # If it doesn't, these won't hurt.
+      REACT_APP_API_URL: "https://api.wecal.online"
+      REACT_APP_WS_URL: "wss://api.wecal.online"
+    networks:
+      - wecal-network
     depends_on:
+      - backend
+    restart: unless-stopped
+    expose:
+      - "3000"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
       - backend
     networks:
       - wecal-network
@@ -43,3 +74,5 @@ networks:
 
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:
