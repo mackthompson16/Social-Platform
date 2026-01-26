@@ -36,5 +36,10 @@ const preferEnvOr = (envValue, fallback) => {
 };
 
 // Default to same host on port 5000 if nothing is configured.
-export const API_BASE_URL = preferEnvOr(apiBaseFromEnv, `${protocol}://${locHost}:5000`);
-export const WS_BASE_URL = preferEnvOr(wsBaseFromEnv, `${wsProtocol}://${locHost}:5000`);
+const isProdHost = !isLocalHost(locHost);
+const apiDefault = isProdHost ? `${protocol}://api.${locHost}` : `${protocol}://${locHost}:5000`;
+const wsDefault  = isProdHost ? `${wsProtocol}://api.${locHost}` : `${wsProtocol}://${locHost}:5001`;
+
+export const API_BASE_URL = preferEnvOr(apiBaseFromEnv, apiDefault);
+export const WS_BASE_URL  = preferEnvOr(wsBaseFromEnv,  wsDefault);
+
