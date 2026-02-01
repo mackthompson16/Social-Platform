@@ -5,7 +5,7 @@ WeCal lets friends share calendars, send invites, and chat in real time. It’s 
 ### React Frontend <-> Websocket server <-> PostgreSQL database
 ### {------------------------Docker--------------------------} -> AWS EC2
 # Demo
-[wecal.online](http://98.94.150.212:3000/)
+[wecal.online](https://wecal.online/)
 
 ## What’s inside
 - Frontend: React 18, React-Bootstrap, FullCalendar, React DatePicker.
@@ -34,7 +34,6 @@ WeCal lets friends share calendars, send invites, and chat in real time. It’s 
 - Point the frontend at the Worker: set `REACT_APP_AGENT_URL=http://localhost:8787` in your env file before running `npm start`.
 
 # Future updates
-- fix domain @wecal.online
 - create mobile ui
 - add chat messages
-- https (Secure)
+
