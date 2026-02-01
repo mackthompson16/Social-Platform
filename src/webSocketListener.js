@@ -67,8 +67,8 @@ const WebSocketListener = () => {
             
             if (data.type === 'commitment_update'){
               dispatch ({
-              type: 'APPEND_CONTEXT',
-              payload: {commitments: [data.commitment]}
+              type: 'UPDATE_COMMITMENT',
+              payload: data.commitment
               })
             }
     };

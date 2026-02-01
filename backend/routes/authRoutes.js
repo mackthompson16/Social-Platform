@@ -3,26 +3,41 @@ const router = express.Router();
 const db = require('../db');
 
 router.post('/create-account', async (req, res) => {
-  const { username, password, email } = req.body;
+  const { username, password } = req.body;
 
-  if (!username || !password || !email) {
+  if (!username || !password) {
     return res
       .status(400)
-      .json({ success: false, message: 'All fields are required' });
+      .json({ success: false, message: 'Username and password are required' });
   }
 
   try {
+    const existing = await db.query(
+      'SELECT id, username FROM users WHERE username = $1 LIMIT 1',
+      [username]
+    );
+    if (existing.rows[0]) {
+      if (existing.rows[0].username === username) {
+        return res.status(409).json({ success: false, message: 'Username already exists' });
+      }
+    }
+
     const { rows } = await db.query(
-      `INSERT INTO users (username, password, email)
-       VALUES ($1, $2, $3)
+      `INSERT INTO users (username, password)
+       VALUES ($1, $2)
        RETURNING id`,
-      [username, password, email]
+      [username, password]
     );
 
     res.json({ success: true, id: rows[0].id });
   } catch (err) {
     console.error('Error creating account: ', err);
-    res.status(500).json({ success: false, message: 'Error creating account' });
+    if (err.code === '23505') {
+      return res
+        .status(409)
+        .json({ success: false, message: 'Username already exists' });
+    }
+    return res.status(500).json({ success: false, message: 'Error creating account' });
   }
 });
 
@@ -30,6 +45,9 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    if (!username || !password) {
+      return res.status(400).json({ success: false, error: 'missing_fields' });
+    }
     const { rows } = await db.query(
       'SELECT * FROM users WHERE username = $1',
       [username]

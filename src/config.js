@@ -38,8 +38,16 @@ const preferEnvOr = (envValue, fallback) => {
 // Default to same host on port 5000 if nothing is configured.
 const isProdHost = !isLocalHost(locHost);
 const apiDefault = isProdHost ? `${protocol}://api.${locHost}` : `${protocol}://${locHost}:5000`;
-const wsDefault  = isProdHost ? `${wsProtocol}://api.${locHost}` : `${wsProtocol}://${locHost}:5001`;
+// WebSocket shares the same port as the API server in this app.
+const wsDefault  = isProdHost ? `${wsProtocol}://api.${locHost}` : `${wsProtocol}://${locHost}:5000`;
 
 export const API_BASE_URL = preferEnvOr(apiBaseFromEnv, apiDefault);
 export const WS_BASE_URL  = preferEnvOr(wsBaseFromEnv,  wsDefault);
-
+export const AGENT_BASE_URL =
+  preferEnvOr(
+    runtimeConfig.REACT_APP_AGENT_URL ||
+      runtimeConfig.AGENT_URL ||
+      process.env.REACT_APP_AGENT_URL ||
+      process.env.AGENT_URL,
+    `${protocol}://${locHost}:8787`
+  );

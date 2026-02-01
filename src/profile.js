@@ -15,8 +15,7 @@ export default function Profile(){
     const { state, dispatch } = useUser();
     const [accInfo, setAccInfo] = useState({
         username: '',
-        password: '',
-        email: ''
+        password: ''
       });
 
       const handleChange = (event) => {
@@ -33,7 +32,6 @@ export default function Profile(){
         const updatedAccInfo = {
             username: accInfo.username || state.username,
             password: accInfo.password || state.password,
-            email: accInfo.email || state.email,
         };
     
         try {
@@ -83,16 +81,6 @@ export default function Profile(){
                 value={accInfo.password}
                 onChange={handleChange}
                 placeholder={state.password}
-                className="form-control"
-            />
-
-            <input
-                type="email"
-                id="email"
-                name="email"
-                value={accInfo.email}
-                onChange={handleChange}
-                placeholder={state.email}
                 className="form-control"
             />
 

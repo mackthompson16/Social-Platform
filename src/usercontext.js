@@ -6,7 +6,6 @@ export const useUser = () => useContext(UserContext);
 const initialState = { 
   id: null, 
   username: null,
-  email: null,
   password: null,
   current_form: 'NONE',
   commitments: [],   
@@ -14,9 +13,10 @@ const initialState = {
   inbox: [],          
   friends: [],    
   users: [],
+  systemAgent: null,
+  editingCommitment: null,
   visibleEventKeys: {}, 
-  cachedEventArrays: {},
-  showMessages: false
+  cachedEventArrays: {}
 
 };
 
@@ -31,26 +31,39 @@ const userReducer = (state, action) => {
       };
     
       
-      case 'APPEND_CONTEXT': {
-        const updatedState = { ...state };
-    
-        Object.keys(action.payload).forEach((key) => {
-            if (key === 'visibleEventKeys' || key === 'cachedEventArrays') {
-                // Merge objects
-                updatedState[key] = {
-                    ...state[key],
-                    ...action.payload[key],
-                };
-            } else if (Array.isArray(state[key])) {
-                // Append to arrays
-                updatedState[key] = [...state[key], ...action.payload[key]];
-            } else {
-                // Handle other cases by initializing a new array
-                updatedState[key] = [...(state[key] || []), ...action.payload[key]];
-            }
+    case 'APPEND_CONTEXT': {
+      const updatedState = { ...state };
+
+      const mergeByKey = (existing = [], incoming = [], key) => {
+        const map = new Map(existing.map((item) => [item[key], item]));
+        incoming.forEach((item) => {
+          if (item && item[key] !== undefined && item[key] !== null) {
+            map.set(item[key], item);
+          }
         });
-    
-        return updatedState;
+        return Array.from(map.values());
+      };
+
+      Object.keys(action.payload).forEach((key) => {
+        if (key === 'visibleEventKeys' || key === 'cachedEventArrays') {
+          updatedState[key] = {
+            ...state[key],
+            ...action.payload[key],
+          };
+        } else if (Array.isArray(state[key])) {
+          if (key === 'friends') {
+            updatedState[key] = mergeByKey(state[key], action.payload[key], 'id');
+          } else if (key === 'inbox') {
+            updatedState[key] = mergeByKey(state[key], action.payload[key], 'message_id');
+          } else {
+            updatedState[key] = [...state[key], ...action.payload[key]];
+          }
+        } else {
+          updatedState[key] = [...(state[key] || []), ...action.payload[key]];
+        }
+      });
+
+      return updatedState;
     }
     
     
@@ -87,6 +100,32 @@ const userReducer = (state, action) => {
         
           
         };
+
+    case 'UPDATE_COMMITMENT': {
+        const updated = action.payload;
+        const stamped = { ...updated, user_id: updated.user_id || state.id };
+        const newEvents = generateEvents([stamped]);
+        const userId = stamped.user_id || state.id;
+        const filteredEvents = (state.cachedEventArrays[userId] || []).filter(
+            (event) => Number(event.commitment_id) !== Number(stamped.commitment_id)
+        );
+        return {
+            ...state,
+            cachedEventArrays: {
+                ...state.cachedEventArrays,
+                [userId]: [...filteredEvents, ...newEvents],
+            },
+            commitments: state.commitments.some(
+                (commitment) => Number(commitment.commitment_id) === Number(stamped.commitment_id)
+            )
+                ? state.commitments.map((commitment) =>
+                    Number(commitment.commitment_id) === Number(stamped.commitment_id)
+                        ? stamped
+                        : commitment
+                  )
+                : [...state.commitments, stamped],
+        };
+    }
     
     case 'REMOVE_COMMITMENT':
       const commitment_id = Number(action.payload);
@@ -107,9 +146,15 @@ const userReducer = (state, action) => {
     case 'UPDATE_INBOX':
       return {
         ...state,
-        inbox: state.inbox.map((message) =>
-          Number(message.message_id) === Number(action.payload.message_id) ? action.payload : message
-        ),
+        inbox: state.inbox.some(
+          (message) => Number(message.message_id) === Number(action.payload.message_id)
+        )
+          ? state.inbox.map((message) =>
+              Number(message.message_id) === Number(action.payload.message_id)
+                ? action.payload
+                : message
+            )
+          : [...state.inbox, action.payload],
       };
 
     default:

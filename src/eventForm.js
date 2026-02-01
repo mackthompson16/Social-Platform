@@ -6,6 +6,23 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import { useUser } from './usercontext';
 import { API_BASE_URL } from './config';
 
+const formatLocalDate = (value) => {
+    if (!(value instanceof Date)) return value;
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+const parseLocalDate = (value) => {
+    if (value instanceof Date) return value;
+    if (!value) return null;
+    const parts = String(value).split('-').map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+    const [year, month, day] = parts;
+    return new Date(year, month - 1, day);
+};
+
 class Commitment {
     constructor(commitment, startTime, endTime, days,dates) {
         this.name = commitment;
@@ -17,7 +34,7 @@ class Commitment {
 }
 
 
-export default function EventForm(){
+export default function EventForm({ mode = 'create', commitment = null }){
     const { state, dispatch } = useUser();
     const [name, setName] = useState('');
     const [startTime, setStartTime] = useState('');
@@ -35,7 +52,7 @@ export default function EventForm(){
     function cancelForm() {
         dispatch({
             type:'REPLACE_CONTEXT',
-            payload:{current_form: 'NONE'}
+            payload:{current_form: 'NONE', editingCommitment: null}
         })
     }
 
@@ -52,6 +69,26 @@ export default function EventForm(){
         setViewFriends(false);
         setAttemptedSubmit(false);
     }
+
+    useEffect(() => {
+        if (mode !== 'edit' || !commitment) return;
+        setName(commitment.name || '');
+        setStartTime(commitment.startTime || '');
+        setEndTime(commitment.endTime || '');
+        if (Array.isArray(commitment.dates) && commitment.dates[0]) {
+            setStartDate(parseLocalDate(commitment.dates[0]));
+        }
+        if (Array.isArray(commitment.dates) && commitment.dates[1]) {
+            setEndDate(parseLocalDate(commitment.dates[1]));
+            setIsRecurring(true);
+        } else {
+            setEndDate(null);
+            setIsRecurring(false);
+        }
+        setSelectedDays(Array.isArray(commitment.days) ? commitment.days : []);
+        setViewFriends(false);
+        setInvitedFriends([]);
+    }, [mode, commitment]);
 
     const [showBanner, setShowBanner] = useState(false);
     useEffect(() => {
@@ -147,12 +184,98 @@ export default function EventForm(){
               }
             
               try {
+                if (mode === 'edit' && commitment?.commitment_id) {
+                    const payload = {
+                        name,
+                        startTime,
+                        endTime,
+                        days: isRecurring ? selectedDays.filter(day => day !== "All") : [],
+                        dates: isRecurring
+                            ? [startDate, endDate]
+                            : [startDate],
+                    };
+                    const formatted = {
+                        ...payload,
+                        dates: payload.dates.map((d) => formatLocalDate(d)),
+                    };
+
+                    if ((commitment.memberCount || 1) > 1 && commitment.eventId) {
+                        await fetch(`${API_BASE_URL}/api/social/${state.id}/request-edit`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                eventId: commitment.eventId,
+                                payload: {
+                                    ...formatted,
+                                    eventId: commitment.eventId,
+                                },
+                            }),
+                        });
+                        dispatch({
+                            type: 'UPDATE_COMMITMENT',
+                            payload: { ...commitment, pendingEdit: true },
+                        });
+                    } else {
+                        const response = await fetch(
+                            `${API_BASE_URL}/api/users/${state.id}/${commitment.commitment_id}/update-commitment`,
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(formatted),
+                            }
+                        );
+
+                        if (response.status === 409 && commitment.eventId) {
+                            await fetch(`${API_BASE_URL}/api/social/${state.id}/request-edit`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    eventId: commitment.eventId,
+                                    payload: {
+                                        ...formatted,
+                                        eventId: commitment.eventId,
+                                    },
+                                }),
+                            });
+                            dispatch({
+                                type: 'UPDATE_COMMITMENT',
+                                payload: { ...commitment, pendingEdit: true },
+                            });
+                        } else {
+                            if (!response.ok) {
+                                throw new Error('Failed to update commitment');
+                            }
+                            const data = await response.json();
+                            if (data.success && data.commitment) {
+                                dispatch({
+                                    type: 'UPDATE_COMMITMENT',
+                                    payload: data.commitment,
+                                });
+                            }
+                        }
+                    }
+
+                    resetForm();
+                    dispatch({
+                        type:'REPLACE_CONTEXT',
+                        payload:{current_form:'NONE', editingCommitment: null}
+                    });
+                    return;
+                }
+
+                const formattedCommitment = {
+                    ...newCommitment,
+                    dates: newCommitment.dates.map((d) => formatLocalDate(d)),
+                };
+
                 const response = await fetch(`${API_BASE_URL}/api/users/${state.id}/add-commitment`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
                   },
-                  body: JSON.stringify(newCommitment),
+                  body: JSON.stringify(formattedCommitment),
                 });
                
                 if (!response.ok) {
@@ -164,20 +287,31 @@ export default function EventForm(){
 
                 dispatch({
                   type: 'ADD_COMMITMENT',
-                  payload: {...newCommitment, commitment_id: data.id}
+                  payload: {
+                    ...formattedCommitment,
+                    commitment_id: data.id,
+                    eventId: data.eventId,
+                  }
                 });
         
                 if (viewFriends) {
                     for (const friend of invitedFriends) {
                         try {
+                            const eventId = data.eventId;
                             await fetch(`${API_BASE_URL}/api/social/${state.id}/${friend.id}/send-message`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                     type: 'meeting_request',
                                     content: `${state.username} invited you to an event`,
-                                    commitment_id: data.id,
-                                    owner: { id: state.id, username: state.username },
+                                    payload: {
+                                        name: newCommitment.name,
+                                        startTime: newCommitment.startTime,
+                                        endTime: newCommitment.endTime,
+                                        days: newCommitment.days,
+                                        dates: newCommitment.dates.map((d) => formatLocalDate(d)),
+                                        eventId,
+                                    },
                                 }),
                             });
                         } catch (error) {
@@ -197,15 +331,44 @@ export default function EventForm(){
         resetForm();
         dispatch({
             type:'REPLACE_CONTEXT',
-            payload:{current_form:'NONE'}
+            payload:{current_form:'NONE', editingCommitment: null}
         });
+    };
+
+    const handleDelete = async () => {
+        if (!commitment?.commitment_id) return;
+        if ((commitment.memberCount || 1) > 1) {
+            setError('Edits to shared events must be requested.');
+            return;
+        }
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/users/${state.id}/${commitment.commitment_id}/remove-commitment`,
+                { method: 'DELETE' }
+            );
+            if (!response.ok) {
+                throw new Error('Failed to remove commitment');
+            }
+            dispatch({
+                type: 'REMOVE_COMMITMENT',
+                payload: commitment.commitment_id,
+            });
+            resetForm();
+            dispatch({
+                type:'REPLACE_CONTEXT',
+                payload:{current_form:'NONE', editingCommitment: null}
+            });
+        } catch (err) {
+            console.error('Error removing commitment:', err);
+            setError('Failed to remove event');
+        }
     };
 
     return (
      
             <div>
               <div className="header-title">
-                <h3>New Event</h3>
+                <h3>{mode === 'edit' ? 'Edit Event' : 'New Event'}</h3>
             </div>
             <div className='form-body'>
                 <input
@@ -311,6 +474,8 @@ export default function EventForm(){
                     </>
                 )}
 
+{mode !== 'edit' && (
+<>
 <div className="form-check">
                     <input
                         type="checkbox"
@@ -343,6 +508,8 @@ export default function EventForm(){
                 
               </div>
             )}
+            </>
+)}
     
                 {error && attemptedSubmit && <div className="alert alert-danger">{error}</div>}
                 </div>
@@ -353,8 +520,17 @@ export default function EventForm(){
                         className="btn btn-primary"
                         onClick={handleSubmit}
                     >
-                        Add
+                        {mode === 'edit' ? 'Save Changes' : 'Add'}
                     </button>
+                    {mode === 'edit' && (
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={handleDelete}
+                        >
+                            Remove
+                        </button>
+                    )}
                     <button
                         type="button"
                         className="btn btn-secondary"

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { useUser } from './usercontext';
 
@@ -12,26 +12,28 @@ import AddFriend from './addFriend';
 import Profile from './profile';
 import EventForm from './eventForm';
 import WebSocketListener from './webSocketListener';
-import Inbox from './inbox';
+import AiPlannerPanel from './aiPlannerPanel';
 
 import './styles/theme.css';
 import './styles/layout.css';
 import './styles/components.css';
 import './styles/buttons.css';
-import './styles/inbox.css';
 import './styles/typography.css';
 import './styles/utilities.css';
 import './styles/auth.css';
 import './styles/addFriend.css';
 import './styles/calendar.css';
 import './styles/form.css';
+import './styles/aiPlanner.css';
 
 export default function App() {
   const { state, dispatch } = useUser();
+  const [aiPanelOpen, setAiPanelOpen] = useState(true);
 
   const currentForm = {
     PROFILE: <Profile />,
-    SCHEDULE_EVENT: <EventForm />,
+    SCHEDULE_EVENT: <EventForm mode="create" />,
+    EDIT_EVENT: <EventForm mode="edit" commitment={state.editingCommitment} />,
     ADD_FRIEND: <AddFriend />,
   };
 
@@ -76,8 +78,10 @@ export default function App() {
         <main className="content-shell">
           <div className="main-page">
             <SideMenu />
-            <Calendar />
-            {state.showMessages && <Inbox />}
+            <div className="primary-main">
+              <Calendar />
+            </div>
+            <AiPlannerPanel isOpen={aiPanelOpen} onToggle={setAiPanelOpen} />
           </div>
         </main>
       )}

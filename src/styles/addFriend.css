@@ -2,22 +2,23 @@
 
 /* Search bar styling */
 .search {
-    margin-bottom: 15px; /* Space below the search bar */
+    margin-bottom: 16px; /* Space below the search bar */
 }
 
 .form-control.search-input {
     width: 100%; /* Full width inside the form */
-    padding: 10px;
-    border: 1px solid #444; /* Subtle border */
-    border-radius: 5px; /* Rounded corners */
-    background-color: #1e1e2f; /* Dark background for inputs */
-    color: #e6e6e6; /* Light text */
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: #1f2636;
+    color: var(--text-strong);
     font-size: 1rem;
     box-sizing: border-box; /* Include padding in width/height */
 }
 
 .form-control.search-input:focus {
-    border-color: #4caf50; /* Green border for focus state */
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.15);
     outline: none;
 }
 
@@ -28,6 +29,9 @@
     margin: 0;
     padding: 0;
     list-style-type: none; /* Remove bullets */
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 /* User list item */
@@ -36,9 +40,13 @@
     justify-content: space-between; /* Space between username and button */
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #444; /* Subtle divider */
+    border-bottom: 1px solid var(--border);
     font-size: 1rem;
-    color: #e6e6e6;
+    color: var(--text);
+}
+
+.user-item:last-child {
+    border-bottom: none;
 }
 
 /* Username styling */
@@ -50,19 +58,20 @@
 .request-button {
     padding: 5px 10px;
     font-size: 0.9rem;
-    border-radius: 5px;
+    border-radius: 999px;
     border: none;
     cursor: pointer;
-    background-color: #4caf50; /* Green background */
-    color: white;
+    background-color: var(--accent);
+    color: #0f1624;
     transition: background-color 0.2s ease;
 }
 
 .request-button:disabled {
-    background-color: #777; /* Grey background when disabled */
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-muted);
     cursor: not-allowed;
 }
 
 .request-button:hover:not(:disabled) {
-    background-color: #388e3c; /* Darker green on hover */
+    background-color: var(--accent-strong);
 }

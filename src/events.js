@@ -1,5 +1,13 @@
 
 
+const parseLocalDateString = (value) => {
+    if (!value) return null;
+    const parts = String(value).split('-').map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+    const [year, month, day] = parts;
+    return new Date(year, month - 1, day);
+};
+
 const createSegments = (date, startTime, endTime, base) => {
     const [sH, sM] = startTime.split(':').map(Number);
     const [eH, eM] = endTime.split(':').map(Number);
@@ -68,9 +76,9 @@ export default function generateEvents(commitments) {
             recurringEvents.forEach(event => events.push(event));
         } else if (typeof parsedDates === 'string' || (Array.isArray(parsedDates) && parsedDates.length === 1)) {
             const singleDate = Array.isArray(parsedDates) ? parsedDates[0] : parsedDates;
-            const startDate = new Date(singleDate);
+            const startDate = parseLocalDateString(singleDate);
 
-            if (isNaN(startDate.getTime())) {
+            if (!startDate || isNaN(startDate.getTime())) {
                 console.error(`Invalid date for non-recurring commitment ID: ${commitment.id}`);
                 return; // Skip invalid dates
             }
@@ -80,6 +88,9 @@ export default function generateEvents(commitments) {
                 id: `${commitment_id}`,
                 title,
                 userId,
+                eventId: commitment.eventId || commitment.event_id,
+                memberCount: commitment.memberCount,
+                pendingEdit: commitment.pendingEdit,
             });
 
             segments.forEach((segment, idx) =>
@@ -95,8 +106,10 @@ const generateRecurringEvents = (commitment) => {
     const events = [];
     const [startDate, endDate] = commitment.dates;
     const daysOfWeek = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = parseLocalDateString(startDate);
+    const end = parseLocalDateString(endDate);
+
+    if (!start || !end) return events;
 
     for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
         const dayName = Object.keys(daysOfWeek)[date.getDay()];
@@ -111,6 +124,9 @@ const generateRecurringEvents = (commitment) => {
                     id: `${commitment.commitment_id}`,
                     title: commitment.name,
                     userId: commitment.user_id || commitment.owner_id || commitment.userId,
+                    eventId: commitment.eventId || commitment.event_id,
+                    memberCount: commitment.memberCount,
+                    pendingEdit: commitment.pendingEdit,
                 }
             );
             segments.forEach((segment, idx) =>

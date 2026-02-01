@@ -27,20 +27,22 @@ html, body {
 
 .content-shell {
   display: flex;
-  justify-content: center;
+  justify-content: stretch;
+  align-items: stretch;
   flex: 1;
   width: 100%;
-  padding: 24px;
+  padding: 16px 24px 24px;
   box-sizing: border-box;
 }
 
 .main-page {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 20px;
+  grid-template-columns: 260px minmax(0, 1fr) 360px;
+  gap: 16px;
   width: 100%;
-  max-width: var(--content-width);
-  min-height: 70vh;
+  max-width: none;
+  min-height: calc(100vh - 160px);
+  align-items: start;
 }
 
 .header {
@@ -87,6 +89,15 @@ html, body {
 
 .notification-active {
   color: var(--accent-warm);
+}
+
+.header-status {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: rgba(15, 22, 36, 0.35);
 }
 
 .badge {

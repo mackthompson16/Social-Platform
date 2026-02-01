@@ -4,7 +4,7 @@ import { useUser } from './usercontext';
 import React, { useMemo } from 'react';
 
 export default function Calendar() {
-    const { state } = useUser();
+    const { state, dispatch } = useUser();
 
     const colorPalette = [
         '#B0E0E6', // Pale blue
@@ -55,6 +55,7 @@ export default function Calendar() {
     const renderEventContent = (eventInfo) => {
         const title = eventInfo.event.title;
         const color = eventInfo.event.backgroundColor || '#61dafb';
+        const pendingEdit = eventInfo.event.extendedProps?.pendingEdit;
 
         return (
             <div
@@ -72,15 +73,61 @@ export default function Calendar() {
                     fontSize: '0.9rem',
                 }}
             >
-                {title}
+                <div>{title}</div>
+                {pendingEdit && (
+                    <div
+                        style={{
+                            marginTop: '4px',
+                            fontSize: '0.7rem',
+                            fontWeight: 600,
+                            color: '#0f1624',
+                            background: 'rgba(255,255,255,0.7)',
+                            borderRadius: '6px',
+                            padding: '2px 6px',
+                            display: 'inline-block',
+                        }}
+                    >
+                        Pending edit
+                    </div>
+                )}
             </div>
         );
     };
 
  
     const handleEventClick = (clickInfo) => {
-       
-        viewEvent(clickInfo.event);
+        const event = clickInfo.event;
+        const start = event.start ? new Date(event.start) : null;
+        const end = event.end ? new Date(event.end) : null;
+        const startTime = start
+            ? `${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`
+            : '';
+        const endTime = end
+            ? `${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`
+            : '';
+        const dateStr = start
+            ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(
+                start.getDate()
+              ).padStart(2, '0')}`
+            : '';
+
+        dispatch({
+            type: 'REPLACE_CONTEXT',
+            payload: {
+                current_form: 'EDIT_EVENT',
+                editingCommitment: {
+                    commitment_id: event.extendedProps?.commitment_id,
+                    name: event.title,
+                    startTime,
+                    endTime,
+                    dates: [dateStr],
+                    days: [],
+                    eventId: event.extendedProps?.eventId,
+                    memberCount: event.extendedProps?.memberCount || 1,
+                    pendingEdit: event.extendedProps?.pendingEdit,
+                },
+            },
+        });
     };
 
     return (
