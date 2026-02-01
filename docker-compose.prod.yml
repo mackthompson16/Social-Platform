@@ -20,7 +20,7 @@ services:
       WEBSOCKET_PORT: "5001"
       DATABASE_URL: "postgres://wecal:wecalpw@db:5432/wecal"
       PGSSL: "false"
-      CORS_ORIGINS: "https://wecal.online,https://www.wecal.online"
+      CORS_ORIGINS: "https://wecal.online,https://www.wecal.online,https://agent.wecal.online"
     networks:
       - wecal-network
     depends_on:

@@ -1,39 +1,32 @@
-# WeCal – social event planner
+# WeCal - social event planner
 
-WeCal lets friends share calendars, send invites, and chat in real time. It’s a React frontend talking to a Node/Express API with WebSocket notifications, containerized with Docker. Deployed on AWS EC2 micro.
+WeCal lets friends share calendars, send invites, and message in real time. It is a React frontend talking to a Node/Express API with WebSocket notifications, backed by PostgreSQL, and deployed on AWS EC2 behind Caddy and Cloudflare.
 
-### React Frontend <-> Websocket server <-> PostgreSQL database
-### {------------------------Docker--------------------------} -> AWS EC2
-# Demo
-[wecal.online](https://wecal.online/)
+## Overview (quick scan)
+- Messaging and inbox: real-time chat plus notifications for invites and updates.
+- Sharing and inviting: create events, share availability, and send meeting requests.
+- AI agent scheduling: natural-language chat that turns intent into API calls.
+- Ops: Docker Compose on EC2, Caddy reverse proxy, Cloudflare DNS and TLS.
 
-## What’s inside
-- Frontend: React 18, React-Bootstrap, FullCalendar, React DatePicker.
-- Backend: Node.js + Express REST API.
-- Real-time: WebSockets (ws) for inbox and notifications.
-- Data: PostgreSQL in production (SQLite available for local dev).
-- Ops: Docker + Docker Compose; env-driven config for API/WS URLs and CORS.
+## Key services and ports
+- Frontend: 3000
+- API: 5000
+- WebSocket: 5001
+- Agent (Cloudflare Worker dev): 8787
 
+## How the agent works (short)
+- The frontend sends the user message plus small signals (client time, timezone, recent context) to the Worker `/chat` endpoint.
+- The Worker parses intent and schedules calls to the existing API endpoints (friends, commitments, invites).
+- It asks for confirmation before sending invites unless the user explicitly confirms.
 
-## How it flows
-- Login/register via `/api/auth`.
-- Events via `/api/users/...`.
-- Friends and inbox via `/api/social/...`.
-- WebSocket pushes inbox updates and friend/meeting notifications live.
+## DNS + routing (production)
+- Cloudflare manages DNS and TLS. The agent runs as a Cloudflare Worker on a custom subdomain (for example, `agent.wecal.online`).
+- Caddy terminates and routes traffic on EC2, reverse proxying to the frontend and API/WS ports.
 
-## AI Planner (new)
-- Frontend uses `REACT_APP_AGENT_URL` (or runtime `window.__ENV.REACT_APP_AGENT_URL`) to call the Cloudflare Worker at `/chat`.
-- Worker lives in `cloudflare-agent/` and forwards tool calls to the existing Express API (friends, commitments, meeting requests).
-- Worker enforces confirmation before sending invites unless the user says “send it”.
-- Toggle the right-side panel in-app to chat with the planner.
+## Local dev (short)
+- Frontend: `npm install` then `npm start` (uses `.env` for API/WS/agent URLs).
+- API: `cd backend && npm install && npm start`.
+- Worker: `cd cloudflare-agent && npm install && npm run dev -- --local --var API_BASE_URL=http://localhost:5000`.
 
-## Local dev quickstart
-- React app: `npm install` then `npm start` (uses `.env` with `REACT_APP_API_URL`, `REACT_APP_WS_URL`, `REACT_APP_AGENT_URL`).
-- Express API: `cd backend && npm install && npm start` (respects `CORS_ORIGINS` and DB envs).
-- Worker: `cd cloudflare-agent && npm install && npm run dev -- --local --var API_BASE_URL=http://localhost:5000` (update `wrangler.toml` vars or CLI `--var`). Default dev port is 8787.
-- Point the frontend at the Worker: set `REACT_APP_AGENT_URL=http://localhost:8787` in your env file before running `npm start`.
-
-# Future updates
-- create mobile ui
-- add chat messages
-
+## Demo
+- https://wecal.online/
