@@ -38,7 +38,3 @@ This repo also satisfies the Cloudflare AI application assignment requirements:
 ## Demo
 - App: https://wecal.online/
 - Agent endpoint: https://agent.wecal.online/chat (POST only)
-
-## Repo notes (assignment)
-- Repository name should be prefixed with `cf_ai_` when submitted.
-- Include `PROMPTS.md` with AI prompts used.
