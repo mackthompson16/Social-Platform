@@ -2,6 +2,9 @@
 
 WeCal lets friends share calendars, send invites, and message in real time. It is a React frontend talking to a Node/Express API with WebSocket notifications, backed by PostgreSQL, and deployed on AWS EC2 behind Caddy and Cloudflare.
 
+## Demo
+- App: https://wecal.online/
+  
 This repo also satisfies the Cloudflare AI application assignment requirements:
 - LLM: Cloudflare Workers AI (Llama 3.x) used in the agent when configured.
 - Workflow / coordination: Cloudflare Worker orchestrates intent parsing and API calls; backend persists state.
@@ -78,6 +81,3 @@ The current schema is intentionally small and focused:
 - API: `cd backend && npm install && npm start`.
 - Worker: `cd cloudflare-agent && npm install && npm run dev -- --local --var API_BASE_URL=http://localhost:5000`.
 
-## Demo
-- App: https://wecal.online/
-- Agent endpoint: https://agent.wecal.online/chat (POST only)
