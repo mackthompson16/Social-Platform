@@ -1,7 +1,6 @@
-
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendarAlt } from 'react-icons/fa';
 import { useUser } from './usercontext';
 import { API_BASE_URL } from './config';
@@ -23,277 +22,257 @@ const parseLocalDate = (value) => {
     return new Date(year, month - 1, day);
 };
 
-class Commitment {
-    constructor(commitment, startTime, endTime, days,dates) {
-        this.name = commitment;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.days = days;
-        this.dates = dates;
-    }
-}
-
-
-export default function EventForm({ mode = 'create', commitment = null }){
+export default function EventForm({ mode = 'create', event = null }) {
     const { state, dispatch } = useUser();
     const [name, setName] = useState('');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
-    const [isRecurring, setIsRecurring] = useState(false);
+    const [date, setDate] = useState(null);
+    const [members, setMembers] = useState([]);
+    const [localStatus, setLocalStatus] = useState(null);
+    const [pendingStatusChange, setPendingStatusChange] = useState(false);
+    const [statusUpdating, setStatusUpdating] = useState(false);
+    const [inviteUpdating, setInviteUpdating] = useState(false);
     const [viewFriends, setViewFriends] = useState(false);
     const [invitedFriends, setInvitedFriends] = useState([]);
     const [error, setError] = useState(null);
-    const daysOfWeek = ["All", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const [selectedDays, setSelectedDays] = useState([]);
-    const [attemptedSubmit, setAttemptedSubmit] = useState(false)
-    
-    function cancelForm() {
-        dispatch({
-            type:'REPLACE_CONTEXT',
-            payload:{current_form: 'NONE', editingCommitment: null}
-        })
-    }
+    const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+    const [showBanner, setShowBanner] = useState(false);
+    const effectiveStatus = localStatus || event?.memberStatus;
+    const isDeclined = mode === 'edit' && effectiveStatus === 'declined';
+    const isReadOnly = mode === 'edit' && Boolean(event?.readOnly);
+    const isOwner = mode === 'edit' && event?.ownerId && Number(event.ownerId) === Number(state.id);
+    const memberCount = event?.memberCount || members.length || 1;
+    const hasMultiple = memberCount > 1;
+    const isLocked = mode === 'edit' && hasMultiple && effectiveStatus && effectiveStatus !== 'accepted';
+    const isDisabled = isReadOnly || isLocked;
+    const anyAccepted = members.length
+        ? members.some((member) => member.status === 'accepted')
+        : event?.eventStatus === 'accepted';
 
-    function resetForm() {
+    const cancelForm = () => {
+        dispatch({
+            type: 'REPLACE_CONTEXT',
+            payload: { current_form: 'NONE', editingEvent: null },
+        });
+    };
+
+    const resetForm = () => {
         setName('');
         setStartTime('');
         setEndTime('');
-        setStartDate('');
-        setEndDate('');
-        setSelectedDays([]);
+        setDate(null);
         setError('');
-        setIsRecurring(false);
-        setInvitedFriends([]);
         setViewFriends(false);
+        setInvitedFriends([]);
         setAttemptedSubmit(false);
-    }
+        setLocalStatus(null);
+        setPendingStatusChange(false);
+    };
 
     useEffect(() => {
-        if (mode !== 'edit' || !commitment) return;
-        setName(commitment.name || '');
-        setStartTime(commitment.startTime || '');
-        setEndTime(commitment.endTime || '');
-        if (Array.isArray(commitment.dates) && commitment.dates[0]) {
-            setStartDate(parseLocalDate(commitment.dates[0]));
-        }
-        if (Array.isArray(commitment.dates) && commitment.dates[1]) {
-            setEndDate(parseLocalDate(commitment.dates[1]));
-            setIsRecurring(true);
-        } else {
-            setEndDate(null);
-            setIsRecurring(false);
-        }
-        setSelectedDays(Array.isArray(commitment.days) ? commitment.days : []);
+        if (mode !== 'edit' || !event) return;
+        setName(event.name || '');
+        setStartTime(event.startTime || '');
+        setEndTime(event.endTime || '');
+        setDate(parseLocalDate(event.date));
         setViewFriends(false);
         setInvitedFriends([]);
-    }, [mode, commitment]);
+        setMembers([]);
+        setLocalStatus(null);
+        setPendingStatusChange(false);
+    }, [mode, event]);
 
-    const [showBanner, setShowBanner] = useState(false);
     useEffect(() => {
-        if (state.commitments.length > 0 && attemptedSubmit) {
-            setShowBanner(true); // Show the banner
-    
-            // Hide the banner after 3 seconds
+        if (mode !== 'edit' || !event?.eventId) return;
+        const loadMembers = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/social/events/${event.eventId}/members`);
+                const data = await response.json();
+                if (data.success && Array.isArray(data.members)) {
+                    setMembers(data.members);
+                }
+            } catch (err) {
+                console.error('Failed to load event members', err);
+            }
+        };
+        loadMembers();
+    }, [mode, event?.eventId]);
+
+    useEffect(() => {
+        if (state.events.length > 0 && attemptedSubmit) {
+            setShowBanner(true);
             const timer = setTimeout(() => {
                 setShowBanner(false);
             }, 3000);
-    
-            return () => clearTimeout(timer); // Cleanup timeout on component unmount
+            return () => clearTimeout(timer);
         }
-    }, [state.commitments]);
+    }, [state.events, attemptedSubmit]);
 
-    const toggleDaySelection = (day) => {
-        if (day === "All") {
-            // If "All" is selected, either select or deselect all days
-            setSelectedDays(selectedDays.length === daysOfWeek.length ? [] : daysOfWeek);
+    const toggleFriendSelection = (friend) => {
+        if (invitedFriends.includes(friend)) {
+            setInvitedFriends(invitedFriends.filter((f) => f !== friend));
         } else {
-            // Toggle individual days
-            setSelectedDays((prevSelectedDays) =>
-                prevSelectedDays.includes(day)
-                    ? prevSelectedDays.filter((d) => d !== day)
-                    : [...prevSelectedDays, day]
+            setInvitedFriends([...invitedFriends, friend]);
+        }
+    };
+
+    const handleToggleStatus = async () => {
+        if (!event?.eventId) return;
+        const current =
+            localStatus ||
+            members.find((member) => Number(member.userId) === Number(state.id))?.status ||
+            event?.memberStatus;
+        const nextStatus = current === 'accepted' ? 'declined' : 'accepted';
+        setLocalStatus(nextStatus);
+        setPendingStatusChange(true);
+        if (members.length) {
+            setMembers((prev) =>
+                prev.map((member) =>
+                    Number(member.userId) === Number(state.id)
+                        ? { ...member, status: nextStatus }
+                        : member
+                )
             );
         }
     };
 
-    const toggleFriendSelection = (friend) => {
-        if (invitedFriends.includes(friend)) {
-         
-            setInvitedFriends(invitedFriends.filter((f) => f !== friend));
-        } else {
-    
-            setInvitedFriends([...invitedFriends, friend]);
+    const handleInviteMore = async () => {
+        if (!event?.eventId || invitedFriends.length === 0) return;
+        setInviteUpdating(true);
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/social/${state.id}/${event.eventId}/invite`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recipientIds: invitedFriends.map((f) => f.id) }),
+                }
+            );
+            const data = await response.json();
+            if (data.success && Array.isArray(data.members)) {
+                setMembers(data.members);
+            }
+        } catch (err) {
+            console.error('Failed to invite attendees', err);
+        } finally {
+            setInviteUpdating(false);
         }
     };
-    
 
-    
-    
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setAttemptedSubmit(true)
-        let newCommitment;
-        if(!name || !startTime || !endTime || !startDate){
-          
-            setError("Missing field(s)");
+    const handleSubmit = async (eventSubmit) => {
+        eventSubmit.preventDefault();
+        setAttemptedSubmit(true);
+
+        if (!name || !startTime || !endTime || !date) {
+            setError('Missing field(s)');
             return;
         }
         if (endTime < startTime) {
-            setError("End time before start time");
+            setError('End time before start time');
             return;
         }
 
-        if (isRecurring) {
-            if ( new Date(startDate) > new Date(endDate)) {
-                setError("End date before start date");
-                return;
-            }
-            if (selectedDays.length === 0) {
-                setError("select at least one day of the week.");
-                return;
-            }
-
-            const validDays = selectedDays.filter(day => day !== "All");
-
-                newCommitment = new Commitment(
+        try {
+            if (mode === 'edit' && event?.eventId) {
+                const payload = {
                     name,
+                    date: formatLocalDate(date),
                     startTime,
                     endTime,
-                    validDays,  // Pass selected days for recurring commitment
-                    [startDate, endDate]  // Pass date range for recurring
-                );
-                // Add newCommitment to your list or handle it as needed
-               
-        } else {
-            
-                newCommitment = new Commitment(
-                    name,
-                    startTime,
-                    endTime,
-                    [],            // Empty array for selected days as it's non-recurring
-                    [startDate]    // Only start date is needed for non-recurring
-                );
-            }
-        
-            
-            if (!newCommitment) {
-                console.log('error: one or more fields empty');
-                return;
-              }
-            
-              try {
-                if (mode === 'edit' && commitment?.commitment_id) {
-                    const payload = {
-                        name,
-                        startTime,
-                        endTime,
-                        days: isRecurring ? selectedDays.filter(day => day !== "All") : [],
-                        dates: isRecurring
-                            ? [startDate, endDate]
-                            : [startDate],
-                    };
-                    const formatted = {
-                        ...payload,
-                        dates: payload.dates.map((d) => formatLocalDate(d)),
-                    };
+                };
 
-                    if ((commitment.memberCount || 1) > 1 && commitment.eventId) {
+                if (pendingStatusChange && localStatus) {
+                    setStatusUpdating(true);
+                    try {
+                        await fetch(`${API_BASE_URL}/api/social/${state.id}/${event.eventId}/update-status`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: localStatus }),
+                        });
+                    } catch (err) {
+                        console.error('Failed to update status', err);
+                    } finally {
+                        setStatusUpdating(false);
+                    }
+                }
+
+                if ((event.memberCount || 1) > 1) {
+                    await fetch(`${API_BASE_URL}/api/social/${state.id}/request-edit`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            eventId: event.eventId,
+                            payload,
+                        }),
+                    });
+                } else {
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/users/${state.id}/${event.eventId}/update-event`,
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                        }
+                    );
+                    if (response.status === 409) {
                         await fetch(`${API_BASE_URL}/api/social/${state.id}/request-edit`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                eventId: commitment.eventId,
-                                payload: {
-                                    ...formatted,
-                                    eventId: commitment.eventId,
-                                },
+                                eventId: event.eventId,
+                                payload,
                             }),
                         });
-                        dispatch({
-                            type: 'UPDATE_COMMITMENT',
-                            payload: { ...commitment, pendingEdit: true },
-                        });
+                    } else if (!response.ok) {
+                        throw new Error('Failed to update event');
                     } else {
-                        const response = await fetch(
-                            `${API_BASE_URL}/api/users/${state.id}/${commitment.commitment_id}/update-commitment`,
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(formatted),
-                            }
-                        );
-
-                        if (response.status === 409 && commitment.eventId) {
-                            await fetch(`${API_BASE_URL}/api/social/${state.id}/request-edit`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    eventId: commitment.eventId,
-                                    payload: {
-                                        ...formatted,
-                                        eventId: commitment.eventId,
-                                    },
-                                }),
-                            });
+                        const data = await response.json();
+                        if (data.success && data.event) {
                             dispatch({
-                                type: 'UPDATE_COMMITMENT',
-                                payload: { ...commitment, pendingEdit: true },
+                                type: 'UPDATE_EVENT',
+                                payload: data.event,
                             });
-                        } else {
-                            if (!response.ok) {
-                                throw new Error('Failed to update commitment');
-                            }
-                            const data = await response.json();
-                            if (data.success && data.commitment) {
-                                dispatch({
-                                    type: 'UPDATE_COMMITMENT',
-                                    payload: data.commitment,
-                                });
-                            }
                         }
                     }
-
-                    resetForm();
-                    dispatch({
-                        type:'REPLACE_CONTEXT',
-                        payload:{current_form:'NONE', editingCommitment: null}
-                    });
-                    return;
                 }
 
-                const formattedCommitment = {
-                    ...newCommitment,
-                    dates: newCommitment.dates.map((d) => formatLocalDate(d)),
-                };
-
-                const response = await fetch(`${API_BASE_URL}/api/users/${state.id}/add-commitment`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(formattedCommitment),
-                });
-               
-                if (!response.ok) {
-                  throw new Error('Failed to add commitment');
+                if (viewFriends && invitedFriends.length > 0) {
+                    await handleInviteMore();
+                    setInvitedFriends([]);
+                    setViewFriends(false);
                 }
 
-                const data = await response.json()
-            if (data.success){
-
+                resetForm();
                 dispatch({
-                  type: 'ADD_COMMITMENT',
-                  payload: {
-                    ...formattedCommitment,
-                    commitment_id: data.id,
-                    eventId: data.eventId,
-                  }
+                    type: 'REPLACE_CONTEXT',
+                    payload: { current_form: 'NONE', editingEvent: null },
                 });
-        
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/api/users/${state.id}/add-event`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    startTime,
+                    endTime,
+                    date: formatLocalDate(date),
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add event');
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                dispatch({
+                    type: 'ADD_EVENT',
+                    payload: data.event,
+                });
+
                 if (viewFriends) {
                     for (const friend of invitedFriends) {
                         try {
@@ -302,261 +281,248 @@ export default function EventForm({ mode = 'create', commitment = null }){
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
-                                    type: 'meeting_request',
-                                    content: `${state.username} invited you to an event`,
+                                    type: 'event_invite',
+                                    content: `${state.username} invited you to ${name}`,
                                     payload: {
-                                        name: newCommitment.name,
-                                        startTime: newCommitment.startTime,
-                                        endTime: newCommitment.endTime,
-                                        days: newCommitment.days,
-                                        dates: newCommitment.dates.map((d) => formatLocalDate(d)),
                                         eventId,
+                                        name,
+                                        date: formatLocalDate(date),
+                                        startTime,
+                                        endTime,
                                     },
                                 }),
                             });
                         } catch (error) {
-                            console.error('Error sending friend request:', error);
+                            console.error('Error sending invite:', error);
                         }
                     }
                 }
-                
-        }   
-            } catch (error) {
-                        console.error('Error adding commitment:', error);
-                        return null;
             }
-                
-        
-        
+        } catch (error) {
+            console.error('Error adding event:', error);
+        }
+
         resetForm();
         dispatch({
-            type:'REPLACE_CONTEXT',
-            payload:{current_form:'NONE', editingCommitment: null}
+            type: 'REPLACE_CONTEXT',
+            payload: { current_form: 'NONE', editingEvent: null },
         });
     };
 
     const handleDelete = async () => {
-        if (!commitment?.commitment_id) return;
-        if ((commitment.memberCount || 1) > 1) {
+        if (!event?.eventId) return;
+        if ((event.memberCount || 1) > 1) {
             setError('Edits to shared events must be requested.');
             return;
         }
         try {
             const response = await fetch(
-                `${API_BASE_URL}/api/users/${state.id}/${commitment.commitment_id}/remove-commitment`,
+                `${API_BASE_URL}/api/users/${state.id}/${event.eventId}/remove-event`,
                 { method: 'DELETE' }
             );
             if (!response.ok) {
-                throw new Error('Failed to remove commitment');
+                throw new Error('Failed to remove event');
             }
             dispatch({
-                type: 'REMOVE_COMMITMENT',
-                payload: commitment.commitment_id,
+                type: 'REMOVE_EVENT',
+                payload: event.eventId,
             });
             resetForm();
             dispatch({
-                type:'REPLACE_CONTEXT',
-                payload:{current_form:'NONE', editingCommitment: null}
+                type: 'REPLACE_CONTEXT',
+                payload: { current_form: 'NONE', editingEvent: null },
             });
         } catch (err) {
-            console.error('Error removing commitment:', err);
+            console.error('Error removing event:', err);
             setError('Failed to remove event');
         }
     };
 
     return (
-     
-            <div>
-              <div className="header-title">
-                <h3>{mode === 'edit' ? 'Edit Event' : 'New Event'}</h3>
-            </div>
-            <div className='form-body'>
+        <div>
+            <div className="form-body">
                 <input
                     type="text"
                     id="formCommitment"
-                    class='form-control'
+                    className="form-control"
                     placeholder="Title"
                     value={name}
-                    className="form-control"
                     onChange={(e) => setName(e.target.value)}
+                    disabled={isDisabled}
                 />
-    
+
                 <input
                     type="time"
-                    class='form-control'
+                    className="form-control"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
                     step="300"
-                    className="form-control"
+                    disabled={isDisabled}
                 />
-    
+
                 <input
                     type="time"
-                    class='form-control'
+                    className="form-control"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
                     step="300"
-                    className="form-control"
+                    disabled={isDisabled}
                 />
-    
+
                 <div>
                     <DatePicker
-                        selected={startDate}
-                        onChange={(date) => setStartDate(date)}
-                        placeholderText="Start date"
-                        class='form-control'
+                        selected={date}
+                        onChange={(selected) => setDate(selected)}
+                        placeholderText="Date"
+                        className="form-control"
+                        disabled={isDisabled}
                         customInput={
                             <button className="btn btn-secondary">
                                 <FaCalendarAlt style={{ marginRight: '8px' }} />
-                                {startDate ? startDate.toLocaleDateString() : "Select date"}
+                                {date ? date.toLocaleDateString() : 'Select date'}
                             </button>
                         }
                     />
                 </div>
 
-
-    
-                <div className="form-check">
-                    <input
-                        type="checkbox"
-                        id="recurring"
-                        class='checkbox'
-                        checked={isRecurring}
-                        onChange={(e) => setIsRecurring(e.target.checked)}
-                        
-                    />
-                    <label htmlFor="recurring" className="form-check-label">Recurring</label>
-                </div>
-
-    
-                {isRecurring && (
+                {mode !== 'edit' && (
                     <>
-
-                    <div className="view-friends-container">
-                            {daysOfWeek.map((day) => (
-                                <div key={day} className="friend-option">
-                                    <input
-                                        type="checkbox"
-                                        id={`day-${day}`}
-                                        className="checkbox"
-                                    
-                                        checked={
-                                            day === "All"
-                                                ? selectedDays.length === daysOfWeek.length
-                                                : selectedDays.includes(day)
-                                        }
-                                        onChange={() => toggleDaySelection(day)}
-                                    />
-                                    <label htmlFor={`day-${day}`} className="form-check-label">
-                                        {day}
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                        <div>
-                            <p />
-                            <DatePicker
-                                selected={endDate}
-                                onChange={(date) => setEndDate(date)}
-                                placeholderText="End date"
-                                class='form-control'
-                                customInput={
-                                    <button className="btn btn-secondary">
-                                        <FaCalendarAlt style={{ marginRight: '8px' }} />
-                                        {endDate ? endDate.toLocaleDateString() : "End date"}
-                                    </button>
-                                }
-                            />
-                        </div>
-    
-                    
-                    
+                        <button
+                            type="button"
+                            className={`btn btn-secondary invite-toggle ${viewFriends ? 'active' : ''}`}
+                            onClick={() => setViewFriends((prev) => !prev)}
+                        >
+                            {viewFriends ? '▼ Invite Friends' : '▶ Invite Friends'}
+                        </button>
+                        {viewFriends && (
+                            <div className="view-friends-container">
+                                {state.friends
+                                    .filter((friend) => friend.id !== state.id)
+                                    .map((friend) => (
+                                        <label key={friend.id} className="friend-option">
+                                            <input
+                                                type="checkbox"
+                                                checked={invitedFriends.includes(friend)}
+                                                onChange={() => toggleFriendSelection(friend)}
+                                            />
+                                            {friend.username}
+                                        </label>
+                                    ))}
+                            </div>
+                        )}
                     </>
                 )}
 
-{mode !== 'edit' && (
-<>
-<div className="form-check">
-                    <input
-                        type="checkbox"
-                        id="viewFriends"
-                        class='checkbox'
-                        checked={viewFriends}
-                        onChange={(e) => setViewFriends(e.target.checked)}
-                        
-                    />
-                    <label htmlFor="recurring" className="form-check-label">Invite Friends</label>
-                </div>
-            {viewFriends && (
+                {mode === 'edit' && (
+                    <>
+                        <div className="view-friends-container attendees-box">
+                            <div className="attendees-header">
+                                <strong>Attendees</strong>
+                                {!isReadOnly && hasMultiple && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary btn-xs status-toggle"
+                                        onClick={handleToggleStatus}
+                                        disabled={statusUpdating}
+                                    >
+                                        Change status
+                                    </button>
+                                )}
+                            </div>
+                            {members.length === 0 && (
+                                <div className="friend-option">No attendees loaded.</div>
+                            )}
+                            {members.map((member) => (
+                                <div key={member.userId} className="friend-option">
+                                    <span>{member.username}</span>
+                                    {hasMultiple && (
+                                        <span style={{ marginLeft: 'auto', textTransform: 'capitalize' }}>
+                                            {member.status}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
 
-                <div className="view-friends-container">
-                {state.friends
-                  .filter((friend) => friend.id !== state.id)
-                  .map((friend) => (
-                  <label key={friend.id} className="friend-option">
-                   <input
-                        type="checkbox"
-                        checked={invitedFriends.includes(friend)} // Check if this friend is in the invitedFriends list
-                        onChange={() => toggleFriendSelection(friend)} // Toggle the friend's selection
-                        />
+                        {!isReadOnly && !isLocked && (
+                            <button
+                                type="button"
+                                className={`btn btn-secondary invite-toggle ${viewFriends ? 'active' : ''}`}
+                                onClick={() => setViewFriends((prev) => !prev)}
+                                disabled={isDeclined}
+                            >
+                                {viewFriends ? '▼ Invite' : '▶ Invite'}
+                            </button>
+                        )}
+                        {viewFriends && (
+                            <div className="view-friends-container">
+                                {state.friends
+                                    .filter((friend) => friend.id !== state.id)
+                                    .filter(
+                                        (friend) =>
+                                            !members.some(
+                                                (member) => Number(member.userId) === Number(friend.id)
+                                            )
+                                    )
+                                    .map((friend) => (
+                                        <label key={friend.id} className="friend-option">
+                                            <input
+                                                type="checkbox"
+                                                checked={invitedFriends.includes(friend)}
+                                                onChange={() => toggleFriendSelection(friend)}
+                                            />
+                                            {friend.username}
+                                        </label>
+                                    ))}
+                            </div>
+                        )}
+                    </>
+                )}
 
-                    {friend.username}
-                  </label>
-                ))}
-
-
-                
-              </div>
-            )}
-            </>
-)}
-    
                 {error && attemptedSubmit && <div className="alert alert-danger">{error}</div>}
-                </div>
+            </div>
+            {!isReadOnly && !isLocked && (
             <div className="action-buttons">
-            
-                    <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={handleSubmit}
-                    >
-                        {mode === 'edit' ? 'Save Changes' : 'Add'}
-                    </button>
-                    {mode === 'edit' && (
-                        <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={handleDelete}
-                        >
-                            Remove
-                        </button>
-                    )}
-                    <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => {
-                            resetForm();
-                        }}
-                    >
-                        Reset
-                    </button>
+                <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                        cancelForm();
+                    }}
+                >
+                    cancel
+                </button>
+                <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                        resetForm();
+                    }}
+                >
+                    Reset
+                </button>
+                {mode === 'edit' && isOwner && !anyAccepted && (
                     <button
                         type="button"
                         className="btn btn-secondary"
-                        onClick={() => {
-                            cancelForm();
-                        }}
+                        onClick={handleDelete}
+                        disabled={isDisabled}
                     >
-                        cancel
+                        Remove
                     </button>
-              
+                )}
+                <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleSubmit}
+                    disabled={isDisabled}
+                >
+                    {mode === 'edit' ? 'Save' : 'Add'}
+                </button>
             </div>
-    
-                {showBanner && <div className="pop-up">Added Event</div>}
-            </div>
-       
+            )}
+
+            {showBanner && <div className="pop-up">Added Event</div>}
+        </div>
     );
-    
-
-
 }

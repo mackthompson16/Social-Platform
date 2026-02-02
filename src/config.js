@@ -52,3 +52,11 @@ const agentFromEnv =
 const agentDefault = isProdHost ? `${protocol}://agent.${locHost}` : `${protocol}://${locHost}:8787`;
 
 export const AGENT_BASE_URL = preferEnvOr(agentFromEnv, agentDefault);
+
+const agentModelFromEnv =
+  runtimeConfig.REACT_APP_AGENT_MODEL ||
+  runtimeConfig.AGENT_MODEL ||
+  process.env.REACT_APP_AGENT_MODEL ||
+  process.env.AGENT_MODEL;
+
+export const AGENT_MODEL = agentModelFromEnv || 'Llama 3 8B';

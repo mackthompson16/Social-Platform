@@ -17,16 +17,7 @@ export default function Inbox() {
                 body: JSON.stringify({ request: message, action, recipient_username: state.username }), 
               });
 
-              const req = (message.type === 'friend_request' ? 'friend' : 'meeting')
-              await fetch(`${API_BASE_URL}/api/social/${state.id}/${message.sender_id}/send-message`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                  type: 'message', 
-                  content: `${state.username} ${action}ed your ${req} request` }), 
-              });
+              // No extra message; status update is enough.
         
               const data = await response.json();
               if (data.success && action === 'accept') {
@@ -41,11 +32,8 @@ export default function Inbox() {
 
               }
 
-              if (message.type === 'meeting_request' && data.commitment) {
-                dispatch({
-                  type: 'ADD_COMMITMENT',
-                  payload: data.commitment,
-                });
+              if (message.type === 'event_invite' || message.type === 'event_edit') {
+                // Event updates are delivered via websocket.
               }
    
             }} catch (error) {
@@ -69,7 +57,7 @@ export default function Inbox() {
                   <em>{message.content.split(' ').slice(1).join(' ')}</em>
                 </p>
       
-                    {message.type === 'friend_request' || message.type === 'meeting_request' ? (
+                    {message.type === 'friend_request' || message.type === 'event_invite' || message.type === 'event_edit' ? (
                       <div className="message-actions">
                         {['unread', 'pending', 'read', undefined, null].includes(message.status) ? (
                           <>

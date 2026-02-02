@@ -33,7 +33,7 @@ export default function App() {
   const currentForm = {
     PROFILE: <Profile />,
     SCHEDULE_EVENT: <EventForm mode="create" />,
-    EDIT_EVENT: <EventForm mode="edit" commitment={state.editingCommitment} />,
+    EDIT_EVENT: <EventForm mode="edit" event={state.editingEvent} />,
     ADD_FRIEND: <AddFriend />,
   };
 
@@ -52,8 +52,15 @@ export default function App() {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
+    document.body.classList.add('modal-open');
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [state.current_form, dispatch]);
+
+  useEffect(() => {
+    if (state.current_form === 'NONE') {
+      document.body.classList.remove('modal-open');
+    }
+  }, [state.current_form]);
 
   return (
     <div className="app-shell">

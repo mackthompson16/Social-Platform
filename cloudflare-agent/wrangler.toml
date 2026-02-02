@@ -6,6 +6,9 @@ routes = [
   { pattern = "agent.wecal.online", custom_domain = true }
 ]
 
+[ai]
+binding = "AI"
+
 [vars]
 # Point to your existing Express API (local or deployed).
 API_BASE_URL = "http://localhost:5000"

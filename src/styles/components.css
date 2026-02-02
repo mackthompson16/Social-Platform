@@ -68,6 +68,52 @@
   border: 1px dashed var(--border);
 }
 
+.friend-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  margin: 4px 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.friend-toggle.active {
+  border-color: var(--accent);
+  background: rgba(97, 218, 251, 0.14);
+  color: var(--text-strong);
+}
+
+.invite-toggle {
+  align-self: flex-start;
+}
+
+.attendees-box {
+  position: relative;
+  background: #2b313d;
+  border: 1px solid #3a4254;
+}
+
+.attendees-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.btn-xs {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border-radius: 999px;
+}
+
+.status-toggle {
+  padding: 3px 6px;
+  font-size: 0.7rem;
+}
+
 .friend-option {
   display: flex;
   align-items: center;

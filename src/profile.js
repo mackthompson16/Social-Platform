@@ -28,6 +28,7 @@ export default function Profile(){
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        if (state.username === 'demo') return;
     
         const updatedAccInfo = {
             username: accInfo.username || state.username,
@@ -71,7 +72,7 @@ export default function Profile(){
                 value={accInfo.username}
                 onChange={handleChange}
                 placeholder={state.username}
-                className="form-control"
+                className="form-control profile-input"
             />
 
             <input
@@ -81,27 +82,26 @@ export default function Profile(){
                 value={accInfo.password}
                 onChange={handleChange}
                 placeholder={state.password}
-                className="form-control"
+                className="form-control profile-input"
             />
 
             <div className='action-buttons'>
                 <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                        cancelForm();
+                    }}
+                >
+                    cancel
+                </button>
+                <button
                     className="btn btn-primary"
-                    onClick={() => handleSubmit()} 
+                    onClick={() => handleSubmit()}
+                    disabled={state.username === 'demo'}
                 >
                     Save Changes
                 </button>
-               
-            
-            <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => {
-                            cancelForm();
-                        }}
-                    >
-                        cancel
-                    </button>
             </div>
         </div>
        

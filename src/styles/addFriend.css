@@ -32,6 +32,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background: rgba(255, 255, 255, 0.03);
+    max-height: 240px;
 }
 
 /* User list item */
@@ -74,4 +75,19 @@
 
 .request-button:hover:not(:disabled) {
     background-color: var(--accent-strong);
+}
+
+.request-button.accepted {
+    background-color: #22c55e;
+    color: #0f1624;
+}
+
+.request-button.request {
+    background-color: var(--accent);
+    color: #0f1624;
+}
+
+.request-button.pending {
+    background-color: rgba(248, 199, 125, 0.9);
+    color: #0f1624;
 }

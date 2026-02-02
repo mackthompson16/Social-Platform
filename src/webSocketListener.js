@@ -9,7 +9,7 @@ const WebSocketListener = () => {
       
      
     if (state.id !== null) {
-      const events = generateEvents(state.commitments)
+      const events = generateEvents(state.events)
       dispatch({
         type: 'REPLACE_CONTEXT',
         payload: { current_page: 'HOME',
@@ -65,10 +65,10 @@ const WebSocketListener = () => {
               }
             
             
-            if (data.type === 'commitment_update'){
+            if (data.type === 'event_update'){
               dispatch ({
-              type: 'UPDATE_COMMITMENT',
-              payload: data.commitment
+              type: 'UPDATE_EVENT',
+              payload: data.event
               })
             }
     };

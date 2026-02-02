@@ -24,15 +24,15 @@ export default function Auth() {
     };
   
     const loadUserContext = async (data) => {
-      const commitmentsResponse = await fetch(`${API_BASE_URL}/api/users/${data.id}/get-commitments`);
+      const eventsResponse = await fetch(`${API_BASE_URL}/api/users/${data.id}/get-events`);
       const inboxResponse = await fetch(`${API_BASE_URL}/api/social/${data.id}/get-messages`);
       const friendsResponse = await fetch(`${API_BASE_URL}/api/social/${data.id}/get-friends`);
       const agentResponse = await fetch(`${API_BASE_URL}/api/social/system-agent`);
 
-      if (!commitmentsResponse.ok || !inboxResponse.ok || !friendsResponse.ok || !agentResponse.ok) {
+      if (!eventsResponse.ok || !inboxResponse.ok || !friendsResponse.ok || !agentResponse.ok) {
         throw new Error('Failed to fetch user data');
       }
-      const commitmentsData = await commitmentsResponse.json();
+      const eventsData = await eventsResponse.json();
       const inboxData = await inboxResponse.json();
       const friendsData = await friendsResponse.json();
       const agentData = await agentResponse.json();
@@ -41,7 +41,7 @@ export default function Auth() {
         type: 'REPLACE_CONTEXT',
         payload: {
           ...data,
-          commitments: commitmentsData.rows,
+          events: eventsData.rows,
           inbox: inboxData,
           friends: friendsData,
           systemAgent: agentData.agent,

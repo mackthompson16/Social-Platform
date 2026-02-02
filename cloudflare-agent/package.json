@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --local",
+    "dev": "wrangler dev",
+    "dev:local": "wrangler dev --local",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {

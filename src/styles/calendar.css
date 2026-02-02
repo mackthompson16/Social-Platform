@@ -1,112 +1,186 @@
 .fc {
-    flex: 1; /* Allow it to grow within a flex container */
-    width: 100%; /* Full width of the parent container */
-    height: 100%; /* Full height of the parent container */
-    min-height: 0; /* Prevent shrinking issues */
-    overflow: hidden; /* Prevent unwanted scrolling */
-    background-color: #1e1e2f; /* Dark background */
-    color: #e6e6e6; /* Light text for contrast */
-    border-radius: 10px; /* Rounded corners for a modern look */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Subtle shadow */
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Clean modern font */
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--surface-800);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Header styling for FullCalendar */
 .fc-toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 10px 14px 0 14px;
 }
 
 .fc-toolbar h2 {
-    font-size: 1.5rem;
-    color: #e6e6e6;
-    margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-strong);
+  margin: 0;
 }
 
 .fc-toolbar .fc-button {
-    background-color: #3e3e4e;
-    color: #e6e6e6;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  background-color: var(--surface-700);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .fc-toolbar .fc-button:hover {
-    background-color: #55556d; /* Slightly brighter on hover */
+  border-color: var(--accent);
+  color: var(--text-strong);
+  background-color: rgba(97, 218, 251, 0.12);
 }
 
-/* Table styling */
+.fc-toolbar .fc-button:focus {
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.25);
+}
+
 .fc-view-harness {
-    border-radius: 8px;
-    overflow: hidden;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
 
 .fc-daygrid {
-    border: 1px solid #333; /* Borders between cells */
-    border-radius: 8px; /* Match the overall calendar style */
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.fc-col-header-cell {
+  background-color: var(--surface-700);
+  color: var(--text-strong);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.fc-col-header-cell-cushion {
+  color: var(--text-strong);
+  text-decoration: none;
+}
+
+.fc-col-header-cell-cushion:hover {
+  color: var(--text-strong);
+  text-decoration: none;
 }
 
 .fc-daygrid-day {
-    background-color: #2e2e3f; /* Darker cell background */
-    border-right: 1px solid #444;
-    border-bottom: 1px solid #444;
-    transition: background-color 0.2s;
+  background-color: var(--surface-800);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease;
 }
 
 .fc-daygrid-day:hover {
-    background-color: #3e3e5e; /* Highlight on hover */
+  background-color: rgba(97, 218, 251, 0.08);
 }
 
-/* Event styling */
-.fc-event {
-    background-color: #4caf50; /* Primary event color (green) */
-    color: white;
-    border: none;
-    padding: 5px;
-    font-size: 0.85rem;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Subtle shadow */
-}
-
-.fc-event:hover {
-    background-color: #388e3c; /* Darker green on hover */
-    cursor: pointer;
-}
-
-/* Today highlight */
 .fc-day-today {
-    background-color: #383850; /* Slightly highlighted background */
-    border: 1px solid #666; /* Subtle border to mark today */
+  background-color: rgba(248, 199, 125, 0.15);
+  border: 1px solid rgba(248, 199, 125, 0.4);
 }
 
-/* Day header styling */
-.fc-col-header-cell {
-    background-color: #3e3e4e;
-    color: #e6e6e6;
-    font-weight: bold;
-    border-bottom: 1px solid #444;
+.fc-daygrid-day-number {
+  color: var(--text);
+  font-weight: 600;
 }
 
-/* Scrollbar styling */
+.fc-event {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.fc-daygrid-event {
+  margin: 4px 6px;
+}
+
+.calendar-event {
+  --event-accent: var(--accent);
+  background: rgba(15, 22, 36, 0.85);
+  color: var(--text-strong);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 4px solid var(--event-accent);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.calendar-event-stripes {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.calendar-event-stripe {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+}
+
+.calendar-event-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.calendar-event-status {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.calendar-event-status--complete {
+  background: rgba(97, 218, 251, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(97, 218, 251, 0.4);
+}
+
+.calendar-event-status--pending {
+  background: rgba(248, 199, 125, 0.15);
+  color: var(--accent-warm);
+  border: 1px solid rgba(248, 199, 125, 0.4);
+}
+
+.calendar-event-status--edit {
+  background: rgba(244, 114, 182, 0.15);
+  color: #f472b6;
+  border: 1px solid rgba(244, 114, 182, 0.4);
+}
+
 .fc-scrollgrid {
-    scrollbar-color: #444 #1e1e2f; /* Dark scrollbar */
-    scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--surface-800);
+  scrollbar-width: thin;
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #1e1e2f;
+  background: var(--surface-800);
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 10px;
+  background-color: var(--border);
+  border-radius: 10px;
 }

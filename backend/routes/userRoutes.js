@@ -15,170 +15,194 @@ const sendNotificationToClient = (recipientId, notification) => {
   }
 };
 
-router.get('/:id/get-commitments', async (req, res) => {
+const getEventStatus = async (eventId) => {
+  const { rows } = await db.query(
+    `SELECT
+       CASE WHEN SUM(CASE WHEN status = 'accepted' THEN 0 ELSE 1 END) = 0
+            THEN 'accepted' ELSE 'pending' END AS status
+     FROM event_members
+     WHERE event_id = $1`,
+    [eventId]
+  );
+  return rows[0]?.status || 'accepted';
+};
+
+router.get('/:id/get-events', async (req, res) => {
   const userId = Number(req.params.id);
 
   try {
     const { rows } = await db.query(
-      `SELECT 
-         commitment_id,
-         user_id,
-         name,
-         starttime AS "startTime",
-         endtime AS "endTime",
-         days,
-         dates,
-         commitments.event_id AS "eventId",
-         COALESCE(member_counts.member_count, 1) AS "memberCount",
-         COALESCE(pending_edits.pending_edit, false) AS "pendingEdit"
-       FROM commitments
+      `SELECT
+         e.event_id AS "eventId",
+         e.owner_id AS "ownerId",
+         e.name,
+         TO_CHAR(e.event_date, 'YYYY-MM-DD') AS "date",
+         TO_CHAR(e.start_time, 'HH24:MI') AS "startTime",
+         TO_CHAR(e.end_time, 'HH24:MI') AS "endTime",
+         e.status AS "eventStatus",
+         em.status AS "memberStatus",
+         COALESCE(member_counts.member_count, 1) AS "memberCount"
+       FROM events e
+       JOIN event_members em
+         ON e.event_id = em.event_id AND em.user_id = $1
        LEFT JOIN (
          SELECT event_id, COUNT(*) AS member_count
          FROM event_members
          GROUP BY event_id
-       ) member_counts ON commitments.event_id = member_counts.event_id
-       LEFT JOIN (
-         SELECT em.event_id, true AS pending_edit
-         FROM event_edit_members eem
-         JOIN event_edits ee ON ee.edit_id = eem.edit_id
-         JOIN event_members em ON em.event_id = ee.event_id
-         WHERE eem.user_id = $1 AND eem.status = 'pending' AND ee.status = 'pending'
-         GROUP BY em.event_id
-       ) pending_edits ON commitments.event_id = pending_edits.event_id
-       WHERE user_id = $1`,
+       ) member_counts ON e.event_id = member_counts.event_id
+       WHERE em.user_id = $1`,
       [userId]
     );
     res.json({ rows });
   } catch (err) {
-    console.error('Error fetching commitments:', err);
+    console.error('Error fetching events:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-router.post('/:id/add-commitment', async (req, res) => {
+router.post('/:id/add-event', async (req, res) => {
   const userId = Number(req.params.id);
-  const { name, startTime, endTime, days, dates, eventId } = req.body;
-  const finalEventId = eventId || crypto.randomUUID();
+  const { name, date, startTime, endTime, attendeeIds } = req.body;
+  const eventId = crypto.randomUUID();
 
   try {
     const { rows } = await db.query(
-      `INSERT INTO commitments (user_id, name, starttime, endtime, days, dates, event_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING commitment_id,
-                 user_id,
+      `INSERT INTO events (event_id, owner_id, name, event_date, start_time, end_time, status)
+       VALUES ($1, $2, $3, $4, $5, $6, 'accepted')
+       RETURNING event_id AS "eventId",
+                 owner_id AS "ownerId",
                  name,
-                 starttime AS "startTime",
-                 endtime AS "endTime",
-                 days,
-                 dates,
-                 event_id AS "eventId"`,
-      [userId, name, startTime, endTime, JSON.stringify(days), JSON.stringify(dates), finalEventId]
+                 TO_CHAR(event_date, 'YYYY-MM-DD') AS "date",
+                 TO_CHAR(start_time, 'HH24:MI') AS "startTime",
+                 TO_CHAR(end_time, 'HH24:MI') AS "endTime",
+                 status AS "eventStatus"`,
+      [eventId, userId, name, date, startTime, endTime]
     );
-    const commitment = rows[0];
+    const event = rows[0];
 
     await db.query(
-      `INSERT INTO event_members (event_id, user_id, commitment_id)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (event_id, user_id) DO UPDATE SET commitment_id = EXCLUDED.commitment_id`,
-      [finalEventId, userId, commitment.commitment_id]
+      `INSERT INTO event_members (event_id, user_id, status)
+       VALUES ($1, $2, 'accepted')
+       ON CONFLICT (event_id, user_id)
+       DO UPDATE SET status = 'accepted'`,
+      [eventId, userId]
     );
 
-    console.log('[commitment] inserted', {
-      userId,
-      id: commitment.commitment_id,
-      startTime: commitment.startTime,
-      endTime: commitment.endTime,
-      dates: commitment.dates,
-      eventId: commitment.eventId,
-    });
+    if (Array.isArray(attendeeIds) && attendeeIds.length) {
+      await Promise.all(
+        attendeeIds
+          .filter((id) => Number(id) !== userId)
+          .map((id) =>
+            db.query(
+              `INSERT INTO event_members (event_id, user_id, status)
+               VALUES ($1, $2, 'pending')
+               ON CONFLICT (event_id, user_id)
+               DO UPDATE SET status = 'pending'`,
+              [eventId, id]
+            )
+          )
+      );
+    }
+
+    const status = await getEventStatus(eventId);
+    await db.query(`UPDATE events SET status = $1 WHERE event_id = $2`, [status, eventId]);
+
+    const memberCount = Array.isArray(attendeeIds)
+      ? attendeeIds.filter((id) => Number(id) !== userId).length + 1
+      : 1;
+
+    const hydratedEvent = {
+      ...event,
+      userId: userId,
+      eventStatus: status,
+      memberStatus: 'accepted',
+      memberCount,
+    };
 
     sendNotificationToClient(userId, {
-      type: 'commitment_update',
-      commitment,
+      type: 'event_update',
+      event: hydratedEvent,
     });
 
-    res.json({ success: true, id: commitment.commitment_id, commitment, eventId: finalEventId });
+    res.json({ success: true, event: hydratedEvent, eventId });
   } catch (err) {
-    console.error('Error Adding Commitment:', err);
-    res.status(500).json({ success: false, message: 'Error Adding Commitment' });
+    console.error('Error Adding Event:', err);
+    res.status(500).json({ success: false, message: 'Error Adding Event' });
   }
 });
 
-router.post('/:user_id/:commitment_id/update-commitment', async (req, res) => {
-  const { user_id, commitment_id } = req.params;
-  const { name, startTime, endTime, days, dates } = req.body;
+router.post('/:user_id/:event_id/update-event', async (req, res) => {
+  const { user_id, event_id } = req.params;
+  const { name, date, startTime, endTime } = req.body;
 
   try {
-    const eventLookup = await db.query(
-      `SELECT event_id FROM commitments WHERE commitment_id = $1 AND user_id = $2`,
-      [commitment_id, user_id]
+    const members = await db.query(
+      `SELECT COUNT(*)::int AS member_count FROM event_members WHERE event_id = $1`,
+      [event_id]
     );
-    const eventId = eventLookup.rows[0]?.event_id;
-    if (eventId) {
-      const countResult = await db.query(
-        `SELECT COUNT(*)::int AS member_count FROM event_members WHERE event_id = $1`,
-        [eventId]
-      );
-      if (countResult.rows[0]?.member_count > 1) {
-        return res.status(409).json({
-          success: false,
-          message: 'requires_request_edit',
-          eventId,
-          memberCount: countResult.rows[0].member_count,
-        });
-      }
+    if (members.rows[0]?.member_count > 1) {
+      return res.status(409).json({
+        success: false,
+        message: 'requires_request_edit',
+        eventId: event_id,
+        memberCount: members.rows[0].member_count,
+      });
     }
 
     const { rows } = await db.query(
-      `UPDATE commitments
+      `UPDATE events
        SET name = $1,
-           starttime = $2,
-           endtime = $3,
-           days = $4,
-           dates = $5
-       WHERE commitment_id = $6 AND user_id = $7
-       RETURNING commitment_id,
-                 user_id,
+           event_date = $2,
+           start_time = $3,
+           end_time = $4
+       WHERE event_id = $5 AND owner_id = $6
+       RETURNING event_id AS "eventId",
+                 owner_id AS "ownerId",
                  name,
-                 starttime AS "startTime",
-                 endtime AS "endTime",
-                 days,
-                 dates,
-                 event_id AS "eventId"`,
-      [name, startTime, endTime, JSON.stringify(days), JSON.stringify(dates), commitment_id, user_id]
+                 TO_CHAR(event_date, 'YYYY-MM-DD') AS "date",
+                 TO_CHAR(start_time, 'HH24:MI') AS "startTime",
+                 TO_CHAR(end_time, 'HH24:MI') AS "endTime",
+                 status AS "eventStatus"`,
+      [name, date, startTime, endTime, event_id, user_id]
     );
 
     if (!rows[0]) {
-      return res.status(404).json({ success: false, message: 'Commitment not found' });
+      return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
-    const commitment = rows[0];
+    const event = rows[0];
+    const hydratedEvent = {
+      ...event,
+      memberStatus: 'accepted',
+      memberCount: 1,
+    };
+
     sendNotificationToClient(user_id, {
-      type: 'commitment_update',
-      commitment,
+      type: 'event_update',
+      event: hydratedEvent,
     });
 
-    res.json({ success: true, commitment });
+    res.json({ success: true, event: hydratedEvent });
   } catch (err) {
-    console.error('Error updating commitment:', err);
-    res.status(500).json({ success: false, message: 'Error updating commitment' });
+    console.error('Error updating event:', err);
+    res.status(500).json({ success: false, message: 'Error updating event' });
   }
 });
 
-router.delete('/:user_id/:commitment_id/remove-commitment', async (req, res) => {
-  const { user_id, commitment_id } = req.params;
+router.delete('/:user_id/:event_id/remove-event', async (req, res) => {
+  const { user_id, event_id } = req.params;
   try {
     const result = await db.query(
-      'DELETE FROM commitments WHERE commitment_id = $1 AND user_id = $2 RETURNING commitment_id',
-      [commitment_id, user_id]
+      'DELETE FROM events WHERE event_id = $1 AND owner_id = $2 RETURNING event_id',
+      [event_id, user_id]
     );
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: 'Commitment not found' });
+      return res.status(404).json({ error: 'Event not found' });
     }
-    res.json({ message: 'Commitment removed successfully' });
+    res.json({ message: 'Event removed successfully' });
   } catch (error) {
-    console.error('Error removing commitment:', error);
-    res.status(500).json({ error: 'Failed to remove commitment' });
+    console.error('Error removing event:', error);
+    res.status(500).json({ error: 'Failed to remove event' });
   }
 });
 

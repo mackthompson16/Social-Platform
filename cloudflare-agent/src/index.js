@@ -45,16 +45,18 @@ const parseWithLLM = async ({ message, history, nowISO, timezone, env }) => {
         `Recent user messages (oldest to newest): ${JSON.stringify(history || [])}\n` +
         `Message to parse: ${message}\n` +
         'Return JSON with keys: ' +
-        '{ "title": string|null, "attendees": string[], "mentionsAttendees": boolean, ' +
+        '{ "title": string|null, "titleExplicit": boolean, "attendees": string[], "mentionsAttendees": boolean, ' +
         '"dateRange": {"start":"YYYY-MM-DD","end":"YYYY-MM-DD"}|null, ' +
         '"time": {"hour":0-23,"minute":0-59,"requiresClarification":boolean}|null, ' +
         '"durationMinutes": number|null, "location": string|null }. ' +
         'Use null for unknowns. Attendees should be names as written. ' +
+        'If the title is not explicitly provided (e.g., "title: lunch" or "called lunch"), set titleExplicit=false. ' +
         'If the user does not mention inviting anyone, set mentionsAttendees=false.',
     },
   ];
 
   try {
+    log('llm parse enabled', { model: env.PLANNER_MODEL });
     const result = await env.AI.run(env.PLANNER_MODEL, { messages: prompt, temperature: 0 });
     const text = result?.response || result?.text || result?.output || JSON.stringify(result);
     return parseJsonSafe(text);
@@ -433,10 +435,20 @@ const fuzzyMatchFriends = (text, friends) => {
 };
 
 const mentionsParticipants = (text) =>
-  /\bwith\b|\bfriends?\b|\bteam\b|\bgroup\b|\banyone\b/i.test(text || '');
+  /\bwith\b|\bfriends?\b|\bteam\b|\bgroup\b|\banyone\b|\binvite\b|\bbring\b|\badd\b|\binclude\b/i.test(
+    text || ''
+  );
+
+const mentionsSolo = (text) =>
+  /\b(just me|only me|solo|by myself|no one else|no attendees)\b/i.test(text || '');
 
 const detectParticipantPhrase = (text) => {
   if (!text) return null;
+  const inviteMatch = String(text).match(
+    /\binvite\s+([a-z0-9\s'-]{2,}?)(?=\s+(to|for|on|at|this|next|tomorrow|today|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|$)/i
+  );
+  if (inviteMatch && inviteMatch[1]) return inviteMatch[1].trim();
+
   const match = String(text).match(
     /\bwith\s+([a-z0-9\s'-]{2,}?)(?=\s+(on|at|for|tomorrow|today|next|this|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|$)/i
   );
@@ -450,14 +462,16 @@ const detectTitle = (text) => {
 
   const lower = text.toLowerCase();
   const patterns = [
+    /\binvite\s+[a-z0-9\s'-]{2,}?\s+to\s+([a-z0-9][a-z0-9\s'-]{2,}?)(?=\s+(on|for|at|tomorrow|today|next|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|$)/i,
     /\b(schedule|plan|book|set up|setup|arrange)\s+(a|an|the)?\s*([a-z0-9][a-z0-9\s'-]{2,}?)(?=\s+(with|on|for|at|tomorrow|today|next|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|$)/i,
     /\b(send|create|make)\s+(a|an|the)?\s*([a-z0-9][a-z0-9\s'-]{2,}?)(?=\s+(invite|invitation)\b|$)/i,
     /\b(invite|invitation)\s+(for|to)?\s*([a-z0-9][a-z0-9\s'-]{2,}?)(?=\s+(with|on|for|at|tomorrow|today|next|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|$)/i,
   ];
   for (const pattern of patterns) {
     const match = lower.match(pattern);
-    if (match && match[3]) {
-      const candidate = match[3].trim();
+    const candidateIndex = match && match[1] && pattern.source.includes('invite\\s+') ? 1 : 3;
+    if (match && match[candidateIndex]) {
+      const candidate = match[candidateIndex].trim();
       if (candidate.length >= 2) {
         const cleaned = candidate
           .replace(/\b(with|on|for|at|tomorrow|today|next|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b.*$/i, '')
@@ -473,6 +487,45 @@ const detectTitle = (text) => {
   }
 
   return null;
+};
+
+const isShortExplicitTitle = (text) => {
+  if (!text) return false;
+  const cleaned = String(text).trim();
+  if (!cleaned) return false;
+  if (/\b(am|pm|today|tomorrow|next|monday|tuesday|wednesday|thursday|friday|saturday|sunday|at)\b/i.test(cleaned)) {
+    return false;
+  }
+  const wordCount = cleaned.split(/\s+/).filter(Boolean).length;
+  return wordCount <= 3;
+};
+
+const normalizeTitleCandidate = (title) => {
+  if (!title) return null;
+  const cleaned = String(title).replace(/\s+/g, ' ').trim();
+  if (cleaned.length < 2) return null;
+  return cleaned
+    .split(' ')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+};
+
+const stripAttendeeNamesFromTitle = (title, attendeeNames = []) => {
+  if (!title) return null;
+  if (!attendeeNames.length) return normalizeTitleCandidate(title);
+  const titleTokens = String(title)
+    .split(' ')
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const attendeeTokens = attendeeNames
+    .flatMap((name) => normalizeName(name).split(' ').filter(Boolean));
+  const filtered = titleTokens.filter(
+    (token) => !attendeeTokens.includes(normalizeName(token))
+  );
+  const trimmedLead = filtered.filter(
+    (token, idx) => !(idx === 0 && ['to', 'with', 'for'].includes(token.toLowerCase()))
+  );
+  return normalizeTitleCandidate(trimmedLead.join(' '));
 };
 
 const applyHintsFromText = (draft, text, friends, nowISO, options = {}) => {
@@ -543,8 +596,9 @@ const applyHintsFromText = (draft, text, friends, nowISO, options = {}) => {
     const inferredTitle = detectTitle(text);
     if (inferredTitle) {
       const explicitTitle = /\b(title|called|named|titled)\b/i.test(text || '');
-      if (!draft.title || explicitTitle) {
-        draft.title = inferredTitle;
+      const sanitized = stripAttendeeNamesFromTitle(inferredTitle, draft.participants.map((p) => p.username));
+      if (sanitized && (!draft.title || explicitTitle)) {
+        draft.title = sanitized;
         changed = true;
       }
     }
@@ -562,14 +616,11 @@ const applyHintsFromText = (draft, text, friends, nowISO, options = {}) => {
   return changed;
 };
 
-const applyParsedSignals = (draft, parsed, friends) => {
+const applyParsedSignals = (draft, parsed, friends, messageText = '') => {
   if (!parsed || typeof parsed !== 'object') return false;
   let changed = false;
 
-  if (parsed.title && (!draft.title || parsed.title)) {
-    draft.title = parsed.title;
-    changed = true;
-  }
+  const explicitTitle = Boolean(parsed.titleExplicit) || isShortExplicitTitle(messageText);
 
   if (parsed.location && !draft.location) {
     draft.location = parsed.location;
@@ -601,8 +652,8 @@ const applyParsedSignals = (draft, parsed, friends) => {
     }
   }
 
+  const matched = [];
   if (Array.isArray(parsed.attendees) && parsed.attendees.length) {
-    const matched = [];
     parsed.attendees.forEach((name) => {
       const match = fuzzyMatchFriends(name, friends);
       if (match.ambiguous && match.candidates.length) {
@@ -622,8 +673,40 @@ const applyParsedSignals = (draft, parsed, friends) => {
     });
   }
 
+  if (parsed.mentionsAttendees && matched.length === 0 && messageText) {
+    const fallbackMatch = fuzzyMatchFriends(messageText, friends);
+    if (fallbackMatch.ambiguous && fallbackMatch.candidates.length) {
+      draft.pendingAttendantClarification = true;
+      draft.pendingAttendantOptions = fallbackMatch.candidates;
+    } else if (fallbackMatch.matches.length) {
+      fallbackMatch.matches.forEach((f) => {
+        if (!draft.participantIds.includes(f.id)) {
+          draft.participants.push(f);
+          draft.participantIds.push(f.id);
+          changed = true;
+        }
+      });
+    }
+  }
+
+  if (parsed.title || explicitTitle) {
+    const attendeeNames = [
+      ...(parsed.attendees || []),
+      ...draft.participants.map((p) => p.username).filter(Boolean),
+    ];
+    const candidateTitle = explicitTitle ? messageText : parsed.title;
+    const sanitizedTitle = stripAttendeeNamesFromTitle(candidateTitle, attendeeNames);
+    if (sanitizedTitle && (explicitTitle || !draft.title)) {
+      draft.title = sanitizedTitle;
+      changed = true;
+    }
+  }
+
   if (parsed.mentionsAttendees && draft.participantIds.length === 0) {
     draft.needsParticipants = true;
+    changed = true;
+  } else if (parsed.mentionsAttendees && draft.participantIds.length > 0) {
+    draft.needsParticipants = false;
     changed = true;
   }
 
@@ -734,44 +817,23 @@ const findSharedSlots = (allBusy, rangeStartISO, rangeEndISO, durationMinutes, r
   return slots.slice(0, 3);
 };
 
-const buildCommitmentIntervals = (commitments, windowStartISO, windowEndISO, tz) => {
+const buildCommitmentIntervals = (events, windowStartISO, windowEndISO, tz) => {
   const windowStart = new Date(windowStartISO);
   const windowEnd = new Date(windowEndISO);
   const intervals = [];
 
-  commitments.forEach((commitment) => {
-    const dates = safeParse(commitment.dates);
-    const days = safeParse(commitment.days) || [];
-    const startTime = commitment.startTime || commitment.starttime || commitment.start_time;
-    const endTime = commitment.endTime || commitment.endtime || commitment.end_time;
-    if (!dates || !startTime || !endTime) return;
+  events.forEach((event) => {
+    const date = event.date || event.event_date;
+    const startTime = event.startTime || event.starttime || event.start_time;
+    const endTime = event.endTime || event.endtime || event.end_time;
+    if (!date || !startTime || !endTime) return;
 
-    if (dates.length === 1) {
-      const target = zonedDateTimeFromParts(dates[0], '00:00', tz);
-      if (target < windowStart || target > windowEnd) return;
-      intervals.push({
-        start: toISO(toDateWithTime(dates[0], startTime, tz)),
-        end: toISO(toDateWithTime(dates[0], endTime, tz)),
-      });
-    } else if (dates.length >= 2) {
-      const rangeStart = zonedDateTimeFromParts(dates[0], '00:00', tz);
-      const rangeEnd = zonedDateTimeFromParts(dates[1], '23:59', tz);
-      const iterStart = rangeStart > windowStart ? rangeStart : windowStart;
-      const iterEnd = rangeEnd < windowEnd ? rangeEnd : windowEnd;
-
-      for (let d = new Date(iterStart); d <= iterEnd; d.setDate(d.getDate() + 1)) {
-        const dayName = new Intl.DateTimeFormat('en-US', {
-          weekday: 'short',
-          timeZone: tz || 'UTC',
-        }).format(d);
-        if (days.includes(dayName)) {
-          intervals.push({
-            start: toISO(toDateWithTime(toISODateInTz(d, tz), startTime, tz)),
-            end: toISO(toDateWithTime(toISODateInTz(d, tz), endTime, tz)),
-          });
-        }
-      }
-    }
+    const target = zonedDateTimeFromParts(date, '00:00', tz);
+    if (target < windowStart || target > windowEnd) return;
+    intervals.push({
+      start: toISO(toDateWithTime(date, startTime, tz)),
+      end: toISO(toDateWithTime(date, endTime, tz)),
+    });
   });
 
   return intervals;
@@ -803,12 +865,12 @@ const apiClient = (env, authHeader) => {
   };
 
   const getUserSchedule = async (userId) => {
-    const url = `${base}/api/users/${userId}/get-commitments`;
+    const url = `${base}/api/users/${userId}/get-events`;
     const res = await fetch(url, { headers });
     const text = await res.text();
     if (!res.ok) {
-      logError('get-commitments failed', res.status, 'url', url, 'body', text);
-      throw new Error(`get-commitments failed (${res.status})`);
+      logError('get-events failed', res.status, 'url', url, 'body', text);
+      throw new Error(`get-events failed (${res.status})`);
     }
     const data = parseJson(text);
     return data.rows || [];
@@ -838,34 +900,27 @@ const apiClient = (env, authHeader) => {
       return `${String(parts.hour).padStart(2, '0')}:${String(parts.minute).padStart(2, '0')}`;
     };
 
-    const eventId = crypto.randomUUID();
     const payload = {
       name: title,
       startTime: toTimeStr(start),
       endTime: toTimeStr(end),
-      days: [],
-      dates: [toISODateInTz(start, timezone)],
-      eventId,
+      date: toISODateInTz(start, timezone),
     };
 
-    if (!friendIds.length) {
-      const commitUrl = `${base}/api/users/${hostId}/add-commitment`;
-      const commitRes = await fetch(commitUrl, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload),
-      });
+    const eventUrl = `${base}/api/users/${hostId}/add-event`;
+    const eventRes = await fetch(eventUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    });
 
-      const commitText = await commitRes.text();
-      if (!commitRes.ok) {
-        logError('add-commitment failed', commitRes.status, 'url', commitUrl, 'body', commitText);
-        throw new Error(`add-commitment failed (${commitRes.status})`);
-      }
-      const commitData = parseJson(commitText);
-      const commitmentId = commitData.id;
-      log('createInvite commitment saved', { commitmentId });
-      return { commitmentId };
+    const eventText = await eventRes.text();
+    if (!eventRes.ok) {
+      logError('add-event failed', eventRes.status, 'url', eventUrl, 'body', eventText);
+      throw new Error(`add-event failed (${eventRes.status})`);
     }
+    const eventData = parseJson(eventText);
+    const eventId = eventData.eventId;
 
     const dateLabel = new Intl.DateTimeFormat('en-US', {
       timeZone: timezone,
@@ -884,9 +939,9 @@ const apiClient = (env, authHeader) => {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          type: 'meeting_request',
+          type: 'event_invite',
           content,
-          payload,
+          payload: { ...payload, eventId },
         }),
       });
       if (!res.ok) {
@@ -896,7 +951,7 @@ const apiClient = (env, authHeader) => {
       }
     }
 
-    return { commitmentId: null };
+    return { eventId };
   };
 
   const notifyInvite = async ({ inviteId, friendIds, message }) => {
@@ -975,6 +1030,9 @@ const plannerReply = async (payload, env, authHeader) => {
   const { userId, message, sessionId: incomingSessionId, timezone: clientTz } = payload;
   const sessionId = incomingSessionId || crypto.randomUUID();
   log('incoming chat', { userId, sessionId, message });
+  if (!env.AI || !env.PLANNER_MODEL) {
+    log('llm parse disabled', { reason: 'env.AI or PLANNER_MODEL missing' });
+  }
   const session = ensureSession(sessionId);
   const draft = session.draft;
   draft.timezone = draft.timezone || clientTz || 'UTC';
@@ -1035,7 +1093,7 @@ const plannerReply = async (payload, env, authHeader) => {
       durationMinutes: parsed.durationMinutes || null,
       location: parsed.location || null,
     });
-    changed = applyParsedSignals(draft, parsed, candidateUsers);
+    changed = applyParsedSignals(draft, parsed, candidateUsers, String(message || ''));
     log('draft after parse', {
       title: draft.title,
       participantIds: draft.participantIds,
@@ -1063,7 +1121,7 @@ const plannerReply = async (payload, env, authHeader) => {
     changed = applyHintsFromText(draft, String(message || ''), candidateUsers, payload.clientTimeISO, {
       allowTime: true,
       allowReset: !wantsSend && !freezeContext,
-      allowTitle: true,
+      allowTitle: !mentionsParticipants(message),
       allowParticipants: true,
       participantText: participantPhrase,
     });
@@ -1078,18 +1136,22 @@ const plannerReply = async (payload, env, authHeader) => {
       draft.needsParticipants = false;
     }
 
-    if (
-      !mentionsParticipants(message) &&
-      !matchResultCurrent.ambiguous &&
-      matchResultCurrent.matches.length === 0 &&
-      draft.participantIds.length
-    ) {
+    if (!wantsSend && !freezeContext && mentionsSolo(message)) {
       draft.participants = [];
       draft.participantIds = [];
       draft.needsParticipants = false;
       draft.pendingAttendantClarification = false;
       draft.pendingAttendantOptions = [];
     }
+
+    log('draft after heuristics', {
+      title: draft.title,
+      participantIds: draft.participantIds,
+      needsParticipants: draft.needsParticipants,
+      dateRange: draft.dateRange,
+      requestedTime: draft.requestedTime,
+      durationMinutes: draft.durationMinutes,
+    });
   }
 
   if (changed && !freezeContext) {
@@ -1139,9 +1201,19 @@ const plannerReply = async (payload, env, authHeader) => {
 
   const missing = collectMissing(draft);
   if (missing.length) {
-    const prompt =
-      `I need ${missing.join(', ')}. ` +
-      `Share a date (or range), how long, and who should attend (defaults to you).`;
+    const onlyTitle = missing.length === 1 && missing[0] === 'title';
+    const onlyAttendees = missing.length === 1 && missing[0] === 'attendants';
+    const onlyDate = missing.length === 1 && missing[0] === 'date range';
+    const onlyDuration = missing.length === 1 && missing[0] === 'duration';
+    const prompt = onlyTitle
+      ? 'What should I call it?'
+      : onlyAttendees
+        ? 'Who should I invite?'
+        : onlyDate
+          ? 'What day should this be?'
+          : onlyDuration
+            ? 'How long should it be?'
+            : `I need ${missing.join(', ')}. Share a date, how long, and who should attend (defaults to you).`;
     return {
       sessionId,
       replyText: prompt,
@@ -1159,7 +1231,7 @@ const plannerReply = async (payload, env, authHeader) => {
       schedules = await Promise.all(
         participantIds.map(async (id) => ({
           id,
-          commitments: await client.getUserSchedule(id),
+          events: await client.getUserSchedule(id),
         }))
       );
     } catch (err) {
@@ -1169,7 +1241,7 @@ const plannerReply = async (payload, env, authHeader) => {
 
     const allBusy = schedules.flatMap((sched) =>
       buildCommitmentIntervals(
-        sched.commitments,
+        sched.events,
         draft.dateRange.start,
         draft.dateRange.end,
         draft.timezone
@@ -1198,7 +1270,7 @@ const plannerReply = async (payload, env, authHeader) => {
 
     const single = slots.length === 1;
     const replyLines = single
-      ? `I found a time for ${draft.title}: ${formatSlot(slots[0], draft.timezone)}.`
+      ? `${draft.title}: ${formatSlot(slots[0], draft.timezone)}.`
       : slots
           .map((slot, idx) => `Option ${idx + 1}: ${formatSlot(slot, draft.timezone)}`)
           .join('\n');
@@ -1206,8 +1278,8 @@ const plannerReply = async (payload, env, authHeader) => {
     return {
       sessionId,
       replyText: single
-        ? `${replyLines} Tap Confirm to send, or give another time.`
-        : `Here are options for ${draft.title}:\n${replyLines}\nTell me which option to use, then tap Confirm.`,
+        ? `${replyLines} Confirm.`
+        : `Options for ${draft.title}:\n${replyLines}\nReply with the option number, then Confirm.`,
       actions: buildActionsForSlots(slots, draft.timezone),
       requiresConfirmation: true,
       draftInvite: {
@@ -1272,10 +1344,9 @@ const plannerReply = async (payload, env, authHeader) => {
 
     const replyText =
       draft.participantIds.length > 0
-        ? `Sent an invite to ${attendeeNames.join(', ')} for ${formatSlot(
-            selected,
-            draft.timezone
-          )}. I will add it once they accept.`
+        ? `Added ${draft.title} to your calendar and sent invites to ${attendeeNames.join(
+            ', '
+          )} for ${formatSlot(selected, draft.timezone)}. Status is pending until everyone accepts.`
         : `Added ${draft.title} to your calendar for ${formatSlot(selected, draft.timezone)}.`;
 
     return {
@@ -1288,7 +1359,7 @@ const plannerReply = async (payload, env, authHeader) => {
         startISO: selected.start,
         endISO: selected.end,
         participants: draft.participantIds,
-        commitmentId: result.commitmentId,
+        eventId: result.eventId,
       },
     };
   }

@@ -8,13 +8,13 @@ const initialState = {
   username: null,
   password: null,
   current_form: 'NONE',
-  commitments: [],   
+  events: [],   
   sent: [],           
   inbox: [],          
   friends: [],    
   users: [],
   systemAgent: null,
-  editingCommitment: null,
+  editingEvent: null,
   visibleEventKeys: {}, 
   cachedEventArrays: {}
 
@@ -79,11 +79,11 @@ const userReducer = (state, action) => {
         inbox: state.inbox.map((m) => ({ ...m, status: 'read' })),
       };
     
-    case 'ADD_COMMITMENT':
+    case 'ADD_EVENT':
       
-        const newCommitment = action.payload;     
-        const stampedCommitment = { ...newCommitment, user_id: newCommitment.user_id || state.id };
-        const newEvents = generateEvents([stampedCommitment]);
+        const newEvent = action.payload;     
+        const stampedEvent = { ...newEvent, user_id: newEvent.user_id || newEvent.userId || state.id };
+        const newEvents = generateEvents([stampedEvent]);
 
         return {
             ...state,
@@ -96,18 +96,18 @@ const userReducer = (state, action) => {
                 ]
             },
     
-            commitments: [...state.commitments, stampedCommitment],
+            events: [...state.events, stampedEvent],
         
           
         };
 
-    case 'UPDATE_COMMITMENT': {
+    case 'UPDATE_EVENT': {
         const updated = action.payload;
-        const stamped = { ...updated, user_id: updated.user_id || state.id };
+        const stamped = { ...updated, user_id: updated.user_id || updated.userId || state.id };
         const newEvents = generateEvents([stamped]);
         const userId = stamped.user_id || state.id;
         const filteredEvents = (state.cachedEventArrays[userId] || []).filter(
-            (event) => Number(event.commitment_id) !== Number(stamped.commitment_id)
+            (event) => String(event.eventId) !== String(stamped.eventId)
         );
         return {
             ...state,
@@ -115,30 +115,30 @@ const userReducer = (state, action) => {
                 ...state.cachedEventArrays,
                 [userId]: [...filteredEvents, ...newEvents],
             },
-            commitments: state.commitments.some(
-                (commitment) => Number(commitment.commitment_id) === Number(stamped.commitment_id)
+            events: state.events.some(
+                (eventItem) => String(eventItem.eventId) === String(stamped.eventId)
             )
-                ? state.commitments.map((commitment) =>
-                    Number(commitment.commitment_id) === Number(stamped.commitment_id)
+                ? state.events.map((eventItem) =>
+                    String(eventItem.eventId) === String(stamped.eventId)
                         ? stamped
-                        : commitment
+                        : eventItem
                   )
-                : [...state.commitments, stamped],
+                : [...state.events, stamped],
         };
     }
     
-    case 'REMOVE_COMMITMENT':
-      const commitment_id = Number(action.payload);
+    case 'REMOVE_EVENT':
+      const eventId = String(action.payload);
         return {
             ...state,
             cachedEventArrays: {
                 ...state.cachedEventArrays, 
                 [state.id]: state.cachedEventArrays[state.id].filter(
-                    event => Number(event.commitment_id) !== commitment_id
+                    event => String(event.eventId) !== eventId
                 )
             },
-            commitments: state.commitments.filter(
-                commitment => Number(commitment.commitment_id) !== commitment_id
+            events: state.events.filter(
+                eventItem => String(eventItem.eventId) !== eventId
             )
           };
 

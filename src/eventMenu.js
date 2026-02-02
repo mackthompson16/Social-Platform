@@ -15,21 +15,21 @@ export default function ViewEvent({ event }) {
         return `${formattedHour}:${minutes} ${period}`;
     };
 
-    // Remove a single commitment
-    const handleRemoveCommitment = async (commitmentId) => {
+    // Remove a single event
+    const handleRemoveEvent = async (eventId) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/users/${state.id}/${commitmentId}/remove-commitment`, {
+            const response = await fetch(`${API_BASE_URL}/api/users/${state.id}/${eventId}/remove-event`, {
                 method: 'DELETE',
             });
 
             if (response.ok) {
-                dispatch({ type: 'REMOVE_COMMITMENT', payload: commitmentId });
+                dispatch({ type: 'REMOVE_EVENT', payload: eventId });
                 setShowPopup(false); // Close popup after deletion
             } else {
-                console.error('Failed to delete commitment');
+                console.error('Failed to delete event');
             }
         } catch (error) {
-            console.error('Error deleting commitment:', error);
+            console.error('Error deleting event:', error);
         }
     };
 
@@ -42,9 +42,11 @@ export default function ViewEvent({ event }) {
                     <p>
                         <b>Time:</b> {formatTime(event.startTime)} - {formatTime(event.endTime)}
                     </p>
-                    <p>
-                        <b>Dates:</b> {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
-                    </p>
+                    {event.date && (
+                        <p>
+                            <b>Date:</b> {new Date(event.date).toLocaleDateString()}
+                        </p>
+                    )}
                     {event.owner && event.owner.id !== state.id && (
                         <p>
                             <b>Owner:</b> {event.owner.username}
@@ -54,7 +56,7 @@ export default function ViewEvent({ event }) {
                         <>
                             <button
                                 style={actionButtonStyle}
-                                onClick={() => handleRemoveCommitment(event.id)}
+                                onClick={() => handleRemoveEvent(event.eventId || event.id)}
                             >
                                 Remove
                             </button>
@@ -67,22 +69,6 @@ export default function ViewEvent({ event }) {
                             >
                                 Edit
                             </button>
-                            {event.commitment_id && (
-                                <>
-                                    <button
-                                        style={actionButtonStyle}
-                                        onClick={() => console.log('Remove all related events triggered')}
-                                    >
-                                        Remove All Related
-                                    </button>
-                                    <button
-                                        style={actionButtonStyle}
-                                        onClick={() => console.log('Edit all related events triggered')}
-                                    >
-                                        Edit All Related
-                                    </button>
-                                </>
-                            )}
                         </>
                     )}
                     <button

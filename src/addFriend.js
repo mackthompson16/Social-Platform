@@ -7,6 +7,7 @@ export default function AddFriend ()  {
     const [searchTerm, setSearchTerm] = useState('');
     const [friendStatuses, setFriendStatuses] = useState({});
     const [filteredUsers, setFilteredUsers] = useState([]);
+    const [visibleUsers, setVisibleUsers] = useState([]);
     const [pendingRequests,setPendingRequests] = useState({});
 
     function cancelForm() {
@@ -46,16 +47,23 @@ export default function AddFriend ()  {
     }, [state.id]);
     //get list of relevant users
      useEffect(() => {
-        
-        if (searchTerm.length > 0 && state.users) {
-            const matches = state.users.filter(user =>
-                user.username.toLowerCase().startsWith(searchTerm.toLowerCase()) &&
-                user.id !== state.id
+        if (!Array.isArray(state.users)) return;
+        const base = state.users.filter(
+            (user) => user.id !== state.id && String(user.username).toLowerCase() !== 'cloudflare_agent'
+        );
+        if (searchTerm.length > 0) {
+            const matches = base.filter(user =>
+                user.username.toLowerCase().startsWith(searchTerm.toLowerCase())
             );
-                setFilteredUsers(matches);   
-            
+            setFilteredUsers(matches);   
+            setVisibleUsers(matches);
+        } else {
+            const sorted = [...base].sort((a, b) => Number(a.id) - Number(b.id));
+            const list = sorted.slice(0, 12);
+            setFilteredUsers(list);
+            setVisibleUsers(list);
         }
-    }, [searchTerm, state.id]);
+    }, [searchTerm, state.id, state.users]);
 
   
     
@@ -152,11 +160,11 @@ export default function AddFriend ()  {
                     />
                 </div>
                 <ul className="user-list">
-                    {filteredUsers.map((user) => (
+                    {visibleUsers.map((user) => (
                         <li key={user.id} className="user-item">
                             <span className="username">{user.username}</span>
                             <button
-                                className="request-button"
+                                className={`request-button ${friendStatuses[user.id]?.toLowerCase()}`}
                                 onClick={() => handleRequest(user.id)}
                                 disabled={pendingRequests[user.id]}
                             >
@@ -166,14 +174,14 @@ export default function AddFriend ()  {
                     ))}
                 </ul>
                <div className='action-buttons'>
-            <button
+                    <button
                         type="button"
                         className="btn btn-secondary"
                         onClick={() => {
                             cancelForm();
                         }}
                     >
-                        cancel
+                        close
                     </button>
                     </div>
             </div>

@@ -7,16 +7,16 @@ export default function Calendar() {
     const { state, dispatch } = useUser();
 
     const colorPalette = [
-        '#B0E0E6', // Pale blue
-        '#D5E8D4', // Light green
-        '#F8E6D2', // Soft peach
-        '#D3D3E7', // Lavender
-        '#FAE3E3', // Light blush
-        '#F2D7EE', // Pale pink
-        '#C2D9E7', // Light sky blue
-        '#F8EDD3', // Cream
-        '#D4E2D4', // Mint
-        '#E7D3C2'  // Beige
+        '#2563EB', // Strong blue
+        '#16A34A', // Strong green
+        '#F97316', // Strong orange
+        '#7C3AED', // Strong purple
+        '#DC2626', // Strong red
+        '#0EA5E9', // Cyan
+        '#A855F7', // Violet
+        '#65A30D', // Olive
+        '#E11D48', // Rose
+        '#FACC15'  // Gold
     ];
 
     const userColor = useMemo(() => {
@@ -33,62 +33,74 @@ export default function Calendar() {
             .filter(([, value]) => value)
             .flatMap(([key]) => state.cachedEventArrays[key] || []);
 
-        const seen = new Set();
-        const deduped = [];
+        const grouped = new Map();
         raw.forEach((evt) => {
             const startIso = evt.start instanceof Date ? evt.start.toISOString() : new Date(evt.start).toISOString();
             const endIso = evt.end instanceof Date ? evt.end.toISOString() : new Date(evt.end).toISOString();
-            const key = `${evt.title}-${startIso}-${endIso}`;
-            if (seen.has(key)) return;
-            seen.add(key);
+            const eventId = evt.eventId || evt.event_id || '';
+            const key = `${eventId}-${evt.title}-${startIso}-${endIso}`;
             const ownerId = String(evt.userId || evt.user_id || '');
-            const displayColor = userColor[ownerId] || '#61dafb';
-            deduped.push({
+            const existing = grouped.get(key);
+            if (existing) {
+                if (!existing.attendeeIds.includes(ownerId)) {
+                    existing.attendeeIds.push(ownerId);
+                }
+                return;
+            }
+            grouped.set(key, {
+                ...evt,
+                attendeeIds: ownerId ? [ownerId] : [],
+            });
+        });
+
+        return Array.from(grouped.values()).map((evt) => {
+            const primaryId = evt.attendeeIds[0] || String(evt.userId || evt.user_id || '');
+            const displayColor = userColor[primaryId] || '#61dafb';
+            return {
                 ...evt,
                 backgroundColor: displayColor,
                 borderColor: displayColor,
-            });
+            };
         });
-        return deduped;
     }, [state.visibleEventKeys, state.cachedEventArrays, userColor]);
 
     const renderEventContent = (eventInfo) => {
         const title = eventInfo.event.title;
-        const color = eventInfo.event.backgroundColor || '#61dafb';
+        const accent = eventInfo.event.backgroundColor || '#61dafb';
         const pendingEdit = eventInfo.event.extendedProps?.pendingEdit;
+        const eventStatus = eventInfo.event.extendedProps?.eventStatus;
+        const memberCount = eventInfo.event.extendedProps?.memberCount || 1;
+        const attendeeIds = eventInfo.event.extendedProps?.attendeeIds || [];
+        const showStatus = memberCount > 1;
+        const statusLabel = pendingEdit
+            ? 'Edit pending'
+            : !showStatus
+                ? null
+                : eventStatus === 'accepted'
+                    ? 'All attending'
+                    : 'Pending responses';
+        const statusClass = pendingEdit
+            ? 'calendar-event-status--edit'
+            : eventStatus === 'accepted'
+                ? 'calendar-event-status--complete'
+                : 'calendar-event-status--pending';
 
         return (
-            <div
-                style={{
-                    width: '100%',
-                    backgroundColor: color,
-                    color: '#0f1624',
-                    padding: '4px 6px',
-                    borderRadius: '6px',
-                    boxSizing: 'border-box',
-                    border: '1px solid rgba(0,0,0,0.1)',
-                    overflow: 'hidden',
-                    opacity: 0.9,
-                    fontWeight: 700,
-                    fontSize: '0.9rem',
-                }}
-            >
-                <div>{title}</div>
-                {pendingEdit && (
-                    <div
-                        style={{
-                            marginTop: '4px',
-                            fontSize: '0.7rem',
-                            fontWeight: 600,
-                            color: '#0f1624',
-                            background: 'rgba(255,255,255,0.7)',
-                            borderRadius: '6px',
-                            padding: '2px 6px',
-                            display: 'inline-block',
-                        }}
-                    >
-                        Pending edit
+            <div className="calendar-event" style={{ '--event-accent': accent }}>
+                {attendeeIds.length > 1 && (
+                    <div className="calendar-event-stripes">
+                        {attendeeIds.map((id) => (
+                            <span
+                                key={id}
+                                className="calendar-event-stripe"
+                                style={{ backgroundColor: userColor[id] || accent }}
+                            />
+                        ))}
                     </div>
+                )}
+                <div className="calendar-event-title">{title}</div>
+                {statusLabel && (
+                    <div className={`calendar-event-status ${statusClass}`}>{statusLabel}</div>
                 )}
             </div>
         );
@@ -115,16 +127,17 @@ export default function Calendar() {
             type: 'REPLACE_CONTEXT',
             payload: {
                 current_form: 'EDIT_EVENT',
-                editingCommitment: {
-                    commitment_id: event.extendedProps?.commitment_id,
+                editingEvent: {
+                    eventId: event.extendedProps?.eventId || event.extendedProps?.event_id,
                     name: event.title,
+                    date: dateStr,
                     startTime,
                     endTime,
-                    dates: [dateStr],
-                    days: [],
-                    eventId: event.extendedProps?.eventId,
                     memberCount: event.extendedProps?.memberCount || 1,
-                    pendingEdit: event.extendedProps?.pendingEdit,
+                    eventStatus: event.extendedProps?.eventStatus,
+                    memberStatus: event.extendedProps?.memberStatus,
+                    ownerId: event.extendedProps?.ownerId,
+                    readOnly: String(event.extendedProps?.userId || '') !== String(state.id),
                 },
             },
         });

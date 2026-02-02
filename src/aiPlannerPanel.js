@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Form, Spinner } from 'react-bootstrap';
 import { useUser } from './usercontext';
-import { AGENT_BASE_URL, API_BASE_URL } from './config';
+import { AGENT_BASE_URL, API_BASE_URL, AGENT_MODEL } from './config';
 
 const defaultIntro = {
   role: 'assistant',
@@ -27,7 +27,7 @@ const initialLetters = (name) =>
 
 const formatInviteDetails = (payload) => {
   if (!payload) return null;
-  const date = Array.isArray(payload.dates) ? payload.dates[0] : payload.dates;
+  const date = payload.date || (Array.isArray(payload.dates) ? payload.dates[0] : payload.dates);
   if (!date || !payload.startTime || !payload.endTime) return null;
   return `${payload.name || 'Event'} on ${date} at ${payload.startTime}-${payload.endTime}`;
 };
@@ -39,11 +39,15 @@ const formatMessageContent = ({ message, fromSelf, fallbackName }) => {
       ? `You sent a friend request to ${fallbackName}`
       : `${fallbackName} requested to follow you`;
   }
-  if (message.type === 'meeting_request') {
+  if (message.type === 'event_invite' || message.type === 'event_edit') {
     const details = formatInviteDetails(message.payload);
     return fromSelf
-      ? `You invited ${fallbackName}${details ? `: ${details}` : ''}`
-      : `${fallbackName} invited you${details ? `: ${details}` : ''}`;
+      ? `You sent an ${message.type === 'event_edit' ? 'edit request' : 'event invite'} to ${fallbackName}${
+          details ? `: ${details}` : ''
+        }`
+      : `${fallbackName} sent you an ${message.type === 'event_edit' ? 'edit request' : 'event invite'}${
+          details ? `: ${details}` : ''
+        }`;
   }
   return message.content || '';
 };
@@ -58,6 +62,8 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
   const [actions, setActions] = useState([]);
   const [requiresConfirmation, setRequiresConfirmation] = useState(false);
   const [error, setError] = useState('');
+  const [showHelp, setShowHelp] = useState(false);
+  const helpRef = useRef(null);
   const [activeThread, setActiveThread] = useState(null);
   const [pendingInvite, setPendingInvite] = useState(null);
 
@@ -77,6 +83,17 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
       setSessionId(saved);
     }
   }, [state.id]);
+
+  useEffect(() => {
+    if (!showHelp) return undefined;
+    const handleClickOutside = (event) => {
+      if (helpRef.current && !helpRef.current.contains(event.target)) {
+        setShowHelp(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showHelp]);
 
   const aiMessagesEndRef = useRef(null);
 
@@ -215,6 +232,7 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
 
   const agentId = state.systemAgent?.id ? Number(state.systemAgent.id) : null;
   const agentName = state.systemAgent?.username || 'Cloudflare Agent';
+  const modelLabel = AGENT_MODEL;
 
   const agentConversation = useMemo(() => {
     if (!agentId || !state.id) return [];
@@ -395,6 +413,11 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
     activeFriendId !== null &&
     (state.friends || []).some((friend) => Number(friend.id) === activeFriendId);
 
+  const friendName =
+    activeFriendId && friendMap.get(activeFriendId)?.username
+      ? friendMap.get(activeFriendId).username
+      : 'Friend';
+
   const conversation = useMemo(() => {
     if (!activeFriendId) return [];
     return inboxMessages
@@ -447,11 +470,8 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
         });
       }
 
-      if (message.type === 'meeting_request' && data.commitment) {
-        dispatch({
-          type: 'ADD_COMMITMENT',
-          payload: data.commitment,
-        });
+      if (message.type === 'event_invite' || message.type === 'event_edit') {
+        // Event updates arrive via websocket event_update notifications.
       }
 
       // No follow-up chat message needed; the status badge communicates the outcome.
@@ -564,7 +584,9 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
                 {agentId && Number(activeThread) === Number(agentId) ? (
                   <>
                     <div className="dm-header">
-                      <div className="dm-title">{agentName}</div>
+                      <div className="dm-title">
+                        <span className="agent-model-banner">{modelLabel}</span>
+                      </div>
                       <div className="dm-subtitle">AI planner</div>
                     </div>
                     <div className="dm-messages">
@@ -640,8 +662,25 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
                         onChange={(e) => setAiInput(e.target.value)}
                         disabled={!state.id || loading}
                       />
-                      <div className="ai-input-actions">
-                        <span className="ai-hint">Include who, when, and how long.</span>
+                      <div className="ai-input-actions" ref={helpRef}>
+                        <button
+                          type="button"
+                          className="ai-info-button"
+                          onClick={() => setShowHelp((prev) => !prev)}
+                          aria-label="Planner help"
+                        >
+                          i
+                        </button>
+                        {showHelp && (
+                          <div className="ai-help-popover">
+                            <div className="ai-help-title">Try asking me to:</div>
+                            <ul>
+                              <li>Add an event to the Calendar</li>
+                              <li>Invite friends to an event</li>
+                              <li>Edit or reschedule an existing event</li>
+                            </ul>
+                          </div>
+                        )}
                         <Button type="submit" disabled={loading || !aiInput.trim() || !state.id}>
                           {loading ? 'Sending...' : 'Send'}
                         </Button>
@@ -665,7 +704,9 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
                       {conversation.map((message) => {
                         const fromSelf = Number(message.sender_id) === Number(state.id);
                         const isRequest =
-                          message.type === 'friend_request' || message.type === 'meeting_request';
+                          message.type === 'friend_request' ||
+                          message.type === 'event_invite' ||
+                          message.type === 'event_edit';
                         const canRespond =
                           !fromSelf &&
                           isRequest &&
@@ -687,7 +728,11 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
                           >
                             {isRequest && (
                               <div className="dm-badge">
-                                {message.type === 'friend_request' ? 'Friend request' : 'Event invite'}
+                                {message.type === 'friend_request'
+                                  ? 'Friend request'
+                                  : message.type === 'event_edit'
+                                    ? 'Event edit'
+                                    : 'Event invite'}
                               </div>
                             )}
                             <div className="dm-bubble-text">{displayText}</div>
@@ -724,27 +769,30 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
                       <div ref={directMessagesEndRef} />
                     </div>
                     <div className="dm-input">
-                      <Form.Control
-                        type="text"
-                        placeholder={
-                          isFriendActive ? 'Write a message...' : 'Accept the request to chat'
-                        }
-                        value={directInput}
-                        onChange={(e) => setDirectInput(e.target.value)}
-                        disabled={!isFriendActive || sendingDirect}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            sendDirectMessage();
-                          }
-                        }}
-                      />
-                      <Button
-                        onClick={sendDirectMessage}
-                        disabled={!directInput.trim() || !isFriendActive || sendingDirect}
-                      >
-                        {sendingDirect ? 'Sending...' : 'Send'}
-                      </Button>
+                      {isFriendActive ? (
+                        <>
+                          <Form.Control
+                            type="text"
+                            placeholder="Write a message..."
+                            value={directInput}
+                            onChange={(e) => setDirectInput(e.target.value)}
+                            disabled={sendingDirect}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                sendDirectMessage();
+                              }
+                            }}
+                          />
+                          <Button onClick={sendDirectMessage} disabled={!directInput.trim() || sendingDirect}>
+                            {sendingDirect ? 'Sending...' : 'Send'}
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="dm-request-disabled">
+                          {friendName} must accept request
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
