@@ -43,11 +43,12 @@ const wsDefault  = isProdHost ? `${wsProtocol}://api.${locHost}` : `${wsProtocol
 
 export const API_BASE_URL = preferEnvOr(apiBaseFromEnv, apiDefault);
 export const WS_BASE_URL  = preferEnvOr(wsBaseFromEnv,  wsDefault);
-export const AGENT_BASE_URL =
-  preferEnvOr(
-    runtimeConfig.REACT_APP_AGENT_URL ||
-      runtimeConfig.AGENT_URL ||
-      process.env.REACT_APP_AGENT_URL ||
-      process.env.AGENT_URL,
-    `${protocol}://${locHost}:8787`
-  );
+const agentFromEnv =
+  runtimeConfig.REACT_APP_AGENT_URL ||
+  runtimeConfig.AGENT_URL ||
+  process.env.REACT_APP_AGENT_URL ||
+  process.env.AGENT_URL;
+
+const agentDefault = isProdHost ? `${protocol}://agent.${locHost}` : `${protocol}://${locHost}:8787`;
+
+export const AGENT_BASE_URL = preferEnvOr(agentFromEnv, agentDefault);
