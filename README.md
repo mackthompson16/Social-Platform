@@ -26,6 +26,49 @@ This repo also satisfies the Cloudflare AI application assignment requirements:
 - The Worker parses intent and schedules calls to the existing API endpoints (friends, commitments, invites).
 - It asks for confirmation before sending invites unless the user explicitly confirms.
 
+## Agent workflows (detailed)
+The planner supports three states for events and a few common request types. It keeps a short chat history per session and merges new messages into an event draft.
+
+### Primary request types
+- **Create event**: "schedule a lunch on Friday at 1" → create event for the requester.
+- **Invite to event**: "invite Emily to lunch on Friday at 1" → create event + send `event_invite` messages.
+- **Edit event**: "move lunch to 2" → if multi‑attendee, sends `event_edit` requests; otherwise updates immediately.
+- **Status updates**: "accept/decline" on invites and edit requests.
+- **Follow‑ups**: the agent asks concise, missing‑field questions (e.g., "What should I call it?").
+
+### Event edit modes
+- **Disabled (view only)**: viewing a friend’s event you were not invited to. No edits or actions.
+- **Enabled‑locked**: you are invited but pending/declined. You can change your status; edits are locked.
+- **Enabled‑unlocked**: you are attending (accepted). Full edit + invite access.
+
+### Status rules
+- Event status is **accepted** only when all attendees have accepted.
+- Inviting someone adds them immediately with `pending` status.
+- Changing only your own status does not re‑pend other attendees.
+
+## Core data tables (PostgreSQL)
+The current schema is intentionally small and focused:
+
+- **users**
+  - Basic account records (`id`, `username`, `password`).
+- **events**
+  - Canonical event data (`event_id`, `owner_id`, `name`, `event_date`, `start_time`, `end_time`, `status`).
+- **event_members**
+  - Join table for attendees and their status (`event_id`, `user_id`, `status`).
+- **friends**
+  - Undirected friend relationships (`user1_id`, `user2_id`).
+- **messages**
+  - Chat + notifications (`type` includes `friend_request`, `message`, `event_invite`, `event_edit`).
+
+## API flow summary (agent + UI)
+- **Create event (solo)** → `POST /api/users/:id/add-event`
+- **Invite friend(s)** → `POST /api/social/:sender_id/:event_id/invite` (or `send-message` for single)
+- **Edit request** → `POST /api/social/:requester_id/request-edit`
+- **Accept / decline** → `POST /api/social/:recipient_id/:sender_id/update-request`
+- **Status toggle** → `POST /api/social/:user_id/:event_id/update-status`
+- **Event list** → `GET /api/users/:id/get-events`
+- **Attendees list** → `GET /api/social/events/:event_id/members`
+
 ## DNS + routing (production)
 - Cloudflare manages DNS and TLS. The agent runs as a Cloudflare Worker on a custom subdomain (for example, `agent.wecal.online`).
 - Caddy terminates and routes traffic on EC2, reverse proxying to the frontend and API/WS ports.

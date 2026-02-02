@@ -2,7 +2,7 @@ import { useUser } from "./usercontext";
 import React, { useMemo, useState } from 'react';
 import generateEvents from "./events";
 import { API_BASE_URL } from "./config";
-export default function SideMenu() {
+export default function SideMenu({ isOpen = false }) {
 
     const {state, dispatch} = useUser();
     const [showViewOptions, setShowViewOptions] = useState(false);
@@ -90,7 +90,10 @@ export default function SideMenu() {
 
 
     return (
-        <div className="side-menu-container">
+        <div className={`side-menu-container ${isOpen ? 'open' : ''}`}>
+          <div className="side-menu-header">
+            <div className="side-menu-title">Menu</div>
+          </div>
           <nav className="side-menu">
       
             <button

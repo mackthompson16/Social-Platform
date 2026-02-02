@@ -43,6 +43,7 @@ html, body {
   max-width: none;
   min-height: calc(100vh - 160px);
   align-items: start;
+  position: relative;
 }
 
 .header {
@@ -57,6 +58,31 @@ html, body {
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.header-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-menu-toggle {
+  display: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  margin-right: 8px;
+  order: -1;
+}
+
+.header-menu-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  color: var(--text-strong);
 }
 
 .header-title h3 {
@@ -134,4 +160,195 @@ html, body {
   margin: 0;
   font-size: 0.95rem;
   text-align: center;
+}
+
+.mobile-footer-nav {
+  display: none;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-nav-button {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.mobile-nav-button.active {
+  border-color: var(--accent);
+  color: var(--text-strong);
+  background: rgba(97, 218, 251, 0.12);
+  transform: translateY(-2px);
+}
+
+.mobile-nav-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-strong);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.form-content {
+  position: relative;
+}
+
+@media (max-width: 1250px) and (min-width: 801px) {
+  .content-shell {
+    padding-top: 0;
+    padding-left: 0;
+  }
+
+  .main-page {
+    grid-template-columns: 1fr 360px;
+  }
+
+  .header-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .side-menu-container {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 260px;
+    bottom: 0;
+    height: auto;
+    transform: translateY(-8px);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    z-index: 25;
+    grid-column: 1 / -1;
+  }
+
+  .side-menu-container.open {
+    display: flex;
+    transform: translateY(0);
+    opacity: 1;
+    animation: dropDown 0.2s ease;
+  }
+
+  .primary-main,
+  .ai-panel {
+    margin-top: 16px;
+    padding-right: 24px;
+  }
+
+  .primary-main {
+    padding-left: 24px;
+  }
+}
+
+@media (max-width: 800px) {
+  .main-page {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    height: calc(100vh - 160px);
+    overflow: hidden;
+  }
+
+  .header-menu-toggle {
+    display: none;
+  }
+
+  .side-menu-container,
+  .ai-panel,
+  .primary-main {
+    display: none;
+  }
+
+  .main-page.mobile-tab-menu .side-menu-container,
+  .main-page.mobile-tab-chat .ai-panel,
+  .main-page.mobile-tab-calendar .primary-main {
+    display: flex;
+    animation: fadeUp 0.25s ease;
+  }
+
+  .side-menu-container,
+  .ai-panel,
+  .primary-main {
+    flex: 1 1 auto;
+  }
+
+  .mobile-footer-nav {
+    display: flex;
+    animation: fadeUp 0.25s ease;
+  }
+
+  .main-page {
+    transition: opacity 0.2s ease;
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .footer-github {
+    display: none;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dropDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -27,6 +27,22 @@
   top: 80px;
 }
 
+.side-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.side-menu-title {
+  font-weight: 700;
+  color: var(--text-strong);
+  letter-spacing: 0.02em;
+}
+
 .side-menu {
   display: flex;
   flex-direction: column;
@@ -135,4 +151,41 @@
 .side-menu-button:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.35);
+}
+
+@media (max-width: 1250px) and (min-width: 801px) {
+  .side-menu-container {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-height: 0;
+    bottom: 0;
+    height: auto;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: none;
+  }
+
+  .side-menu-container.open {
+    display: flex;
+  }
+}
+
+@media (max-width: 800px) {
+  .side-menu-container {
+    display: none;
+    position: fixed;
+    top: 96px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(96vw, 720px);
+    bottom: 96px;
+    height: auto;
+    min-height: 0;
+  }
+
+  .main-page.mobile-tab-menu .side-menu-container {
+    display: flex;
+  }
 }

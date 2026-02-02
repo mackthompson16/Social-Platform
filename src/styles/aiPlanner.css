@@ -183,6 +183,7 @@
   background: var(--surface-700);
   overflow: hidden;
   min-width: 0;
+  min-height: 0;
 }
 
 .dm-thread-list {
@@ -191,6 +192,7 @@
   overflow-y: auto;
   padding: 8px;
   gap: 8px;
+  flex: 1;
 }
 
 .dm-thread {
@@ -403,13 +405,22 @@
   text-align: center;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 800px) {
   .dm-shell {
-    grid-template-columns: 1fr;
+    height: 100%;
   }
 
   .dm-sidebar {
-    max-height: 180px;
+    max-height: none;
+    height: 100%;
+  }
+}
+
+@media (min-width: 801px) {
+  .ai-panel,
+  .primary-main {
+    display: flex;
+    position: sticky;
   }
 }
 
@@ -424,4 +435,38 @@
   flex-direction: column;
   gap: 16px;
   min-height: calc(100vh - 160px);
+}
+
+@media (max-width: 1250px) and (min-width: 801px) {
+  .ai-panel {
+    position: sticky;
+    top: 72px;
+    height: calc(100vh - 120px);
+    min-height: 0;
+  }
+
+  .primary-main {
+    min-height: 0;
+    height: calc(100vh - 120px);
+  }
+}
+
+@media (max-width: 800px) {
+  .ai-panel,
+  .primary-main {
+    display: none;
+    position: fixed;
+    top: 96px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(96vw, 720px);
+    bottom: 96px;
+    height: auto;
+    min-height: 0;
+  }
+
+  .main-page.mobile-tab-chat .ai-panel,
+  .main-page.mobile-tab-calendar .primary-main {
+    display: flex;
+  }
 }

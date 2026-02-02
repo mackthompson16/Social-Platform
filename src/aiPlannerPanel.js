@@ -267,7 +267,7 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
 
   useEffect(() => {
     if (!agentId || !activeThread || Number(activeThread) !== Number(agentId)) return;
-    aiMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    aiMessagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
   }, [agentConversation, loading, activeThread, agentId]);
 
   const agentLastMessageAt = useMemo(() => {
@@ -434,7 +434,7 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
 
   useEffect(() => {
     if (!activeThread || (agentId && Number(activeThread) === agentId)) return;
-    directMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    directMessagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
   }, [conversation, activeThread, agentId]);
 
   const handleActRequest = async (action, message) => {
@@ -545,15 +545,10 @@ export default function AiPlannerPanel({ isOpen, onToggle }) {
         </div>
         <div className="ai-panel-controls">
           {loading && <Spinner animation="border" size="sm" role="status" />}
-          <Button variant="outline-secondary" size="sm" onClick={() => onToggle(!isOpen)}>
-            {isOpen ? 'Close' : 'Open'}
-          </Button>
         </div>
       </div>
 
-      {!isOpen && closedTab}
-
-      {isOpen && (
+      {(
         <>
           {!state.id ? (
             <div className="ai-panel-locked">
