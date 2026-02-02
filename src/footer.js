@@ -16,30 +16,32 @@ export default function Footer({ activeTab = 'calendar', onTabChange }) {
           <img src="/icons/github-mark.png" alt="GitHub" className="icon" width="30" />
         </a>
       </div>
-      <div className="mobile-footer-nav">
-        <button
-          type="button"
-          className={`mobile-nav-button ${activeTab === 'menu' ? 'active' : ''}`}
-          onClick={() => onTabChange && onTabChange('menu')}
-        >
-          <FiMenu />
-        </button>
-        <button
-          type="button"
-          className={`mobile-nav-button ${activeTab === 'calendar' ? 'active' : ''}`}
-          onClick={() => onTabChange && onTabChange('calendar')}
-        >
-          <FaCalendarAlt />
-        </button>
-        <button
-          type="button"
-          className={`mobile-nav-button ${activeTab === 'chat' ? 'active' : ''}`}
-          onClick={() => onTabChange && onTabChange('chat')}
-        >
-          <FiMessageCircle />
-          {unreadCount > 0 && <span className="mobile-nav-badge">{unreadCount}</span>}
-        </button>
-      </div>
+      {state.id && (
+        <div className="mobile-footer-nav">
+          <button
+            type="button"
+            className={`mobile-nav-button ${activeTab === 'menu' ? 'active' : ''}`}
+            onClick={() => onTabChange && onTabChange('menu')}
+          >
+            <FiMenu />
+          </button>
+          <button
+            type="button"
+            className={`mobile-nav-button ${activeTab === 'calendar' ? 'active' : ''}`}
+            onClick={() => onTabChange && onTabChange('calendar')}
+          >
+            <FaCalendarAlt />
+          </button>
+          <button
+            type="button"
+            className={`mobile-nav-button ${activeTab === 'chat' ? 'active' : ''}`}
+            onClick={() => onTabChange && onTabChange('chat')}
+          >
+            <FiMessageCircle />
+            {unreadCount > 0 && <span className="mobile-nav-badge">{unreadCount}</span>}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

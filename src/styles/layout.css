@@ -320,10 +320,6 @@ html, body {
   }
 
   .footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
     height: auto;
     padding: 12px 16px;
   }
